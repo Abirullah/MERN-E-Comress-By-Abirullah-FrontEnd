@@ -1,0 +1,64 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color: #0f172a;
+    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #f7f1e7 0%, #ffffff 55%, #edf4ff 100%);
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: rgba(217, 119, 6, 0.24);
+    color: #111827;
+  }
+}
+
+@layer components {
+  .app-card {
+    @apply rounded-[2rem] border border-slate-200/80 bg-white/85 shadow-[0_25px_80px_-50px_rgba(15,23,42,0.45)] backdrop-blur;
+  }
+
+  .primary-button {
+    @apply inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .secondary-button {
+    @apply inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .danger-button {
+    @apply inline-flex items-center justify-center rounded-full bg-rose-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .field-label {
+    @apply mb-2 block text-sm font-semibold text-slate-700;
+  }
+
+  .field-input {
+    @apply w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-100;
+  }
+
+  .page-title {
+    @apply text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl;
+  }
+
+  .section-copy {
+    @apply text-sm leading-6 text-slate-600 sm:text-base;
+  }
+
+  .muted-chip {
+    @apply inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500;
+  }
+}
