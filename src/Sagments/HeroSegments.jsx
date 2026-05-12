@@ -8,7 +8,7 @@ import FormalShoe from "../../public/Pictures/La nueva colección de zapatos que
 
 const SnakerShoeHome = () => {
   return (
-    <div className="relative w-screen h-screen bg-[#1a1a1a] overflow-hidden p-10">
+    <div className="relative w-full h-screen bg-[#1a1a1a] overflow-hidden p-10">
       <img
         className="h-full w-full object-cover"
         src={BlackShoe}
@@ -57,7 +57,7 @@ const SnakerShoeHome = () => {
 
 const SkateShoeHome = () => {
   return (
-    <div className="relative w-screen flex  justify-center h-screen bg-[#1a1a1a] overflow-hidden p-10">
+    <div className="relative w-full flex justify-center h-screen bg-[#1a1a1a] overflow-hidden p-10">
       <img
         className="h-full w-full object-cover"
         src={NikeShoe}
@@ -89,7 +89,7 @@ const SkateShoeHome = () => {
 
 const FootBallShoeHome = () => {
   return (
-    <div className="relative w-screen h-screen bg-[#1a1a1a] overflow-hidden p-10">
+    <div className="relative w-full h-screen bg-[#1a1a1a] overflow-hidden p-10">
       <img
         className="h-full w-full object-cover"
         src={FootBallShoe}
@@ -132,7 +132,7 @@ const FootBallShoeHome = () => {
 
 const AirJordenHome = () => {
   return (
-    <div className="relative w-screen h-screen bg-[#1a1a1a] overflow-hidden p-10">
+    <div className="relative w-full h-screen bg-[#1a1a1a] overflow-hidden p-10">
       <img
         className="h-full w-full object-cover"
         src={AirJorden}
@@ -172,7 +172,7 @@ const AirJordenHome = () => {
 
 const FormalShoeHome = () => {
    return (
-    <div className="relative flex flex-col w-screen h-screen bg-[#1a1a1a] overflow-hidden p-10">
+    <div className="relative flex flex-col w-full h-screen bg-[#1a1a1a] overflow-hidden p-10">
       <img
         className="h-full w-full object-cover"
         src={FormalShoe}

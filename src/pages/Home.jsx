@@ -6,40 +6,62 @@ import {
   AirJordenHome,
   FormalShoeHome,
 } from "../Sagments/HeroSegments";
+
 import BrandStrip from "../Sagments/BrandStrip";
+import PremimunCollection from "../Sagments/PremimunCollection";
 
 const sections = [
-  <SnakerShoeHome />,
-  <SkateShoeHome />,
-  <FootBallShoeHome />,
-  <AirJordenHome />,
-  <FormalShoeHome />,
+  {
+    id: 1,
+    component: <SnakerShoeHome />,
+    bg: "bg-black",
+  },
+  {
+    id: 2,
+    component: <SkateShoeHome />,
+    bg: "bg-zinc-900",
+  },
+  {
+    id: 3,
+    component: <FootBallShoeHome />,
+    bg: "bg-neutral-900",
+  },
+  {
+    id: 4,
+    component: <AirJordenHome />,
+    bg: "bg-gray-900",
+  },
+  {
+    id: 5,
+    component: <FormalShoeHome />,
+    bg: "bg-stone-900",
+  },
 ];
 
 const Home = () => {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % sections.length);
-    }, 15000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-  <div >
+    <div className="w-full">
+      
+      {/* OVERLAP SECTIONS */}
+      {sections.map((section, index) => (
+        <section
+          key={section.id}
+          className={`sticky top-0 h-screen overflow-hidden ${section.bg}`}
+          style={{
+            zIndex: index + 1,
+          }}
+        >
+          {section.component}
+        </section>
+      ))}
 
-    {sections[index]}
-
-    {/* different comany logoes */}
-
-    
-     <BrandStrip />
-
-
+      {/* NORMAL SECTIONS */}
+      <div className="relative z-50 bg-white">
+        <BrandStrip />
+        <PremimunCollection />
+      </div>
     </div>
-)
+  );
 };
 
 export default Home;
