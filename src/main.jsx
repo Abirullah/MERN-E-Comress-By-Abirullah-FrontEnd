@@ -18,10 +18,7 @@ import PrivateRoute from "./components/PrivateRoute.jsx";
 import Login from "./pages/Auth/Login.jsx";
 import Register from "./pages/Auth/Register.jsx";
 import Profile from "./pages/User/Profile.jsx";
-import AdminRoute from "./pages/Admin/AdminRoute.jsx";
-import UserList from "./pages/Admin/UserList.jsx";
 import Home from "./pages/Home.jsx";
-import AdminLogin from "./pages/Admin/AdminLogin.jsx";
 import Shop from "./pages/Shop/Shop.jsx";
 import ProductDetails from "./pages/Shop/ProductDetails.jsx";
 
@@ -31,7 +28,7 @@ const router = createBrowserRouter(
       <Route index element={<Home />} />
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
-      <Route path="admin/login" element={<AdminLogin />} />
+    
 
       <Route element={<PrivateRoute />}>
         <Route path="shop" element={<Shop />} />
@@ -39,11 +36,7 @@ const router = createBrowserRouter(
         <Route path="profile" element={<Profile />} />
       </Route>
 
-      <Route path="admin" element={<AdminRoute />}>
-        <Route index element={<Navigate to="users" replace />} />
-        <Route path="users" element={<UserList />} />
-      </Route>
-    </Route>
+       </Route>
   )
 );
 
