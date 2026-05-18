@@ -9,6 +9,8 @@ import {
 
 import BrandStrip from "../Sagments/BrandStrip";
 import PremimunCollection from "../Sagments/PremimunCollection";
+import ProductsSections from "../Sagments/ProductsSections";
+import Contact from '../components/Contact'
 
 const sections = [
   {
@@ -59,6 +61,8 @@ const Home = () => {
       <div className="relative z-50 bg-white">
         <BrandStrip />
         <PremimunCollection />
+        <ProductsSections />
+        <Contact/>
       </div>
     </div>
   );
