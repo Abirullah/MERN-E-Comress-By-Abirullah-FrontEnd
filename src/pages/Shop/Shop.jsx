@@ -1,240 +1,135 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
-import Loader from "../../components/Loader";
-import Message from "../../components/Message";
-import {
-  useGetProductsQuery,
-  useToggleWishlistMutation,
-} from "../../redux/api/productsApiSlice";
-import { formatCurrency } from "../../utils/formatters";
+import React from "react";
+import ProductCard from "../../components/ProductCard";
 
-const Shop = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [activeWishlistId, setActiveWishlistId] = useState(null);
+const products = [
+  {
+    id: 1,
+    name: "Men's Black Running",
+    price: "$79.90",
+    image:
+      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    id: 2,
+    name: "Men's Classic Blue",
+    price: "$69.00",
+    image:
+      "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    id: 3,
+    name: "Men's Classic Mint",
+    price: "$79.90",
+    image:
+      "https://images.unsplash.com/photo-1608231387042-66d1773070a5?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    id: 4,
+    name: "Nike Air Max",
+    price: "$120.00",
+    image:
+      "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    id: 5,
+    name: "Jordan Retro",
+    price: "$180.00",
+    image:
+      "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    id: 6,
+    name: "Adidas Street",
+    price: "$99.00",
+    image:
+      "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    id: 7,
+    name: "Puma Runner",
+    price: "$85.00",
+    image:
+      "https://images.unsplash.com/photo-1605348532760-6753d2c43329?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    id: 8,
+    name: "White Sneakers",
+    price: "$95.00",
+    image:
+      "https://images.unsplash.com/photo-1600269452121-4f2416e55c28?q=80&w=1200&auto=format&fit=crop",
+  },
+];
 
-  const { data: products = [], isLoading, error, refetch } = useGetProductsQuery();
-  const [toggleWishlist] = useToggleWishlistMutation();
-
-  const categories = useMemo(
-    () => [
-      "All",
-      ...new Set(products.map((product) => product.category).filter(Boolean)),
-    ],
-    [products]
-  );
-
-  const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
-      const searchableText = [
-        product.name,
-        product.brand,
-        product.category,
-        product.description,
-        ...(product.tags || []),
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-      const matchesSearch = searchableText.includes(searchTerm.toLowerCase());
-      const matchesCategory =
-        selectedCategory === "All" || product.category === selectedCategory;
-
-      return matchesSearch && matchesCategory;
-    });
-  }, [products, searchTerm, selectedCategory]);
-
-  const handleWishlist = async (productId) => {
-    setActiveWishlistId(productId);
-
-    try {
-      const response = await toggleWishlist(productId).unwrap();
-      toast.success(response?.message || "Wishlist updated");
-    } catch (requestError) {
-      toast.error(
-        requestError?.data?.message ||
-          requestError?.message ||
-          "Wishlist request failed"
-      );
-    } finally {
-      setActiveWishlistId(null);
-    }
-  };
-
+function ShopPage() {
   return (
-    <div className="space-y-6">
-      <section className="app-card overflow-hidden">
-        <div className="grid gap-6 p-8 lg:grid-cols-[1.1fr_0.9fr] lg:p-10">
-          <div>
-            <span className="muted-chip">Preview catalog</span>
-            <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900">
-              Browse a seeded product catalog while you build the storefront UI.
-            </h1>
-            <p className="mt-4 section-copy max-w-2xl">
-              Products, wishlist actions, and reviews are all powered by local
-              preview data so interaction design can move faster.
+    <section className="bg-[#f5f5f3] min-h-screen py-16">
+      <div className="max-w-7xl mx-auto px-6">
+        
+        {/* Heading */}
+        <h1 className="text-6xl font-bold text-[#6f6d4f] mb-14">
+          Shop
+        </h1>
+
+        {/* Top Bar */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-12">
+          
+          <div className="flex items-center gap-6 flex-wrap">
+            <button className="bg-[#6f6d4f] text-white px-6 py-3 uppercase tracking-[3px] text-sm font-semibold hover:opacity-90 transition">
+              ☰ Filter Shoes
+            </button>
+
+            <p className="text-gray-500 text-lg">
+              Showing 1–8 of 20 results
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-3xl bg-amber-50 p-4">
-              <p className="text-sm font-semibold text-amber-700">Products</p>
-              <p className="mt-3 text-3xl font-extrabold text-slate-900">
-                {products.length}
-              </p>
-            </div>
-            <div className="rounded-3xl bg-sky-50 p-4">
-              <p className="text-sm font-semibold text-sky-700">Categories</p>
-              <p className="mt-3 text-3xl font-extrabold text-slate-900">
-                {Math.max(categories.length - 1, 0)}
-              </p>
-            </div>
-            <div className="rounded-3xl bg-emerald-50 p-4">
-              <p className="text-sm font-semibold text-emerald-700">Featured</p>
-              <p className="mt-3 text-3xl font-extrabold text-slate-900">
-                {products.filter((product) => product.isFeatured).length}
-              </p>
+          <div className="flex items-center gap-6">
+            <select className="bg-transparent outline-none text-gray-600 text-lg">
+              <option>Default sorting</option>
+              <option>Sort by price</option>
+              <option>Sort by popularity</option>
+              <option>Latest products</option>
+            </select>
+
+            <div className="flex gap-3 text-gray-500 text-xl">
+              <span className="cursor-pointer">☷</span>
+              <span className="cursor-pointer">☰</span>
             </div>
           </div>
         </div>
-      </section>
 
-      <section className="app-card p-6">
-        <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
-          <div>
-            <label htmlFor="shop-search" className="field-label">
-              Search products
-            </label>
-            <input
-              id="shop-search"
-              type="text"
-              className="field-input"
-              placeholder="Search by name, brand, category, or tag"
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
+        {/* Product Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-10 place-items-center">
+          
+          {products.map((product) => (
+            <ProductCard
+              key={product.id}
+              img={product.image}
+              name={product.name}
+              price={product.price}
             />
-          </div>
+          ))}
 
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <button
-                key={category}
-                type="button"
-                className={
-                  selectedCategory === category ? "primary-button" : "secondary-button"
-                }
-                onClick={() => setSelectedCategory(category)}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
         </div>
-      </section>
 
-      {isLoading ? (
-        <div className="flex justify-center py-12">
-          <Loader />
-        </div>
-      ) : error ? (
-        <div className="app-card p-6">
-          <Message variant="error">
-            {error?.data?.message || error?.message || "Products could not be loaded."}
-          </Message>
-          <button type="button" className="secondary-button mt-4" onClick={refetch}>
-            Try again
+        {/* Pagination */}
+        <div className="flex justify-center mt-16 gap-3">
+          <button className="w-12 h-12 bg-[#6f6d4f] text-white">
+            1
+          </button>
+
+          <button className="w-12 h-12 border border-gray-300 hover:bg-[#6f6d4f] hover:text-white transition">
+            2
+          </button>
+
+          <button className="w-12 h-12 border border-gray-300 hover:bg-[#6f6d4f] hover:text-white transition">
+            3
           </button>
         </div>
-      ) : filteredProducts.length === 0 ? (
-        <div className="app-card p-10 text-center">
-          <h2 className="text-2xl font-bold text-slate-900">No products match this filter</h2>
-          <p className="mt-3 section-copy">
-            Try a different search term or reset to all categories.
-          </p>
-        </div>
-      ) : (
-        <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {filteredProducts.map((product) => {
-            const heroImage = product.images?.[0] || "https://via.placeholder.com/800x600?text=Product";
 
-            return (
-              <article key={product._id} className="app-card overflow-hidden">
-                <img
-                  src={heroImage}
-                  alt={product.name}
-                  className="h-60 w-full object-cover"
-                />
-                <div className="space-y-5 p-6">
-                  <div className="flex flex-wrap gap-2">
-                    <span className="muted-chip">{product.category || "Shoes"}</span>
-                    {product.tags?.slice(0, 2).map((tag) => (
-                      <span
-                        key={`${product._id}-${tag}`}
-                        className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div>
-                    <h2 className="text-2xl font-bold text-slate-900">
-                      {product.name}
-                    </h2>
-                    <p className="mt-2 text-sm font-medium text-slate-500">
-                      {product.brand} · {product.gender}
-                    </p>
-                    <p className="mt-3 text-sm leading-6 text-slate-600">
-                      {product.description}
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-3 rounded-3xl bg-slate-50 p-4 text-sm">
-                    <div>
-                      <p className="text-slate-500">Price</p>
-                      <p className="mt-1 font-bold text-slate-900">
-                        {formatCurrency(product.discountPrice || product.price)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-slate-500">Stock</p>
-                      <p className="mt-1 font-bold text-slate-900">
-                        {product.countInStock}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-slate-500">Reviews</p>
-                      <p className="mt-1 font-bold text-slate-900">
-                        {product.reviews?.length || 0}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-3">
-                    <Link to={`/products/${product._id}`} className="primary-button">
-                      View details
-                    </Link>
-                    <button
-                      type="button"
-                      className="secondary-button"
-                      disabled={activeWishlistId === product._id}
-                      onClick={() => handleWishlist(product._id)}
-                    >
-                      {activeWishlistId === product._id
-                        ? "Updating..."
-                        : "Toggle wishlist"}
-                    </button>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </section>
-      )}
-    </div>
+      </div>
+    </section>
   );
-};
+}
 
-export default Shop;
+export default ShopPage;

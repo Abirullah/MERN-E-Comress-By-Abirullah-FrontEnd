@@ -20,7 +20,7 @@ import Register from "./pages/Auth/Register.jsx";
 import Profile from "./pages/User/Profile.jsx";
 import Home from "./pages/Home.jsx";
 import Shop from "./pages/Shop/Shop.jsx";
-import ProductDetails from "./pages/Shop/ProductDetails.jsx";
+import LacosteProductPage from "./pages/Shop/ProductDetails.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -32,7 +32,7 @@ const router = createBrowserRouter(
 
       <Route element={<PrivateRoute />}>
         <Route path="shop" element={<Shop />} />
-        <Route path="products/:id" element={<ProductDetails />} />
+        <Route path="products" element={<LacosteProductPage />} />
         <Route path="profile" element={<Profile />} />
       </Route>
 

@@ -9,6 +9,8 @@ function ProductCard({ img, name, price }) {
         w-[400px]
         h-[500px]
         hover:shadow-2xl
+        rounded-xl
+        overflow-hidden
         transition-all
         duration-500
         bg-[#ebeaea]
@@ -19,20 +21,19 @@ function ProductCard({ img, name, price }) {
       <div className="relative h-[70%] bg-[#e9eaea] overflow-hidden">
         
         <img
-          src={img}
-          alt={name}
-          className="
-            w-full
-            h-full
-            object-contain
-            p-6
-            transition-all
-            duration-500        hover:shadow-2xl
-
-            group-hover:scale-110
-            group-hover:-translate-y-2
-          "
-        />
+  src={img}
+  alt={name}
+  className="
+    w-full
+    h-full
+    object-cover
+    transition-all
+    duration-500
+    hover:shadow-2xl
+    group-hover:scale-110
+    group-hover:-translate-y-2
+  "
+/>
 
         {/* HOVER ICONS */}
         <div

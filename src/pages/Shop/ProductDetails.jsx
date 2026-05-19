@@ -1,333 +1,585 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
-import Loader from "../../components/Loader";
-import Message from "../../components/Message";
-import {
-  useCreateReviewMutation,
-  useGetProductByIdQuery,
-  useToggleWishlistMutation,
-} from "../../redux/api/productsApiSlice";
-import { formatCurrency, formatDate } from "../../utils/formatters";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-const ProductDetails = () => {
-  const { id } = useParams();
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [rating, setRating] = useState("5");
-  const [comment, setComment] = useState("");
-  const [wishlistPending, setWishlistPending] = useState(false);
+import img1 from "../../../public/Pictures/Air Jordan 1 Retro High OG (2025) - Black Toe Reimagined.jpg";
+import img2 from "../../../public/Pictures/Air Jordan 1 Retro High OG (2025) - Black Toe Reimagined.jpg";
+import img3 from "../../../public/Pictures/Air Jordan 1 Retro High OG (2025) - Black Toe Reimagined.jpg";
+import img4 from "../../../public/Pictures/Air Jordan 1 Retro High OG (2025) - Black Toe Reimagined.jpg";
+import img5 from "../../../public/Pictures/Air Jordan 1 Retro High OG (2025) - Black Toe Reimagined.jpg";
 
-  const {
-    data: product,
-    isLoading,
-    error,
-    refetch,
-  } = useGetProductByIdQuery(id);
-  const [toggleWishlist] = useToggleWishlistMutation();
-  const [createReview, { isLoading: isSubmittingReview }] =
-    useCreateReviewMutation();
+const images = [
+  { id: 1, label: "Front", src: img1, bg: "#f5f5f3" },
+  { id: 2, label: "Side", src: img2, bg: "#efefed" },
+  { id: 3, label: "Top", src: img3, bg: "#f0f0ee" },
+  { id: 4, label: "Sole", src: img4, bg: "#f5f5f3" },
+  { id: 5, label: "Back", src: img5, bg: "#efefed" },
+];
 
-  useEffect(() => {
-    setSelectedImageIndex(0);
-  }, [id]);
+const sizes = [
+  { eu: "39", uk: "6", available: true },
+  { eu: "40", uk: "6.5", available: true },
+  { eu: "41", uk: "7", available: true },
+  { eu: "42", uk: "8", available: true },
+  { eu: "42.5", uk: "8.5", available: false },
+  { eu: "43", uk: "9", available: true },
+  { eu: "44", uk: "9.5", available: true },
+  { eu: "44.5", uk: "10", available: true },
+  { eu: "45", uk: "10.5", available: false },
+  { eu: "46", uk: "11", available: true },
+  { eu: "47", uk: "12", available: true },
+];
 
-  const handleWishlist = async () => {
-    setWishlistPending(true);
+const colors = [
+  {
+    id: "Y37",
+    name: "White & Gum",
+    hex1: "#ffffff",
+    hex2: "#c4a97d",
+  },
+  {
+    id: "B60",
+    name: "Navy & White",
+    hex1: "#1a2e5a",
+    hex2: "#ffffff",
+  },
+  {
+    id: "G74",
+    name: "Green & Off-White",
+    hex1: "#2d5a3d",
+    hex2: "#f0ede8",
+  },
+];
 
-    try {
-      const response = await toggleWishlist(id).unwrap();
-      toast.success(response?.message || "Wishlist updated");
-    } catch (requestError) {
-      toast.error(
-        requestError?.data?.message ||
-          requestError?.message ||
-          "Wishlist request failed"
-      );
-    } finally {
-      setWishlistPending(false);
+function DeliveryIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    >
+      <path d="M1 3h15v13H1z" strokeLinejoin="round" />
+      <path d="M16 8h4l3 4v4h-7V8z" strokeLinejoin="round" />
+      <circle cx="5.5" cy="18.5" r="2.5" />
+      <circle cx="18.5" cy="18.5" r="2.5" />
+    </svg>
+  );
+}
+
+function HeartIcon({ filled }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill={filled ? "#111" : "none"}
+      stroke="#111"
+      strokeWidth="1.5"
+    >
+      <path
+        d="M12 21C12 21 3 14 3 8a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6-9 13-9 13z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ChevronRight() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    >
+      <path
+        d="M9 18l6-6-6-6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export default function LacosteProductPage() {
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [wishlist, setWishlist] = useState(false);
+  const [sizeUnit, setSizeUnit] = useState("eu");
+  const [addedToBag, setAddedToBag] = useState(false);
+  const [selectedColor, setSelectedColor] = useState("Y37");
+  const [sizeError, setSizeError] = useState(false);
+
+  // TOGGLE STATE
+  const [activeTab, setActiveTab] = useState("size");
+
+  const handleAddToBag = () => {
+    if (!selectedSize) {
+      setSizeError(true);
+      return;
     }
+
+    setSizeError(false);
+    setAddedToBag(true);
+
+    setTimeout(() => {
+      setAddedToBag(false);
+    }, 2000);
   };
-
-  const handleReviewSubmit = async (event) => {
-    event.preventDefault();
-
-    try {
-      const response = await createReview({
-        productId: id,
-        rating,
-        comment,
-      }).unwrap();
-
-      toast.success(response?.message || "Review added");
-      setRating("5");
-      setComment("");
-      refetch();
-    } catch (requestError) {
-      toast.error(
-        requestError?.data?.message ||
-          requestError?.message ||
-          "Review request failed"
-      );
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-12">
-        <Loader />
-      </div>
-    );
-  }
-
-  if (error || !product) {
-    return (
-      <div className="app-card p-6">
-        <Message variant="error">
-          {error?.data?.message || error?.message || "Product could not be loaded."}
-        </Message>
-        <div className="mt-4 flex flex-wrap gap-3">
-          <button type="button" className="secondary-button" onClick={refetch}>
-            Try again
-          </button>
-          <Link to="/shop" className="primary-button">
-            Back to shop
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const selectedImage =
-    product.images?.[selectedImageIndex] ||
-    product.images?.[0] ||
-    "https://via.placeholder.com/1200x900?text=Product";
-  const reviews = product.reviews || [];
 
   return (
-    <div className="space-y-6">
-      <Link to="/shop" className="secondary-button">
-        Back to shop
-      </Link>
-
-      <section className="app-card overflow-hidden">
-        <div className="grid gap-8 p-8 lg:grid-cols-[1.02fr_0.98fr] lg:p-10">
-          <div className="space-y-4">
-            <img
-              src={selectedImage}
-              alt={product.name}
-              className="h-[26rem] w-full rounded-[1.75rem] object-cover"
-            />
-            <div className="grid grid-cols-4 gap-3">
-              {(product.images || []).map((image, index) => (
+    <div className="h-screen overflow-hidden bg-[#fafaf8] text-[#111]">
+      {/* MAIN */}
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 py-4 h-screen flex items-center">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 w-full h-full items-center">
+          
+          {/* LEFT SIDE */}
+          <div className="flex flex-col-reverse lg:flex-row gap-4 lg:w-[58%] h-full items-center">
+            
+            {/* THUMBNAILS */}
+            <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-visible">
+              {images.map((img, idx) => (
                 <button
-                  key={`${product._id}-preview-${index}`}
-                  type="button"
-                  className={`overflow-hidden rounded-2xl border ${
-                    selectedImageIndex === index
-                      ? "border-slate-900"
-                      : "border-slate-200"
-                  }`}
-                  onClick={() => setSelectedImageIndex(index)}
+                  key={img.id}
+                  onClick={() => setSelectedImage(idx)}
+                  className={`
+                    flex-shrink-0
+                    w-14
+                    h-14
+                    rounded-2xl
+                    overflow-hidden
+                    border
+                    transition-all
+                    duration-300
+                    backdrop-blur-md
+                    ${
+                      selectedImage === idx
+                        ? "border-black shadow-lg scale-105"
+                        : "border-gray-200 hover:border-gray-400 hover:scale-105"
+                    }
+                  `}
+                  style={{
+                    background: img.bg,
+                  }}
                 >
                   <img
-                    src={image}
-                    alt={`${product.name} preview ${index + 1}`}
-                    className="h-24 w-full object-cover"
+                    src={img.src}
+                    alt={img.label}
+                    className="w-full h-full object-cover"
                   />
                 </button>
               ))}
             </div>
+
+            {/* MAIN IMAGE */}
+            <div
+              className="
+                relative
+                flex-1
+                rounded-[2rem]
+                h-[70vh]
+                lg:h-[82vh]
+                overflow-hidden
+                border
+                border-white/40
+                backdrop-blur-xl
+                shadow-[0_20px_80px_rgba(0,0,0,0.08)]
+                flex
+                items-center
+                justify-center
+              "
+              style={{
+                background: `
+                  radial-gradient(circle at top, rgba(255,255,255,0.8), transparent 60%),
+                  ${images[selectedImage].bg}
+                `,
+              }}
+            >
+              {/* Glow */}
+              <div className="absolute w-[320px] h-[320px] bg-black/5 blur-3xl rounded-full" />
+
+              {/* Wishlist */}
+              <button
+                onClick={() => setWishlist(!wishlist)}
+                className="
+                  absolute
+                  top-5
+                  right-5
+                  z-20
+                  w-10
+                  h-10
+                  rounded-full
+                  bg-white/80
+                  backdrop-blur-xl
+                  flex
+                  items-center
+                  justify-center
+                  shadow-md
+                  hover:scale-110
+                  transition-all
+                "
+              >
+                <HeartIcon filled={wishlist} />
+              </button>
+
+              {/* MAIN PRODUCT IMAGE */}
+              <motion.img
+                key={selectedImage}
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.45 }}
+                src={images[selectedImage].src}
+                alt={images[selectedImage].label}
+                className="
+                  w-full
+                  h-full
+                  object-contain
+                  p-6
+                  lg:p-8
+                  hover:scale-105
+                  transition-all
+                  duration-700
+                  relative
+                  z-10
+                "
+                style={{
+                  filter:
+                    "drop-shadow(0px 30px 40px rgba(0,0,0,0.18))",
+                }}
+              />
+            </div>
           </div>
 
-          <div className="space-y-6">
+          {/* RIGHT SIDE */}
+          <div className="lg:w-[42%] h-full pt-12 flex flex-col justify-center gap-4">
+            
+            {/* BRAND */}
             <div>
-              <span className="muted-chip">{product.category || "Shoes"}</span>
-              <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-slate-900">
-                {product.name}
+              <div className="flex items-center gap-3 mb-3">
+                <span className="uppercase tracking-[0.25em] text-xs text-gray-400 font-medium">
+                  Lacoste
+                </span>
+              </div>
+
+              <h1
+                className="
+                  text-3xl
+                  lg:text-5xl
+                  leading-[0.95]
+                  tracking-tight
+                  font-light
+                  text-black
+                "
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                }}
+              >
+                Men's Carnaby
+                <br />
+                Pro Leather
+                <br />
+                Trainers
               </h1>
-              <p className="mt-3 text-lg font-medium text-slate-500">
-                {product.brand} · {product.gender} · {product.status}
+
+              <p className="mt-3 text-sm text-gray-400 tracking-wide">
+                Men · White · Sneakers · Premium Collection
               </p>
             </div>
 
-            <p className="section-copy">{product.description}</p>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-3xl bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">Current price</p>
-                <p className="mt-2 text-3xl font-extrabold text-slate-900">
-                  {formatCurrency(product.discountPrice || product.price)}
-                </p>
-                {product.discountPrice ? (
-                  <p className="mt-1 text-sm text-slate-500 line-through">
-                    {formatCurrency(product.price)}
-                  </p>
-                ) : null}
-              </div>
-              <div className="rounded-3xl bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">Inventory</p>
-                <p className="mt-2 text-3xl font-extrabold text-slate-900">
-                  {product.countInStock}
-                </p>
-                <p className="mt-1 text-sm text-slate-500">
-                  {product.variants?.length || 0} size and color variants
-                </p>
-              </div>
+            {/* PRICE */}
+            <div>
+              <span className="text-4xl font-extralight tracking-tight">
+                £95
+              </span>
             </div>
 
-            <div className="rounded-[1.75rem] bg-slate-900 p-5 text-white">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-300">
-                Product actions
+            {/* COLORS */}
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-gray-400 mb-3">
+                Colour Selection
               </p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  className="primary-button bg-white text-slate-900 hover:bg-slate-100"
-                  disabled={wishlistPending}
-                  onClick={handleWishlist}
-                >
-                  {wishlistPending ? "Updating..." : "Toggle wishlist"}
-                </button>
-                <button type="button" className="secondary-button border-white/30 bg-transparent text-white hover:bg-white/10">
-                  {reviews.length} reviews
-                </button>
-              </div>
-            </div>
 
-            <div className="space-y-3">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
-                Variants
-              </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {(product.variants || []).map((variant, index) => (
-                  <div
-                    key={`${product._id}-${variant.color}-${variant.size}-${index}`}
-                    className="rounded-3xl border border-slate-200 p-4"
+              <div className="flex gap-4">
+                {colors.map((color) => (
+                  <button
+                    key={color.id}
+                    onClick={() => setSelectedColor(color.id)}
+                    className="group flex flex-col items-center gap-1"
                   >
-                    <p className="text-lg font-bold text-slate-900">
-                      US {variant.size}
-                    </p>
-                    <p className="mt-1 text-sm text-slate-500">
-                      {variant.color} · {variant.stock} available
-                    </p>
-                  </div>
+                    <div
+                      className={`
+                        w-12
+                        h-12
+                        rounded-2xl
+                        overflow-hidden
+                        border
+                        transition-all
+                        duration-300
+                        ${
+                          selectedColor === color.id
+                            ? "border-black scale-105 shadow-lg"
+                            : "border-gray-200 hover:border-gray-400"
+                        }
+                      `}
+                    >
+                      <div className="grid grid-cols-2 w-full h-full">
+                        <div style={{ background: color.hex1 }} />
+                        <div style={{ background: color.hex2 }} />
+                      </div>
+                    </div>
+
+                    <span className="text-[10px] tracking-widest text-gray-400">
+                      {color.id}
+                    </span>
+                  </button>
                 ))}
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {(product.tags || []).map((tag) => (
-                <span
-                  key={`${product._id}-${tag}`}
-                  className="rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-700"
+            {/* TOGGLE SECTION */}
+            <div className="border border-black/5 rounded-3xl bg-white/70 backdrop-blur-xl overflow-hidden">
+              
+              {/* TOGGLE BUTTONS */}
+              <div className="flex p-2 gap-2 border-b border-black/5">
+                <button
+                  onClick={() => setActiveTab("size")}
+                  className={`
+                    flex-1
+                    py-2.5
+                    rounded-2xl
+                    text-xs
+                    uppercase
+                    tracking-[0.2em]
+                    transition-all
+                    duration-300
+                    ${
+                      activeTab === "size"
+                        ? "bg-black text-white shadow-md"
+                        : "text-gray-500 hover:bg-black/5"
+                    }
+                  `}
                 >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+                  Size
+                </button>
 
-      <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-        <div className="app-card p-6">
-          <h2 className="text-2xl font-bold text-slate-900">Leave a review</h2>
-          <p className="mt-2 section-copy">
-            Reviews are saved into local preview data so you can test the full
-            detail-page UI.
-          </p>
-
-          <form onSubmit={handleReviewSubmit} className="mt-6 space-y-5">
-            <div>
-              <label htmlFor="rating" className="field-label">
-                Rating
-              </label>
-              <select
-                id="rating"
-                className="field-input"
-                value={rating}
-                onChange={(event) => setRating(event.target.value)}
-              >
-                <option value="5">5 - Excellent</option>
-                <option value="4">4 - Very good</option>
-                <option value="3">3 - Good</option>
-                <option value="2">2 - Fair</option>
-                <option value="1">1 - Poor</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="comment" className="field-label">
-                Comment
-              </label>
-              <textarea
-                id="comment"
-                rows="5"
-                className="field-input"
-                placeholder="Share what stood out about the product"
-                value={comment}
-                onChange={(event) => setComment(event.target.value)}
-              />
-            </div>
-            <button
-              type="submit"
-              className="primary-button"
-              disabled={isSubmittingReview}
-            >
-              {isSubmittingReview ? "Submitting..." : "Submit review"}
-            </button>
-          </form>
-        </div>
-
-        <div className="app-card p-6">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900">Customer reviews</h2>
-              <p className="mt-2 section-copy">
-                {reviews.length > 0
-                  ? "Recent feedback pulled from the local preview product record."
-                  : "No reviews have been added yet."}
-              </p>
-            </div>
-            <div className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
-              {reviews.length} total
-            </div>
-          </div>
-
-          <div className="mt-6 space-y-4">
-            {reviews.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">
-                Be the first person to review this product.
+                <button
+                  onClick={() => setActiveTab("details")}
+                  className={`
+                    flex-1
+                    py-2.5
+                    rounded-2xl
+                    text-xs
+                    uppercase
+                    tracking-[0.2em]
+                    transition-all
+                    duration-300
+                    ${
+                      activeTab === "details"
+                        ? "bg-black text-white shadow-md"
+                        : "text-gray-500 hover:bg-black/5"
+                    }
+                  `}
+                >
+                  Details
+                </button>
               </div>
-            ) : (
-              reviews.map((review) => (
-                <article
-                  key={review._id || `${review.user}-${review.createdAt}`}
-                  className="rounded-3xl border border-slate-200 p-5"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <p className="text-lg font-bold text-slate-900">
-                        {review.name}
-                      </p>
-                      <p className="mt-1 text-sm text-slate-500">
-                        {formatDate(review.createdAt)}
-                      </p>
-                    </div>
-                    <div className="rounded-full bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
-                      {review.rating}/5
-                    </div>
-                  </div>
-                  <p className="mt-4 text-sm leading-6 text-slate-600">
-                    {review.comment}
+
+              {/* TAB CONTENT */}
+              <div className="p-5 min-h-[300px]">
+                <AnimatePresence mode="wait">
+                  
+                  {/* SIZE TAB */}
+                  {activeTab === "size" && (
+                    <motion.div
+                      key="size"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-xs uppercase tracking-[0.2em] text-gray-400">
+                          Select Size
+                        </p>
+
+                        <div className="flex gap-2">
+                          {["eu", "uk"].map((u) => (
+                            <button
+                              key={u}
+                              onClick={() => setSizeUnit(u)}
+                              className={`
+                                px-3
+                                py-1
+                                rounded-full
+                                text-xs
+                                transition-all
+                                ${
+                                  sizeUnit === u
+                                    ? "bg-black text-white"
+                                    : "bg-gray-100 text-gray-500 hover:text-black"
+                                }
+                              `}
+                            >
+                              {u.toUpperCase()}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {sizeError && (
+                        <p className="text-red-500 text-xs mb-2">
+                          Please select a size
+                        </p>
+                      )}
+
+                      <div className="grid grid-cols-4 gap-2">
+                        {sizes.map((size) => (
+                          <button
+                            key={size.eu}
+                            disabled={!size.available}
+                            onClick={() => {
+                              setSelectedSize(size);
+                              setSizeError(false);
+                            }}
+                            className={`
+                              relative
+                              py-2.5
+                              rounded-2xl
+                              border
+                              text-sm
+                              transition-all
+                              duration-300
+                              hover:-translate-y-1
+                              ${
+                                !size.available
+                                  ? "border-gray-100 text-gray-300 cursor-not-allowed"
+                                  : selectedSize?.eu === size.eu
+                                  ? "bg-black text-white border-black shadow-lg"
+                                  : "border-gray-200 hover:border-black"
+                              }
+                            `}
+                          >
+                            {sizeUnit === "eu"
+                              ? size.eu
+                              : size.uk}
+
+                            {!size.available && (
+                              <span className="absolute inset-0 flex items-center justify-center">
+                                <span className="absolute w-full h-px bg-gray-200 rotate-12" />
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+
+                    </motion.div>
+                  )}
+
+                 
+                  {/* DETAILS TAB */}
+{activeTab === "details" && (
+  <motion.div
+    key="details"
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -10 }}
+    transition={{ duration: 0.25 }}
+className="h-[240px] overflow-y-auto pr-1 pb-3 scrollbar-hide"
+  >
+    <h3 className="text-base mb-4 font-medium sticky top-0 bg-white/70 backdrop-blur-xl pb-2 z-10">
+      Product Details
+    </h3>
+
+    <ul className="space-y-3 text-sm text-gray-500 leading-relaxed">
+      <li>· Premium full-grain leather upper</li>
+
+      <li>· Iconic crocodile branding on side</li>
+
+      <li>· Signature gum rubber outsole</li>
+
+      <li>· Padded collar for maximum comfort</li>
+
+      <li>· Luxury lifestyle sneaker silhouette</li>
+
+      <li>· Soft inner lining for all-day wear</li>
+
+      <li>· Designed for premium streetwear styling</li>
+
+      <li>· Durable rubber traction outsole</li>
+
+      <li>· Minimal luxury-inspired design language</li>
+
+      <li>· Breathable interior cushioning</li>
+
+      <li>· High-end crafted stitching details</li>
+
+      <li>· Everyday comfort with premium aesthetics</li>
+
+      <li>· Imported materials and construction</li>
+
+      <li>· Perfect for smart casual outfits</li>
+    </ul>
+  </motion.div>
+)}
+                </AnimatePresence>
+              </div>
+            </div>
+
+            {/* ADD TO BAG */}
+            <button
+              onClick={handleAddToBag}
+              className={`
+                relative
+                overflow-hidden
+                w-full
+                py-4
+                rounded-2xl
+                text-sm
+                tracking-[0.25em]
+                font-medium
+                transition-all
+                duration-500
+                hover:scale-[1.01]
+                active:scale-[0.99]
+                shadow-lg
+                ${
+                  addedToBag
+                    ? "bg-green-700 text-white"
+                    : "bg-black hover:bg-neutral-800 text-white"
+                }
+              `}
+            >
+              {addedToBag
+                ? "✓ ADDED TO BAG"
+                : "ADD TO SHOPPING BAG"}
+            </button>
+
+            {/* DELIVERY */}
+            <div className="border border-black/5 rounded-3xl p-4 bg-white/70 backdrop-blur-xl">
+              <div className="flex gap-3">
+                <div className="mt-1">
+                  <DeliveryIcon />
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-700">
+                    Standard delivery £4.95
                   </p>
-                </article>
-              ))
-            )}
+
+                  <p className="text-xs text-gray-400 mt-1">
+                    Free delivery on orders over £99
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
-};
-
-export default ProductDetails;
+}

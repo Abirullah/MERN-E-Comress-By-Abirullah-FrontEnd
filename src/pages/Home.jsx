@@ -11,6 +11,7 @@ import BrandStrip from "../Sagments/BrandStrip";
 import PremimunCollection from "../Sagments/PremimunCollection";
 import ProductsSections from "../Sagments/ProductsSections";
 import Contact from '../components/Contact'
+import Footer from '../components/Footer'
 
 const sections = [
   {
@@ -63,6 +64,7 @@ const Home = () => {
         <PremimunCollection />
         <ProductsSections />
         <Contact/>
+        <Footer/>
       </div>
     </div>
   );
