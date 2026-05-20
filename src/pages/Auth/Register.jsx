@@ -1,134 +1,138 @@
-import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import Loader from "../../components/Loader";
-import { setCredentials } from "../../redux/features/auth/authSlice";
-import { toast } from "react-toastify";
-import { useRegisterUserMutation } from "../../redux/api/usersApiSlice";
-import { normalizeUserSession } from "../../utils/session";
+import { useNavigate , Link} from "react-router";
+import { useState } from "react";
+import AuthLayout from "./AuthLayout";
+import AuthSocialButtons from "./AuthSessionButton";
+import { UserRound, Mail, LockKeyhole } from "lucide-react";
 
 const Register = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [registerUser, { isLoading }] = useRegisterUserMutation();
+  const [form, setForm] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-  const { userInfo } = useSelector((state) => state.auth);
+  const handleChange = (field) => (event) => {
+    setForm((current) => ({
+      ...current,
+      [field]: event.target.value,
+    }));
+  };
 
-  const { search } = useLocation();
-  const sp = new URLSearchParams(search);
-  const redirect = sp.get("redirect") || "/shop";
+  const handleSubmit = (event) => {
+    event.preventDefault();
 
-  useEffect(() => {
-    if (userInfo?.isAdmin) {
-      navigate("/admin/users");
-    } else if (userInfo) {
-      navigate(redirect);
-    }
-  }, [userInfo, navigate, redirect]);
-
-  const submitHandler = async (e) => {
-    e.preventDefault();
-
-    try {
-      const res = await registerUser({ username, email, password }).unwrap();
-      dispatch(setCredentials(normalizeUserSession(res)));
-      navigate(redirect);
-      toast.success("Preview account saved locally");
-    } catch (err) {
-      toast.error(
-        err?.data?.message || err?.message || "Registration request failed"
-      );
-    }
+    navigate("/otp", {
+      state: {
+        flow: "register",
+        contact: form.email,
+      },
+    });
   };
 
   return (
-    <section className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[0.96fr_1.04fr]">
-      {/* bg will be covered by a pic  */}
-      <div className="hidden rounded-lg bg-gray-200 lg:block"></div>
+    <AuthLayout
+      badge="Create account"
+      title="Build your premium shopping profile"
+      description="Modern register flow UI with smooth spacing and luxury visuals."
+    >
+      <AuthSocialButtons />
 
-      <div className="rounded-lg bg-white p-6 shadow-lg">
-        <h2 className="mb-4 text-2xl font-bold">Create an Account</h2>
-        <p className="mb-4 text-sm text-slate-500">
-          Preview mode stores dummy account data in local storage so you can
-          build the UI first.
-        </p>
-        <form onSubmit={submitHandler} className="space-y-4">
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium">
-              Username
-            </label>
+      <div className="my-6 flex items-center gap-3">
+        <div className="h-px flex-1 bg-slate-200" />
+        <span className="text-xs uppercase tracking-[0.2em] text-slate-400">
+          Or register with email
+        </span>
+        <div className="h-px flex-1 bg-slate-200" />
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label className="field-label">Full Name</label>
+
+          <div className="relative">
+            <UserRound className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+
             <input
               type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              placeholder="Your name"
+              value={form.fullName}
+              onChange={handleChange("fullName")}
+              className="field-input pl-12"
             />
           </div>
+        </div>
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium">
-              Email
-            </label>
+        <div>
+          <label className="field-label">Email</label>
+
+          <div className="relative">
+            <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+
             <input
               type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={handleChange("email")}
+              className="field-input pl-12"
             />
+          </div>
+        </div>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label className="field-label">Password</label>
+
+            <div className="relative">
+              <LockKeyhole className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+
+              <input
+                type="password"
+                placeholder="Create password"
+                value={form.password}
+                onChange={handleChange("password")}
+                className="field-input pl-12"
+              />
+            </div>
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium">
+            <label className="field-label">
               Confirm Password
             </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
+
+            <div className="relative">
+              <LockKeyhole className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+
+              <input
+                type="password"
+                placeholder="Repeat password"
+                value={form.confirmPassword}
+                onChange={handleChange("confirmPassword")}
+                className="field-input pl-12"
+              />
+            </div>
           </div>
+        </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-400"
-          >
-            {isLoading ? <Loader /> : "Register"}
-          </button>
-        </form>
+        <button type="submit" className="primary-button w-full">
+          Create account
+        </button>
+      </form>
 
-        <p className="mt-4 text-sm">
-          Already have an account?{" "}
-          <Link to={`/login?redirect=${redirect}`} className="text-blue-600 hover:underline">
-            Log in
-          </Link>
-        </p>
-      </div>  
-      
-    </section>
+      <p className="mt-6 text-sm text-slate-600">
+        Already have an account?{" "}
+
+        <Link
+          to="/login"
+          className="font-semibold text-slate-900 hover:text-amber-700"
+        >
+          Sign in
+        </Link>
+      </p>
+    </AuthLayout>
   );
 };
 

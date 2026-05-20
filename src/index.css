@@ -8,6 +8,26 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+body {
+  font-family: Inter, sans-serif;
+}
+
+.field-label {
+  @apply mb-2 block text-sm font-medium text-slate-700;
+}
+
+.field-input {
+  @apply w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm outline-none transition-all duration-300 focus:border-black focus:ring-4 focus:ring-black/5;
+}
+
+.primary-button {
+  @apply rounded-2xl bg-black px-6 py-4 text-sm font-semibold tracking-[0.15em] text-white transition-all duration-300 hover:-translate-y-1 hover:bg-neutral-800 hover:shadow-xl;
+}
+
+.secondary-button {
+  @apply rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition-all duration-300 hover:border-black hover:text-black;
+}
+
 
 .scrollbar-hide {
   -ms-overflow-style: none;
