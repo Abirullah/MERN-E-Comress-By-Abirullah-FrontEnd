@@ -35,25 +35,16 @@ const Register = () => {
   return (
     <AuthLayout
       badge="Create account"
-      title="Build your premium shopping profile"
-      description="Modern register flow UI with smooth spacing and luxury visuals."
+      title="Sign Up"
     >
-      <AuthSocialButtons />
 
-      <div className="my-6 flex items-center gap-3">
-        <div className="h-px flex-1 bg-slate-200" />
-        <span className="text-xs uppercase tracking-[0.2em] text-slate-400">
-          Or register with email
-        </span>
-        <div className="h-px flex-1 bg-slate-200" />
-      </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <label className="field-label">Full Name</label>
 
           <div className="relative">
-            <UserRound className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+            <UserRound className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
 
             <input
               type="text"
@@ -69,7 +60,7 @@ const Register = () => {
           <label className="field-label">Email</label>
 
           <div className="relative">
-            <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+            <Mail className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
 
             <input
               type="email"
@@ -86,7 +77,7 @@ const Register = () => {
             <label className="field-label">Password</label>
 
             <div className="relative">
-              <LockKeyhole className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+              <LockKeyhole className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
 
               <input
                 type="password"
@@ -104,7 +95,7 @@ const Register = () => {
             </label>
 
             <div className="relative">
-              <LockKeyhole className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+              <LockKeyhole className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
 
               <input
                 type="password"
@@ -132,6 +123,18 @@ const Register = () => {
           Sign in
         </Link>
       </p>
+
+            
+
+      <div className="my-6 flex items-center gap-3">
+        <div className="h-px flex-1 bg-slate-200" />
+        <span className="text-xs uppercase tracking-[0.2em] text-slate-400">
+          Or register with email
+        </span>
+        <div className="h-px flex-1 bg-slate-200" />
+      </div>
+      <AuthSocialButtons />
+
     </AuthLayout>
   );
 };

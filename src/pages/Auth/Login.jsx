@@ -39,8 +39,7 @@ const Login = () => {
   return (
     <AuthLayout
       badge="Welcome back"
-      title="Sign in to continue shopping"
-      description="Clean luxury auth UI with modern glassmorphism styling and premium interaction states."
+      title="Sign in"
     >
   
 
@@ -49,7 +48,7 @@ const Login = () => {
           <label className="field-label">Email</label>
 
           <div className="relative">
-            <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+            <Mail className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
 
             <input
               type="email"
@@ -76,7 +75,7 @@ const Login = () => {
           </div>
 
           <div className="relative">
-            <LockKeyhole className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+            <LockKeyhole className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
 
             <input
               type="password"
@@ -88,7 +87,7 @@ const Login = () => {
           </div>
         </div>
 
-        <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+        <label className="flex items-center gap-3  px-4 py-3 text-sm text-slate-600">
           <input
             type="checkbox"
             checked={form.rememberMe}
@@ -114,16 +113,17 @@ const Login = () => {
           Create account
         </Link>
       </p>
-
-          <AuthSocialButtons />
-
-      <div className="my-6 flex items-center gap-3">
+       <div className="my-6 flex items-center gap-3">
         <div className="h-px flex-1 bg-slate-200" />
         <span className="text-xs uppercase tracking-[0.2em] text-slate-400">
-          Or continue with email
+          Or continue with
         </span>
         <div className="h-px flex-1 bg-slate-200" />
       </div>
+
+          <AuthSocialButtons />
+
+     
     </AuthLayout>
   );
 };
