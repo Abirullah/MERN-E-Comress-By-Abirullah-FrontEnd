@@ -20,6 +20,8 @@ import Profile from "./pages/User/Profile.jsx";
 import Home from "./pages/Home.jsx";
 import Shop from "./pages/Shop/Shop.jsx";
 import LacosteProductPage from "./pages/Shop/ProductDetails.jsx";
+import OrdersPlaced from "./pages/User/OrdersPlaced.jsx";
+
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -33,7 +35,7 @@ const router = createBrowserRouter(
         <Route path="shop" element={<Shop />} />
         <Route path="products" element={<LacosteProductPage />} />
         <Route path="profile" element={<Profile />} />
-
+        <Route path="ordersplaced" element={<OrdersPlaced/>}/>
     </Route>
   )
 );

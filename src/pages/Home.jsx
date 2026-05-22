@@ -1,5 +1,4 @@
 import {
-  SnakerShoeHome,
   SkateShoeHome,
   FootBallShoeHome,
   AirJordenHome,
@@ -13,28 +12,24 @@ import Contact from '../components/Contact'
 import Footer from '../components/Footer'
 
 const sections = [
+
   {
     id: 1,
-    component: <SnakerShoeHome />,
-    bg: "bg-black",
-  },
-  {
-    id: 2,
     component: <SkateShoeHome />,
     bg: "bg-zinc-900",
   },
   {
-    id: 3,
+    id: 2,
     component: <FootBallShoeHome />,
     bg: "bg-neutral-900",
   },
   {
-    id: 4,
+    id: 3,
     component: <AirJordenHome />,
     bg: "bg-gray-900",
   },
   {
-    id: 5,
+    id: 4,
     component: <FormalShoeHome />,
     bg: "bg-stone-900",
   },
