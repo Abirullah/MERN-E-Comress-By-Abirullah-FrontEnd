@@ -66,7 +66,7 @@ function ShopPage() {
       <div className="max-w-7xl mx-auto px-6">
         
         {/* Heading */}
-        <h1 className="text-6xl font-bold text-[#6f6d4f] mb-14">
+        <h1 className="text-6xl font-bold text-[#6f6d4f] mb-14 mt-10">
           Shop
         </h1>
 

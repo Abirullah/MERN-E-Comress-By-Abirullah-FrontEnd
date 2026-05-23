@@ -196,7 +196,7 @@ export default function OrdersPlaced() {
       className="min-h-screen bg-[#f2f1f0] px-6 py-10"
       style={{ fontFamily: "system-ui, sans-serif" }}
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto mt-10 pt-5">
 
         {/* HEADER */}
         <div className="mb-10">

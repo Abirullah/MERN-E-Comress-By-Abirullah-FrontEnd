@@ -53,7 +53,7 @@ const Home = () => {
       ))}
 
       {/* NORMAL SECTIONS */}
-      <div className="relative z-50 bg-white">
+      <div className="relative z-40 bg-white">
         <BrandStrip />
         <PremimunCollection />
         <ProductsSections />

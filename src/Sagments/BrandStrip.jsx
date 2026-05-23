@@ -5,6 +5,7 @@ import reebok from "../../public/Logoes/pngwing.com (3).png";
 import vans from "../../public/Logoes/pngwing.com (8).png";
 import newbalance from "../../public/Logoes/pngwing.com (2).png";
 import skechers from "../../public/Logoes/pngwing.com (5).png";
+import { NavLink } from "react-router";
 
 const brands = [
   nike,
@@ -45,8 +46,9 @@ const BrandStrip = () => {
         <div className="flex animate-scroll whitespace-nowrap w-max">
           
           {[...brands, ...brands].map((logo, index) => (
+            <NavLink  key={index} to="/shop">
             <div
-              key={index}
+             
               className="mx-6 md:mx-10 w-[180px] h-[100px] bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all duration-500 flex items-center justify-center group border border-gray-100"
             >
               <img
@@ -55,6 +57,7 @@ const BrandStrip = () => {
                 className="w-[100px] h-[50px] object-contain opacity-60 group-hover:opacity-100 group-hover:scale-110 transition duration-500"
               />
             </div>
+            </NavLink>
           ))}
 
         </div>

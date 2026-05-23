@@ -1,15 +1,16 @@
-import BlackShoe from "../../public/Pictures/pexels-shanekell-187407.jpg";
 import NikeShoe from "../../public/Pictures/_ (2).jpg";
 import FootBallShoe from "../../public/Pictures/_ (3).jpg";
 import AirJorden from "../../public/Pictures/Air Jordan 1 Retro High OG (2025) - Black Toe Reimagined.jpg";
 import FormalShoe from "../../public/Pictures/La nueva colección de zapatos que acompaña tus pasos en cualquier momento del día.jpg"
+
+import { Link , NavLink } from "react-router";
 
 
 
 
 const SkateShoeHome = () => {
   return (
-    <div className="relative w-full flex justify-center h-screen bg-[#1a1a1a] overflow-hidden p-10">
+    <div className="relative w-full mt-5 flex justify-center h-screen bg-[#1a1a1a] overflow-hidden p-10">
       <img
         className="h-full w-full object-cover"
         src={NikeShoe}
@@ -32,7 +33,7 @@ const SkateShoeHome = () => {
       </div>
 
         <button className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-20 bg-[#6e4dbb] text-black w-[200px] self-center font-bold text-xs tracking-widest uppercase px-5 py-2.5 rounded-sm hover:bg-[#362069] transition-colors">
-        Collection <span className="text-black">→</span>
+        <NavLink to="/shop">Collection <span className="text-black">→</span></NavLink>
       </button>
 
     </div>
@@ -74,7 +75,8 @@ const FootBallShoeHome = () => {
   </div>
 
   <button className="z-20 bg-[#b12b48] text-black w-[200px] self-center font-bold text-xs tracking-widest uppercase px-5 py-2.5 rounded-sm hover:bg-[#8a1f3c] transition-colors">
-    EXPLOR MORE <span className="text-black">→</span>
+
+    <NavLink to="/shop">EXPLOR MORE <span className="text-black">→</span> </NavLink>
   </button>
 </div>
 
@@ -102,7 +104,7 @@ const AirJordenHome = () => {
         </div>
 
         <div className="mb-12 md:mb-16 flex flex-col">
-          <p className="font-bold text-white md:text-xl self-center lg:text-2xl tracking-[3px] uppercase">
+          <p className="font-bold text-white </NavLink> md:text-xl self-center lg:text-2xl tracking-[3px] uppercase">
             About
           </p>
            <div className="w-20 h-1 self-center  bg-[#ffffff] my-1.5" />  
@@ -114,7 +116,7 @@ const AirJordenHome = () => {
         </div>
 
         <button className="z-20 bg-[#ffffff] text-black w-[200px] self-center font-bold text-xs tracking-widest uppercase px-5 py-2.5 rounded-sm hover:bg-[#bbbbbb] transition-colors">
-          EXPLOR MORE <span className="text-black">→</span>
+          <NavLink to="/shop">EXPLOR MORE <span className="text-black">→</span></NavLink>
         </button>
       </div>
 
@@ -153,7 +155,7 @@ const FormalShoeHome = () => {
           </p>
           
           <button className="z-20 bg-[#ffffff] text-black w-[200px] self-center font-bold text-xs tracking-widest uppercase px-5 py-2.5 my-7 rounded-sm hover:bg-[#bbbbbb] transition-colors">
-          EXPLOR MORE <span className="text-black">→</span>
+         <NavLink to="/shop">EXPLOR MORE <span className="text-black">→</span></NavLink> 
         </button>
         </div>
 

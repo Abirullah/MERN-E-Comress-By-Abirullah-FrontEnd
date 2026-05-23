@@ -135,7 +135,7 @@ export default function LacosteProductPage() {
   return (
     <div className="h-screen overflow-hidden bg-[#fafaf8] text-[#111]">
       {/* MAIN */}
-      <div className="max-w-7xl mx-auto px-4 lg:px-8 py-4 h-screen flex items-center">
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 py-4 h-screen mt-10 flex items-center">
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 w-full h-full items-center">
           
           {/* LEFT SIDE */}

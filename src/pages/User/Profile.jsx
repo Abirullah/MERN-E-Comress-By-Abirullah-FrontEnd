@@ -106,7 +106,7 @@ const Profile = () => {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-      <aside className="space-y-6">
+      <aside className="space-y-6 mt-10">
         <div className="app-card p-6">
           <div className="flex items-center gap-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-900 text-xl font-extrabold text-white">
