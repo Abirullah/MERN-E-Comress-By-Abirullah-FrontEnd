@@ -3,6 +3,7 @@ import {
   FootBallShoeHome,
   AirJordenHome,
   FormalShoeHome,
+  NeonSneakerHero
 } from "../Sagments/HeroSegments";
 
 import BrandStrip from "../Sagments/BrandStrip";
@@ -33,6 +34,11 @@ const sections = [
     component: <FormalShoeHome />,
     bg: "bg-stone-900",
   },
+  {
+    id:5,
+    component : <NeonSneakerHero/>,
+    bg : "bg-yellow-700"
+  }
 ];
 
 const Home = () => {

@@ -7,8 +7,8 @@ import {
   useGetProfileQuery,
   useUpdateProfileMutation,
 } from "../../redux/api/usersApiSlice";
-import { getInitials } from "../../utils/formatters";
-import { normalizeUserSession } from "../../utils/session";
+// import { getInitials } from "../../utils/formatters";
+// import { normalizeUserSession } from "../../utils/session";
 
 const emptyProfile = {
   firstName: "",

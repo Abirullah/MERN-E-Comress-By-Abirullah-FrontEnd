@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import Pic from "../../../Shoes.jpeg";
+import Pic from "../../../public/Pictures/Air Jordan 1 Retro High OG (2025) - Black Toe Reimagined.jpg";
 
 const AuthLayout = ({ badge, title, children }) => {
   return (
