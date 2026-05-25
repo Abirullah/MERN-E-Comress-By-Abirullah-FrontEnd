@@ -1,14 +1,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import Loader from "../../components/Loader";
-import { setCredentials } from "../../redux/features/auth/authSlice";
-import {
-  useGetProfileQuery,
-  useUpdateProfileMutation,
-} from "../../redux/api/usersApiSlice";
-// import { getInitials } from "../../utils/formatters";
-// import { normalizeUserSession } from "../../utils/session";
+
 
 const emptyProfile = {
   firstName: "",
