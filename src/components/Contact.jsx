@@ -1,5 +1,3 @@
-import React from 'react'
-
 function Contact() {
   return (
     <section className="w-full  py-20 px-6">
@@ -13,7 +11,7 @@ function Contact() {
 
       <p className="text-gray-400 mb-8">
         Have a project idea or want to work together? 
-        Send us a message and we'll get back to you.
+        Send us a message and we&apos;ll get back to you.
       </p>
 
       <div className="space-y-6">

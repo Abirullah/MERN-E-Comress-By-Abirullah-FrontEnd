@@ -9,7 +9,7 @@ const OTP = () => {
   const contact = location.state?.contact || "you@example.com";
 
   const handleContinue = () => {
-    navigate("/shop");
+    navigate("/");
   };
 
   return (

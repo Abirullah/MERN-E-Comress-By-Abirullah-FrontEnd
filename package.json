@@ -14,6 +14,7 @@
     "@reduxjs/toolkit": "^2.4.0",
     "apexcharts": "^4.1.0",
     "axios": "^1.7.8",
+    "dotenv": "^17.4.2",
     "flowbite": "^2.5.2",
     "framer-motion": "^12.39.0",
     "lucide-react": "^1.14.0",

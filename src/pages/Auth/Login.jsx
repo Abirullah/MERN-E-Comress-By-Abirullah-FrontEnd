@@ -1,11 +1,23 @@
 import { LockKeyhole, Mail } from "lucide-react";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import AuthLayout from "./AuthLayout";
 import AuthSocialButtons from "./AuthSessionButton";
+import {
+  clearAuthMessages,
+  loginUser,
+} from "../../ReduxSetUp/Feature/Auth/AuthSlice";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const { loading, error, userInfo } = useSelector(
+    (state) => state.auth
+  );
+  const redirectPath = location.state?.from || "/";
 
   const [form, setForm] = useState({
     email: "",
@@ -25,15 +37,34 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (event) => {
+  useEffect(() => {
+    if (userInfo) {
+      navigate(redirectPath, { replace: true });
+    }
+  }, [navigate, redirectPath, userInfo]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearAuthMessages());
+    };
+  }, [dispatch]);
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    navigate("/otp", {
-      state: {
-        flow: "login",
-        contact: form.email,
-      },
-    });
+    try {
+      await dispatch(
+        loginUser({
+          email: form.email,
+          password: form.password,
+        })
+      ).unwrap();
+
+      toast.success("Signed in successfully");
+      navigate(redirectPath, { replace: true });
+    } catch (authError) {
+      toast.error(authError?.message || "Login failed");
+    }
   };
 
   return (
@@ -44,6 +75,12 @@ const Login = () => {
   
 
       <form onSubmit={handleSubmit} className="space-y-5">
+        {error && (
+          <div className="rounded-[1.5rem] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+            {error}
+          </div>
+        )}
+
         <div>
           <label className="field-label">Email</label>
 
@@ -98,8 +135,12 @@ const Login = () => {
           Keep me signed in
         </label>
 
-        <button type="submit" className="primary-button w-full">
-          Continue to OTP
+        <button
+          type="submit"
+          disabled={loading}
+          className="primary-button w-full disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {loading ? "Signing in..." : "Sign in"}
         </button>
       </form>
 
@@ -129,6 +170,4 @@ const Login = () => {
 };
 
 export default Login;
-
-
 

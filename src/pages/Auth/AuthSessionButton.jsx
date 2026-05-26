@@ -1,4 +1,4 @@
-import { Apple, Globe, Smartphone } from "lucide-react";
+import { Apple, Globe } from "lucide-react";
 const buttons = [
   {
     label: "Google",

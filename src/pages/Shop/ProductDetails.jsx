@@ -1,585 +1,563 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  Heart,
+  Loader2,
+  MessageSquareText,
+  ShieldCheck,
+  Star,
+  Truck,
+} from "lucide-react";
+import { Link, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import {
+  clearProductMessages,
+  createProductReview,
+  fetchProductById,
+  toggleProductWishlist,
+} from "../../ReduxSetUp/Feature/Products/ProductSlice";
 
-import img1 from "../../../public/Pictures/Air Jordan 1 Retro High OG (2025) - Black Toe Reimagined.jpg";
-import img2 from "../../../public/Pictures/Air Jordan 1 Retro High OG (2025) - Black Toe Reimagined.jpg";
-import img3 from "../../../public/Pictures/Air Jordan 1 Retro High OG (2025) - Black Toe Reimagined.jpg";
-import img4 from "../../../public/Pictures/Air Jordan 1 Retro High OG (2025) - Black Toe Reimagined.jpg";
-import img5 from "../../../public/Pictures/Air Jordan 1 Retro High OG (2025) - Black Toe Reimagined.jpg";
+const FALLBACK_IMAGE = "/Pictures/pexels-ian-panelo-7716266.jpg";
 
-const images = [
-  { id: 1, label: "Front", src: img1, bg: "#f5f5f3" },
-  { id: 2, label: "Side", src: img2, bg: "#efefed" },
-  { id: 3, label: "Top", src: img3, bg: "#f0f0ee" },
-  { id: 4, label: "Sole", src: img4, bg: "#f5f5f3" },
-  { id: 5, label: "Back", src: img5, bg: "#efefed" },
-];
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(Number(amount || 0));
+};
 
-const sizes = [
-  { eu: "39", uk: "6", available: true },
-  { eu: "40", uk: "6.5", available: true },
-  { eu: "41", uk: "7", available: true },
-  { eu: "42", uk: "8", available: true },
-  { eu: "42.5", uk: "8.5", available: false },
-  { eu: "43", uk: "9", available: true },
-  { eu: "44", uk: "9.5", available: true },
-  { eu: "44.5", uk: "10", available: true },
-  { eu: "45", uk: "10.5", available: false },
-  { eu: "46", uk: "11", available: true },
-  { eu: "47", uk: "12", available: true },
-];
+const formatDate = (value) => {
+  if (!value) {
+    return "Recently";
+  }
 
-const colors = [
-  {
-    id: "Y37",
-    name: "White & Gum",
-    hex1: "#ffffff",
-    hex2: "#c4a97d",
-  },
-  {
-    id: "B60",
-    name: "Navy & White",
-    hex1: "#1a2e5a",
-    hex2: "#ffffff",
-  },
-  {
-    id: "G74",
-    name: "Green & Off-White",
-    hex1: "#2d5a3d",
-    hex2: "#f0ede8",
-  },
-];
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(value));
+};
 
-function DeliveryIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="18"
-      height="18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    >
-      <path d="M1 3h15v13H1z" strokeLinejoin="round" />
-      <path d="M16 8h4l3 4v4h-7V8z" strokeLinejoin="round" />
-      <circle cx="5.5" cy="18.5" r="2.5" />
-      <circle cx="18.5" cy="18.5" r="2.5" />
-    </svg>
-  );
-}
+const buildVariantKey = (variant) => `${variant.size}-${variant.color}`;
 
-function HeartIcon({ filled }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="22"
-      height="22"
-      fill={filled ? "#111" : "none"}
-      stroke="#111"
-      strokeWidth="1.5"
-    >
-      <path
-        d="M12 21C12 21 3 14 3 8a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6-9 13-9 13z"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+const ProductDetailsPage = () => {
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const {
+    selectedProduct,
+    detailsLoading,
+    detailsError,
+    wishlistLoading,
+    reviewLoading,
+    reviewError,
+    reviewSuccessMessage,
+  } = useSelector((state) => state.products);
 
-function ChevronRight() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="18"
-      height="18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    >
-      <path
-        d="M9 18l6-6-6-6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-export default function LacosteProductPage() {
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState(null);
-  const [wishlist, setWishlist] = useState(false);
-  const [sizeUnit, setSizeUnit] = useState("eu");
-  const [addedToBag, setAddedToBag] = useState(false);
-  const [selectedColor, setSelectedColor] = useState("Y37");
-  const [sizeError, setSizeError] = useState(false);
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedVariantKey, setSelectedVariantKey] = useState("");
+  const [reviewForm, setReviewForm] = useState({
+    rating: 5,
+    comment: "",
+  });
 
-  // TOGGLE STATE
-  const [activeTab, setActiveTab] = useState("size");
+  useEffect(() => {
+    dispatch(fetchProductById(id));
 
-  const handleAddToBag = () => {
-    if (!selectedSize) {
-      setSizeError(true);
+    return () => {
+      dispatch(clearProductMessages());
+    };
+  }, [dispatch, id]);
+
+  const product =
+    selectedProduct && selectedProduct._id === id
+      ? selectedProduct
+      : null;
+
+  const images = useMemo(() => {
+    if (!product?.images?.length) {
+      return [FALLBACK_IMAGE];
+    }
+
+    return product.images;
+  }, [product]);
+
+  const colors = useMemo(() => {
+    const variantColors = product?.variants?.map((variant) => variant.color) || [];
+    return [...new Set(variantColors.filter(Boolean))];
+  }, [product]);
+
+  const visibleVariants = useMemo(() => {
+    if (!product?.variants?.length) {
+      return [];
+    }
+
+    if (!selectedColor) {
+      return product.variants;
+    }
+
+    return product.variants.filter(
+      (variant) => variant.color === selectedColor
+    );
+  }, [product, selectedColor]);
+
+  const selectedVariant = useMemo(() => {
+    return (
+      product?.variants?.find(
+        (variant) => buildVariantKey(variant) === selectedVariantKey
+      ) || null
+    );
+  }, [product, selectedVariantKey]);
+
+  useEffect(() => {
+    if (!product) {
       return;
     }
 
-    setSizeError(false);
-    setAddedToBag(true);
+    const firstVariant =
+      product.variants?.find((variant) => variant.stock > 0) ||
+      product.variants?.[0];
 
-    setTimeout(() => {
-      setAddedToBag(false);
-    }, 2000);
+    setSelectedImage(0);
+    setSelectedColor(firstVariant?.color || "");
+    setSelectedVariantKey(
+      firstVariant ? buildVariantKey(firstVariant) : ""
+    );
+  }, [product]);
+
+  const handleWishlistToggle = async () => {
+    if (!product) {
+      return;
+    }
+
+    try {
+      const response = await dispatch(
+        toggleProductWishlist(product._id)
+      ).unwrap();
+
+      toast.success(response?.message || "Wishlist updated");
+    } catch (error) {
+      toast.error(error?.message || "Wishlist update failed");
+    }
   };
 
+  const handleReviewChange = (field, value) => {
+    setReviewForm((currentForm) => ({
+      ...currentForm,
+      [field]: value,
+    }));
+  };
+
+  const handleReviewSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!reviewForm.comment.trim()) {
+      toast.error("Please write a review comment");
+      return;
+    }
+
+    try {
+      const response = await dispatch(
+        createProductReview({
+          productId: id,
+          reviewData: {
+            rating: Number(reviewForm.rating),
+            comment: reviewForm.comment.trim(),
+          },
+        })
+      ).unwrap();
+
+      toast.success(response?.message || "Review submitted");
+      setReviewForm({
+        rating: 5,
+        comment: "",
+      });
+      dispatch(fetchProductById(id));
+    } catch (error) {
+      toast.error(error?.message || "Review could not be submitted");
+    }
+  };
+
+  if (detailsLoading && !product) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#fafaf8]">
+        <Loader2 size={52} className="animate-spin text-slate-700" />
+      </div>
+    );
+  }
+
+  if (detailsError && !product) {
+    return (
+      <div className="mx-auto flex min-h-screen max-w-4xl items-center justify-center px-6">
+        <div className="rounded-[2rem] border border-rose-200 bg-rose-50 px-6 py-5 text-center text-rose-600">
+          {detailsError}
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return null;
+  }
+
+  const currentPrice =
+    product.discountPrice > 0 ? product.discountPrice : product.price;
+  const hasDiscount =
+    Number(product.discountPrice) > 0 &&
+    Number(product.discountPrice) < Number(product.price);
+  const isInStock =
+    selectedVariant?.stock > 0 ||
+    (!selectedVariant && Number(product.countInStock) > 0);
+
   return (
-    <div className="h-screen overflow-hidden bg-[#fafaf8] text-[#111]">
-      {/* MAIN */}
-      <div className="max-w-7xl mx-auto px-4 lg:px-8 py-4 h-screen mt-10 flex items-center">
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 w-full h-full items-center">
-          
-          {/* LEFT SIDE */}
-          <div className="flex flex-col-reverse lg:flex-row gap-4 lg:w-[58%] h-full items-center">
-            
-            {/* THUMBNAILS */}
-            <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-visible">
-              {images.map((img, idx) => (
-                <button
-                  key={img.id}
-                  onClick={() => setSelectedImage(idx)}
-                  className={`
-                    flex-shrink-0
-                    w-14
-                    h-14
-                    rounded-2xl
-                    overflow-hidden
-                    border
-                    transition-all
-                    duration-300
-                    backdrop-blur-md
-                    ${
-                      selectedImage === idx
-                        ? "border-black shadow-lg scale-105"
-                        : "border-gray-200 hover:border-gray-400 hover:scale-105"
-                    }
-                  `}
-                  style={{
-                    background: img.bg,
-                  }}
-                >
-                  <img
-                    src={img.src}
-                    alt={img.label}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-
-            {/* MAIN IMAGE */}
-            <div
-              className="
-                relative
-                flex-1
-                rounded-[2rem]
-                h-[70vh]
-                lg:h-[82vh]
-                overflow-hidden
-                border
-                border-white/40
-                backdrop-blur-xl
-                shadow-[0_20px_80px_rgba(0,0,0,0.08)]
-                flex
-                items-center
-                justify-center
-              "
-              style={{
-                background: `
-                  radial-gradient(circle at top, rgba(255,255,255,0.8), transparent 60%),
-                  ${images[selectedImage].bg}
-                `,
-              }}
-            >
-              {/* Glow */}
-              <div className="absolute w-[320px] h-[320px] bg-black/5 blur-3xl rounded-full" />
-
-              {/* Wishlist */}
+    <div className="min-h-screen bg-[#fafaf8] px-4 pb-16 pt-28 text-[#111] lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+        <section className="flex flex-col gap-5 lg:flex-row">
+          <div className="flex gap-3 overflow-x-auto lg:flex-col">
+            {images.map((image, index) => (
               <button
-                onClick={() => setWishlist(!wishlist)}
-                className="
-                  absolute
-                  top-5
-                  right-5
-                  z-20
-                  w-10
-                  h-10
-                  rounded-full
-                  bg-white/80
-                  backdrop-blur-xl
-                  flex
-                  items-center
-                  justify-center
-                  shadow-md
-                  hover:scale-110
-                  transition-all
-                "
+                key={`${image}-${index}`}
+                onClick={() => setSelectedImage(index)}
+                className={`h-20 w-20 flex-shrink-0 overflow-hidden rounded-[1.5rem] border transition-all duration-300 ${
+                  selectedImage === index
+                    ? "border-black shadow-lg"
+                    : "border-gray-200 hover:border-gray-400"
+                }`}
               >
-                <HeartIcon filled={wishlist} />
+                <img
+                  src={image}
+                  alt={`${product.name} ${index + 1}`}
+                  className="h-full w-full object-cover"
+                />
               </button>
-
-              {/* MAIN PRODUCT IMAGE */}
-              <motion.img
-                key={selectedImage}
-                initial={{ opacity: 0, scale: 0.92 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.45 }}
-                src={images[selectedImage].src}
-                alt={images[selectedImage].label}
-                className="
-                  w-full
-                  h-full
-                  object-contain
-                  p-6
-                  lg:p-8
-                  hover:scale-105
-                  transition-all
-                  duration-700
-                  relative
-                  z-10
-                "
-                style={{
-                  filter:
-                    "drop-shadow(0px 30px 40px rgba(0,0,0,0.18))",
-                }}
-              />
-            </div>
+            ))}
           </div>
 
-          {/* RIGHT SIDE */}
-          <div className="lg:w-[42%] h-full pt-12 flex flex-col justify-center gap-4">
-            
-            {/* BRAND */}
-            <div>
-              <div className="flex items-center gap-3 mb-3">
-                <span className="uppercase tracking-[0.25em] text-xs text-gray-400 font-medium">
-                  Lacoste
-                </span>
-              </div>
-
-              <h1
-                className="
-                  text-3xl
-                  lg:text-5xl
-                  leading-[0.95]
-                  tracking-tight
-                  font-light
-                  text-black
-                "
-                style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                }}
+          <div className="relative flex-1 overflow-hidden rounded-[2.25rem] border border-white/70 bg-white/80 shadow-[0_20px_80px_rgba(15,23,42,0.08)]">
+            <div className="absolute right-5 top-5 z-20 flex gap-3">
+              <button
+                onClick={handleWishlistToggle}
+                disabled={wishlistLoading}
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 shadow-md transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Men's Carnaby
-                <br />
-                Pro Leather
-                <br />
-                Trainers
-              </h1>
-
-              <p className="mt-3 text-sm text-gray-400 tracking-wide">
-                Men · White · Sneakers · Premium Collection
-              </p>
+                {wishlistLoading ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <Heart size={18} />
+                )}
+              </button>
             </div>
 
-            {/* PRICE */}
-            <div>
-              <span className="text-4xl font-extralight tracking-tight">
-                £95
+            <div className="min-h-[520px] bg-[radial-gradient(circle_at_top,_rgba(251,191,36,0.16),_transparent_55%)] p-8">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={images[selectedImage]}
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ duration: 0.3 }}
+                  src={images[selectedImage]}
+                  alt={product.name}
+                  className="h-[460px] w-full object-contain"
+                />
+              </AnimatePresence>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-[2.25rem] border border-white/70 bg-white/85 p-6 shadow-[0_20px_80px_rgba(15,23,42,0.08)] backdrop-blur sm:p-8">
+          <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.25em] text-slate-400">
+            <span>{product.brand || "Premium"}</span>
+            <span>{product.category || "Shoes"}</span>
+            <span>{product.gender || "Unisex"}</span>
+            <span>{product.status || "New Arrival"}</span>
+          </div>
+
+          <h1
+            className="mt-4 text-4xl font-light leading-tight text-black lg:text-5xl"
+            style={{ fontFamily: "'Cormorant Garamond', serif" }}
+          >
+            {product.name}
+          </h1>
+
+          <p className="mt-4 text-sm leading-7 text-slate-600">
+            {product.description}
+          </p>
+
+          <div className="mt-6 flex flex-wrap items-center gap-4">
+            <span className="text-4xl font-extralight tracking-tight">
+              {formatCurrency(currentPrice)}
+            </span>
+
+            {hasDiscount && (
+              <span className="text-lg text-slate-400 line-through">
+                {formatCurrency(product.price)}
               </span>
-            </div>
+            )}
 
-            {/* COLORS */}
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-gray-400 mb-3">
-                Colour Selection
+            <span
+              className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] ${
+                isInStock
+                  ? "bg-emerald-100 text-emerald-700"
+                  : "bg-rose-100 text-rose-600"
+              }`}
+            >
+              {isInStock ? "In Stock" : "Sold Out"}
+            </span>
+          </div>
+
+          {colors.length > 0 && (
+            <div className="mt-8">
+              <p className="mb-3 text-xs uppercase tracking-[0.2em] text-gray-400">
+                Available colors
               </p>
 
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-3">
                 {colors.map((color) => (
                   <button
-                    key={color.id}
-                    onClick={() => setSelectedColor(color.id)}
-                    className="group flex flex-col items-center gap-1"
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`rounded-full px-4 py-2 text-sm transition-all ${
+                      selectedColor === color
+                        ? "bg-black text-white"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
                   >
-                    <div
-                      className={`
-                        w-12
-                        h-12
-                        rounded-2xl
-                        overflow-hidden
-                        border
-                        transition-all
-                        duration-300
-                        ${
-                          selectedColor === color.id
-                            ? "border-black scale-105 shadow-lg"
-                            : "border-gray-200 hover:border-gray-400"
-                        }
-                      `}
-                    >
-                      <div className="grid grid-cols-2 w-full h-full">
-                        <div style={{ background: color.hex1 }} />
-                        <div style={{ background: color.hex2 }} />
-                      </div>
-                    </div>
-
-                    <span className="text-[10px] tracking-widest text-gray-400">
-                      {color.id}
-                    </span>
+                    {color}
                   </button>
                 ))}
               </div>
             </div>
+          )}
 
-            {/* TOGGLE SECTION */}
-            <div className="border border-black/5 rounded-3xl bg-white/70 backdrop-blur-xl overflow-hidden">
-              
-              {/* TOGGLE BUTTONS */}
-              <div className="flex p-2 gap-2 border-b border-black/5">
-                <button
-                  onClick={() => setActiveTab("size")}
-                  className={`
-                    flex-1
-                    py-2.5
-                    rounded-2xl
-                    text-xs
-                    uppercase
-                    tracking-[0.2em]
-                    transition-all
-                    duration-300
-                    ${
-                      activeTab === "size"
-                        ? "bg-black text-white shadow-md"
-                        : "text-gray-500 hover:bg-black/5"
-                    }
-                  `}
-                >
-                  Size
-                </button>
+          {visibleVariants.length > 0 && (
+            <div className="mt-8">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-xs uppercase tracking-[0.2em] text-gray-400">
+                  Choose size
+                </p>
 
-                <button
-                  onClick={() => setActiveTab("details")}
-                  className={`
-                    flex-1
-                    py-2.5
-                    rounded-2xl
-                    text-xs
-                    uppercase
-                    tracking-[0.2em]
-                    transition-all
-                    duration-300
-                    ${
-                      activeTab === "details"
-                        ? "bg-black text-white shadow-md"
-                        : "text-gray-500 hover:bg-black/5"
-                    }
-                  `}
-                >
-                  Details
-                </button>
+                {selectedVariant && (
+                  <p className="text-xs text-slate-500">
+                    Stock: {selectedVariant.stock}
+                  </p>
+                )}
               </div>
 
-              {/* TAB CONTENT */}
-              <div className="p-5 min-h-[300px]">
-                <AnimatePresence mode="wait">
-                  
-                  {/* SIZE TAB */}
-                  {activeTab === "size" && (
-                    <motion.div
-                      key="size"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.25 }}
+              <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
+                {visibleVariants.map((variant) => {
+                  const variantKey = buildVariantKey(variant);
+                  const isAvailable = Number(variant.stock) > 0;
+
+                  return (
+                    <button
+                      key={variantKey}
+                      disabled={!isAvailable}
+                      onClick={() => setSelectedVariantKey(variantKey)}
+                      className={`rounded-2xl border py-3 text-sm transition-all ${
+                        !isAvailable
+                          ? "cursor-not-allowed border-gray-100 text-gray-300"
+                          : selectedVariantKey === variantKey
+                          ? "border-black bg-black text-white shadow-lg"
+                          : "border-gray-200 hover:border-black"
+                      }`}
                     >
-                      <div className="flex items-center justify-between mb-3">
-                        <p className="text-xs uppercase tracking-[0.2em] text-gray-400">
-                          Select Size
-                        </p>
-
-                        <div className="flex gap-2">
-                          {["eu", "uk"].map((u) => (
-                            <button
-                              key={u}
-                              onClick={() => setSizeUnit(u)}
-                              className={`
-                                px-3
-                                py-1
-                                rounded-full
-                                text-xs
-                                transition-all
-                                ${
-                                  sizeUnit === u
-                                    ? "bg-black text-white"
-                                    : "bg-gray-100 text-gray-500 hover:text-black"
-                                }
-                              `}
-                            >
-                              {u.toUpperCase()}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {sizeError && (
-                        <p className="text-red-500 text-xs mb-2">
-                          Please select a size
-                        </p>
-                      )}
-
-                      <div className="grid grid-cols-4 gap-2">
-                        {sizes.map((size) => (
-                          <button
-                            key={size.eu}
-                            disabled={!size.available}
-                            onClick={() => {
-                              setSelectedSize(size);
-                              setSizeError(false);
-                            }}
-                            className={`
-                              relative
-                              py-2.5
-                              rounded-2xl
-                              border
-                              text-sm
-                              transition-all
-                              duration-300
-                              hover:-translate-y-1
-                              ${
-                                !size.available
-                                  ? "border-gray-100 text-gray-300 cursor-not-allowed"
-                                  : selectedSize?.eu === size.eu
-                                  ? "bg-black text-white border-black shadow-lg"
-                                  : "border-gray-200 hover:border-black"
-                              }
-                            `}
-                          >
-                            {sizeUnit === "eu"
-                              ? size.eu
-                              : size.uk}
-
-                            {!size.available && (
-                              <span className="absolute inset-0 flex items-center justify-center">
-                                <span className="absolute w-full h-px bg-gray-200 rotate-12" />
-                              </span>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-
-                    </motion.div>
-                  )}
-
-                 
-                  {/* DETAILS TAB */}
-{activeTab === "details" && (
-  <motion.div
-    key="details"
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -10 }}
-    transition={{ duration: 0.25 }}
-className="h-[240px] overflow-y-auto pr-1 pb-3 scrollbar-hide"
-  >
-    <h3 className="text-base mb-4 font-medium sticky top-0 bg-white/70 backdrop-blur-xl pb-2 z-10">
-      Product Details
-    </h3>
-
-    <ul className="space-y-3 text-sm text-gray-500 leading-relaxed">
-      <li>· Premium full-grain leather upper</li>
-
-      <li>· Iconic crocodile branding on side</li>
-
-      <li>· Signature gum rubber outsole</li>
-
-      <li>· Padded collar for maximum comfort</li>
-
-      <li>· Luxury lifestyle sneaker silhouette</li>
-
-      <li>· Soft inner lining for all-day wear</li>
-
-      <li>· Designed for premium streetwear styling</li>
-
-      <li>· Durable rubber traction outsole</li>
-
-      <li>· Minimal luxury-inspired design language</li>
-
-      <li>· Breathable interior cushioning</li>
-
-      <li>· High-end crafted stitching details</li>
-
-      <li>· Everyday comfort with premium aesthetics</li>
-
-      <li>· Imported materials and construction</li>
-
-      <li>· Perfect for smart casual outfits</li>
-    </ul>
-  </motion.div>
-)}
-                </AnimatePresence>
+                      {variant.size}
+                    </button>
+                  );
+                })}
               </div>
             </div>
+          )}
 
-            {/* ADD TO BAG */}
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <button
-              onClick={handleAddToBag}
-              className={`
-                relative
-                overflow-hidden
-                w-full
-                py-4
-                rounded-2xl
-                text-sm
-                tracking-[0.25em]
-                font-medium
-                transition-all
-                duration-500
-                hover:scale-[1.01]
-                active:scale-[0.99]
-                shadow-lg
-                ${
-                  addedToBag
-                    ? "bg-green-700 text-white"
-                    : "bg-black hover:bg-neutral-800 text-white"
-                }
-              `}
+              onClick={handleWishlistToggle}
+              disabled={wishlistLoading}
+              className="flex flex-1 items-center justify-center gap-2 rounded-full bg-slate-900 px-6 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {addedToBag
-                ? "✓ ADDED TO BAG"
-                : "ADD TO SHOPPING BAG"}
+              {wishlistLoading ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : (
+                <Heart size={18} />
+              )}
+              Toggle Wishlist
             </button>
 
-            {/* DELIVERY */}
-            <div className="border border-black/5 rounded-3xl p-4 bg-white/70 backdrop-blur-xl">
-              <div className="flex gap-3">
-                <div className="mt-1">
-                  <DeliveryIcon />
-                </div>
+            <Link
+              to="/shop"
+              className="flex flex-1 items-center justify-center rounded-full border border-slate-300 px-6 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-700 transition hover:border-slate-900 hover:text-slate-900"
+            >
+              Back to Shop
+            </Link>
+          </div>
 
-                <div>
-                  <p className="text-sm text-gray-700">
-                    Standard delivery £4.95
-                  </p>
-
-                  <p className="text-xs text-gray-400 mt-1">
-                    Free delivery on orders over £99
-                  </p>
-                </div>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-[1.75rem] bg-slate-50 p-5">
+              <div className="flex items-center gap-3">
+                <Truck size={18} className="text-slate-700" />
+                <p className="text-sm font-semibold text-slate-900">
+                  Fast dispatch
+                </p>
               </div>
+              <p className="mt-3 text-sm leading-6 text-slate-500">
+                Orders are prepared quickly once the product is in stock.
+              </p>
+            </div>
+
+            <div className="rounded-[1.75rem] bg-slate-50 p-5">
+              <div className="flex items-center gap-3">
+                <ShieldCheck size={18} className="text-slate-700" />
+                <p className="text-sm font-semibold text-slate-900">
+                  Authentic product data
+                </p>
+              </div>
+              <p className="mt-3 text-sm leading-6 text-slate-500">
+                This page is reading the same product document returned by your
+                backend API.
+              </p>
             </div>
           </div>
-        </div>
+
+          {product.tags?.length > 0 && (
+            <div className="mt-8">
+              <p className="mb-3 text-xs uppercase tracking-[0.2em] text-gray-400">
+                Tags
+              </p>
+
+              <div className="flex flex-wrap gap-2">
+                {product.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-amber-700"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      </div>
+
+      <div className="mx-auto mt-10 grid max-w-7xl gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+        <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_20px_80px_rgba(15,23,42,0.08)]">
+          <div className="flex items-center gap-3">
+            <MessageSquareText size={18} className="text-slate-700" />
+            <h2 className="text-2xl font-bold text-slate-900">Reviews</h2>
+          </div>
+
+          <div className="mt-6 space-y-4">
+            {product.reviews?.length > 0 ? (
+              product.reviews.map((review) => (
+                <div
+                  key={review._id || `${review.user}-${review.createdAt}`}
+                  className="rounded-[1.5rem] bg-slate-50 p-5"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-slate-900">
+                        {review.name}
+                      </p>
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                        {formatDate(review.createdAt)}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-1 text-amber-500">
+                      {Array.from({ length: 5 }).map((_, index) => (
+                        <Star
+                          key={index}
+                          size={16}
+                          className={
+                            index < Number(review.rating)
+                              ? "fill-current"
+                              : ""
+                          }
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <p className="mt-4 text-sm leading-6 text-slate-600">
+                    {review.comment}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-[1.5rem] bg-slate-50 p-5 text-sm text-slate-500">
+                No reviews yet. Be the first to share feedback for this product.
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_20px_80px_rgba(15,23,42,0.08)]">
+          <h2 className="text-2xl font-bold text-slate-900">
+            Write a review
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-slate-500">
+            Submit feedback directly to the backend review endpoint for this
+            product.
+          </p>
+
+          {(reviewError || reviewSuccessMessage) && (
+            <div
+              className={`mt-6 rounded-[1.5rem] px-4 py-3 text-sm ${
+                reviewError
+                  ? "border border-rose-200 bg-rose-50 text-rose-600"
+                  : "border border-emerald-200 bg-emerald-50 text-emerald-700"
+              }`}
+            >
+              {reviewError || reviewSuccessMessage}
+            </div>
+          )}
+
+          <form onSubmit={handleReviewSubmit} className="mt-6 space-y-5">
+            <div>
+              <label className="field-label">Rating</label>
+              <select
+                value={reviewForm.rating}
+                onChange={(event) =>
+                  handleReviewChange("rating", event.target.value)
+                }
+                className="field-input"
+              >
+                <option value="5">5 - Excellent</option>
+                <option value="4">4 - Very good</option>
+                <option value="3">3 - Good</option>
+                <option value="2">2 - Fair</option>
+                <option value="1">1 - Poor</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="field-label">Comment</label>
+              <textarea
+                rows="5"
+                value={reviewForm.comment}
+                onChange={(event) =>
+                  handleReviewChange("comment", event.target.value)
+                }
+                className="field-input min-h-36 resize-y"
+                placeholder="Tell other shoppers what you liked or what could be better."
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={reviewLoading}
+              className="primary-button w-full disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {reviewLoading ? "Submitting review..." : "Submit review"}
+            </button>
+          </form>
+        </section>
       </div>
     </div>
   );
-}
+};
+
+export default ProductDetailsPage;

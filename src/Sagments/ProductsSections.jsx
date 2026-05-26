@@ -1,479 +1,201 @@
-import Pic from "../../public/Pictures/pexels-ian-panelo-7716266.jpg";
+import { useEffect, useMemo, useRef } from "react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import ProductCard from "../components/ProductCard";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRef } from "react";
+import {
+  clearProductMessages,
+  fetchProducts,
+} from "../ReduxSetUp/Feature/Products/ProductSlice";
 
-
-const bestSelling = [
-  { id: 1, name: "Nike Air Max", price: "$120" },
-  { id: 2, name: "Jordan Retro", price: "$180" },
-  { id: 3, name: "Puma Street", price: "$110" },
-  { id: 4, name: "Adidas Future", price: "$140" },
-  { id: 5, name: "Vans Urban", price: "$100" },
-  { id: 6, name: "New Balance X", price: "$160" },
-  { id: 7, name: "Nike Zoom", price: "$190" },
-  { id: 8, name: "Air Force", price: "$150" },
-];
-
-const newArrivals = [
-  {
-    id: 1,
-    name: "Adidas Future",
-    price: "$140",
-  },
-  {
-    id: 2,
-    name: "New Balance X",
-    price: "$160",
-  },
-  {
-    id: 3,
-    name: "Vans Urban",
-    price: "$100",
-  },
-  {
-    id: 4,
-    name: "Puma Street",
-    price: "$110",
-  },
-  {
-    id: 5,
-    name: "Jordan Retro",
-    price: "$180",
-  },
-  {
-    id: 6,
-    name: "Nike Air Max",
-    price: "$120",
-  },
-  {
-    id: 7,
-    name: "Air Force",
-    price: "$150",
-  },
-];
+const heroImage = "/Pictures/pexels-ian-panelo-7716266.jpg";
 
 function ProductsSections() {
+  const dispatch = useDispatch();
   const bestSellingRef = useRef(null);
-const newArrivalRef = useRef(null);
+  const newArrivalRef = useRef(null);
 
+  const { products, loading, error } = useSelector(
+    (state) => state.products
+  );
 
-const scrollLeft = (ref) => {
-  ref.current.scrollBy({
-    left: -350,
-    behavior: "smooth",
-  });
-};
+  useEffect(() => {
+    if (products.length === 0) {
+      dispatch(fetchProducts());
+    }
 
-const scrollRight = (ref) => {
-  ref.current.scrollBy({
-    left: 350,
-    behavior: "smooth",
-  });
-};
+    return () => {
+      dispatch(clearProductMessages());
+    };
+  }, [dispatch, products.length]);
+
+  const bestSelling = useMemo(() => {
+    return [...products]
+      .sort((firstProduct, secondProduct) => {
+        const ratingGap =
+          Number(secondProduct.rating || 0) -
+          Number(firstProduct.rating || 0);
+
+        if (ratingGap !== 0) {
+          return ratingGap;
+        }
+
+        return (
+          Number(secondProduct.numReviews || 0) -
+          Number(firstProduct.numReviews || 0)
+        );
+      })
+      .slice(0, 8);
+  }, [products]);
+
+  const newArrivals = useMemo(() => {
+    return [...products]
+      .sort(
+        (firstProduct, secondProduct) =>
+          new Date(secondProduct.createdAt) -
+          new Date(firstProduct.createdAt)
+      )
+      .slice(0, 8);
+  }, [products]);
+
+  const scrollLeft = (reference) => {
+    reference.current?.scrollBy({
+      left: -360,
+      behavior: "smooth",
+    });
+  };
+
+  const scrollRight = (reference) => {
+    reference.current?.scrollBy({
+      left: 360,
+      behavior: "smooth",
+    });
+  };
+
+  const renderProductStrip = (title, subtitle, productsList, reference) => (
+    <section className="relative min-h-screen bg-[#f8f8f8] px-6 py-24 md:px-16">
+      <div className="absolute left-0 top-0 h-[450px] w-[450px] rounded-full bg-gray-200 opacity-50 blur-[120px]" />
+
+      <div className="relative z-10 mb-20 text-center">
+        <p className="mb-4 text-sm uppercase tracking-[8px] text-gray-500">
+          {subtitle}
+        </p>
+        <h1 className="text-5xl font-black text-black md:text-7xl">
+          {title}
+        </h1>
+        <div className="mx-auto mt-6 h-1 w-28 rounded-full bg-black" />
+      </div>
+
+      <div className="relative z-10 flex justify-center">
+        <div className="relative w-full xl:w-[85%]">
+          <button
+            onClick={() => scrollLeft(reference)}
+            className="absolute -left-5 top-1/2 z-20 hidden h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-2xl transition-all duration-300 hover:bg-black hover:text-white xl:flex"
+          >
+            <ChevronLeft size={28} />
+          </button>
+
+          <button
+            onClick={() => scrollRight(reference)}
+            className="absolute -right-5 top-1/2 z-20 hidden h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-2xl transition-all duration-300 hover:bg-black hover:text-white xl:flex"
+          >
+            <ChevronRight size={28} />
+          </button>
+
+          <div
+            ref={reference}
+            className="flex gap-8 overflow-x-auto px-4 py-6 scrollbar-hide"
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
+          >
+            {productsList.map((product) => (
+              <div
+                key={product._id}
+                className="min-w-[320px] flex-shrink-0"
+              >
+                <ProductCard product={product} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+
+  if (loading && products.length === 0) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center bg-white">
+        <Loader2 size={48} className="animate-spin text-slate-700" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="bg-white px-6 py-20 md:px-16">
+        <div className="mx-auto max-w-4xl rounded-[2rem] border border-rose-200 bg-rose-50 px-6 py-5 text-center text-rose-600">
+          {error}
+        </div>
+      </section>
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <section className="bg-white px-6 py-20 md:px-16">
+        <div className="mx-auto max-w-4xl rounded-[2rem] border border-slate-200 bg-slate-50 px-6 py-5 text-center text-slate-600">
+          Add products in the backend first, then this section will render them
+          automatically.
+        </div>
+      </section>
+    );
+  }
 
   return (
     <div className="relative w-full bg-black">
-    
-      <section
-        className="
-          relative
-          min-h-screen
-          bg-[#f8f8f8]
-          px-6 md:px-16
-          py-24
-          z-20
-        "
-      >
-        
-        {/* Blur Decoration */}
-        <div
-          className="
-            absolute
-            top-0
-            left-0
-            w-[450px]
-            h-[450px]
-            bg-gray-200
-            rounded-full
-            blur-[120px]
-            opacity-50
-          "
-        ></div>
+      {renderProductStrip(
+        "Best Selling",
+        "Product Collection",
+        bestSelling,
+        bestSellingRef
+      )}
 
-        {/* Heading */}
-        <div className="relative z-10 text-center mb-20">
-          
-          <p
-            className="
-              uppercase
-              tracking-[8px]
-              text-gray-500
-              text-sm
-              mb-4
-            "
-          >
-            Product Collection
-          </p>
-
-          <h1
-            className="
-              text-5xl
-              md:text-7xl
-              font-black
-              text-black
-            "
-          >
-            Best Selling
-          </h1>
-
-          <div className="w-28 h-1 bg-black mx-auto mt-6 rounded-full"></div>
-        </div>
-
-        {/* Cards */}
-       <div className="relative w-full flex justify-center">
-  
-  {/* MAIN CONTAINER */}
-  <div className="relative w-[80%]">
-    
-    {/* LEFT BUTTON */}
-    <button
-      onClick={() => scrollLeft(bestSellingRef)}
-      className="
-        absolute
-        -left-7
-        top-1/2
-        -translate-y-1/2
-        z-20
-        w-14
-        h-14
-        rounded-full
-        bg-white
-        shadow-2xl
-        flex
-        items-center
-        justify-center
-        hover:bg-black
-        hover:text-white
-        transition-all
-        duration-300
-      "
-    >
-      <ChevronLeft size={28} />
-    </button>
-
-    {/* RIGHT BUTTON */}
-    <button
-      onClick={() => scrollRight(bestSellingRef)}
-      className="
-        absolute
-        -right-7
-        top-1/2
-        -translate-y-1/2
-        z-20
-        w-14
-        h-14
-        rounded-full
-        bg-white
-        shadow-2xl
-        flex
-        items-center
-        justify-center
-        hover:bg-black
-        hover:text-white
-        transition-all
-        duration-300
-      "
-    >
-      <ChevronRight size={28} />
-    </button>
-
-    {/* SLIDER */}
-    <div
-      ref={bestSellingRef}
-      className="
-        flex
-        gap-8
-        overflow-x-auto
-        scroll-smooth
-        scrollbar-hide
-        px-4
-        py-6
-      "
-      style={{
-        scrollbarWidth: "none",
-        msOverflowStyle: "none",
-      }}
-    >
-      
-      {bestSelling.map((product) => (
-        <div
-          key={product.id}
-          className="
-            min-w-[300px]
-            flex-shrink-0
-          "
-        >
-          <ProductCard
-            img={Pic}
-            name={product.name}
-            price={product.price}
-          />
-        </div>
-      ))}
-
-    </div>
-  </div>
-</div>
-      </section>
-
-
-      <section
-        className="
-          sticky
-          top-0
-          h-screen
-          overflow-hidden
-          z-10
-        "
-      >
-        
-        {/* Background Image */}
+      <section className="sticky top-0 h-screen overflow-hidden">
         <img
-          src={Pic}
+          src={heroImage}
           alt="Sneaker Banner"
-          className="
-            w-full
-            h-full
-            object-cover
-            scale-110
-          "
+          className="h-full w-full scale-110 object-cover"
         />
+        <div className="absolute inset-0 bg-black/55" />
 
-        {/* Dark Overlay */}
-        <div
-          className="
-            absolute
-            inset-0
-            bg-black/50
-          "
-        ></div>
-
-        {/* Content */}
-        <div
-          className="
-            absolute
-            inset-0
-            flex
-            flex-col
-            items-center
-            justify-center
-            text-center
-            text-white
-            px-6
-          "
-        >
-          
-          <p
-            className="
-              uppercase
-              tracking-[10px]
-              text-sm
-              mb-6
-            "
-          >
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center text-white">
+          <p className="mb-6 text-sm uppercase tracking-[10px]">
             Premium Sneakers
           </p>
 
-          <h1
-            className="
-              text-5xl
-              md:text-8xl
-              font-black
-              leading-none
-            "
-          >
+          <h1 className="text-5xl font-black leading-none md:text-8xl">
             STREET
             <br />
             CULTURE
           </h1>
 
-          <button
-            className="
-              mt-10
-              px-8
-              py-4
-              rounded-full
-              border
-              border-white
-              hover:bg-white
-              hover:text-black
-              transition-all
-              duration-500
-            "
+          <NavLink
+            to="/shop"
+            className="mt-10 rounded-full border border-white px-8 py-4 transition-all duration-500 hover:bg-white hover:text-black"
           >
             Explore Collection
-          </button>
+          </NavLink>
         </div>
       </section>
 
-      {/* ================================================= */}
-      {/* ================= THIRD SECTION ================= */}
-      {/* ================================================= */}
-
-      <section
-        className="
-          relative
-          min-h-screen
-          bg-white
-          px-6 md:px-16
-          py-24
-          z-30
-        "
-      >
-        
-        {/* Blur Decoration */}
-        <div
-          className="
-            absolute
-            bottom-0
-            right-0
-            w-[450px]
-            h-[450px]
-            bg-gray-100
-            rounded-full
-            blur-[120px]
-            opacity-70
-          "
-        ></div>
-
-        {/* Heading */}
-        <div className="relative z-10 text-center mb-20">
-          
-          <p
-            className="
-              uppercase
-              tracking-[8px]
-              text-gray-500
-              text-sm
-              mb-4
-            "
-          >
-            Latest Drops
-          </p>
-
-          <h1
-            className="
-              text-5xl
-              md:text-7xl
-              font-black
-              text-black
-            "
-          >
-            New Arrivals
-          </h1>
-
-          <div className="w-28 h-1 bg-black mx-auto mt-6 rounded-full"></div>
-        </div>
-
-        {/* Cards */}
-        <div className="relative w-full flex justify-center">
-  
-  {/* MAIN CONTAINER */}
-  <div className="relative w-[80%]">
-    
-    {/* LEFT BUTTON */}
-    <button
-      onClick={() => scrollLeft(newArrivalRef)}
-      className="
-        absolute
-        -left-7
-        top-1/2
-        -translate-y-1/2
-        z-20
-        w-14
-        h-14
-        rounded-full
-        bg-white
-        shadow-2xl
-        flex
-        items-center
-        justify-center
-        hover:bg-black
-        hover:text-white
-        transition-all
-        duration-300const bestSellingRef = useRef(null);
-const newArrivalRef = useRef(null);
-      "
-    >
-      <ChevronLeft size={28} />
-    </button>
-
-    {/* RIGHT BUTTON */}
-    <button
-      onClick={() => scrollRight(newArrivalRef)}
-      className="
-        absolute
-        -right-7
-        top-1/2
-        -translate-y-1/2
-        z-20
-        w-14
-        h-14
-        rounded-full
-        bg-white
-        shadow-2xl
-        flex
-        items-center
-        justify-center
-        hover:bg-black
-        hover:text-white
-        transition-all
-        duration-300const bestSellingRef = useRef(null);
-const newArrivalRef = useRef(null);
-      "
-    >
-      <ChevronRight size={28} />
-    </button>
-
-    {/* SLIDER */}
-    <div
-      ref={newArrivalRef}
-      className="
-        flex
-        gap-8
-        overflow-x-auto
-        scroll-smooth
-        scrollbar-hide
-        px-4
-        py-6
-      "
-      style={{
-        scrollbarWidth: "none",
-        msOverflowStyle: "none",
-      }}
-    >
-      
-      {newArrivals.map((product) => (
-        <div
-          key={product.id}
-          className="
-            min-w-[300px]
-            flex-shrink-0
-          "
-        >
-          <ProductCard
-            img={Pic}
-            name={product.name}
-            price={product.price}
-          />
-        </div>
-      ))}
-
-    </div>
-  </div>
-</div>
-      </section>
+      {renderProductStrip(
+        "New Arrivals",
+        "Latest Drops",
+        newArrivals,
+        newArrivalRef
+      )}
     </div>
   );
 }

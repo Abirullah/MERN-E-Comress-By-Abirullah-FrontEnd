@@ -4,7 +4,7 @@ import AirJorden from "../../public/Pictures/Air Jordan 1 Retro High OG (2025) -
 import FormalShoe from "../../public/Pictures/La nueva colección de zapatos que acompaña tus pasos en cualquier momento del día.jpg"
 import NeonShoe from "../../public/Pictures/Sneaker Jordan by IA STUDIO , IA STUDIO.jpeg"
 
-import { NavLink } from "react-router";
+import { NavLink } from "react-router-dom";
 
 
 

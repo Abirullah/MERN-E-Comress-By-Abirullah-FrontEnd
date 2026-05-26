@@ -213,6 +213,11 @@ export default function OrdersPlaced() {
           </h1>
         </div>
 
+        <div className="mb-8 rounded-[1.75rem] border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-800">
+          No orders API is available in the backend yet, so this screen remains
+          a styled frontend placeholder for now.
+        </div>
+
         {/* EMPTY STATE */}
         {orders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center">

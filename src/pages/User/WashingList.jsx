@@ -1,70 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, ShoppingCart, X, Heart, Trash2 } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
 
-const INITIAL_WISHLIST = [
-  {
-    id: 1,
-    img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80",
-    name: "Men's Black Running",
-    price: "$79.90",
-    brand: "Premium Shoes",
-    inStock: true,
-    category: "running",
-  },
-  {
-    id: 2,
-    img: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800&q=80",
-    name: "Men's Classic Blue",
-    price: "$69.00",
-    brand: "Premium Shoes",
-    inStock: true,
-    category: "classic",
-  },
-  {
-    id: 3,
-    img: "https://images.unsplash.com/photo-1608231387042-66d1773d3028?w=800&q=80",
-    name: "Men's Classic Mint",
-    price: "$79.90",
-    brand: "Premium Shoes",
-    inStock: true,
-    category: "classic",
-  },
-  {
-    id: 4,
-    img: "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=800&q=80",
-    name: "Men's Tan Casual",
-    price: "$89.00",
-    brand: "Premium Shoes",
-    inStock: false,
-    category: "casual",
-  },
-  {
-    id: 5,
-    img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&q=80",
-    name: "Men's Air Blue",
-    price: "$95.00",
-    brand: "Premium Shoes",
-    inStock: true,
-    category: "running",
-  },
-  {
-    id: 6,
-    img: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=800&q=80",
-    name: "Men's Burgundy Low",
-    price: "$74.90",
-    brand: "Premium Shoes",
-    inStock: true,
-    category: "casual",
-  },
-];
+import { fetchProducts } from "../../ReduxSetUp/Feature/Products/ProductSlice";
 
 const FILTERS = [
-  { key: "all",     label: "All"     },
+  { key: "all", label: "All" },
   { key: "running", label: "Running" },
   { key: "classic", label: "Classic" },
-  { key: "casual",  label: "Casual"  },
+  { key: "casual", label: "Casual" },
 ];
-
 
 function Toast({ message, visible }) {
   return (
@@ -74,7 +19,11 @@ function Toast({ message, visible }) {
         bg-black text-white text-xs tracking-wider
         px-4 py-3 rounded-xl shadow-2xl
         transition-all duration-300
-        ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3 pointer-events-none"}
+        ${
+          visible
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-3 pointer-events-none"
+        }
       `}
     >
       {message}
@@ -82,13 +31,15 @@ function Toast({ message, visible }) {
   );
 }
 
-
 function WishlistCard({ item, onRemove, onAddToBag }) {
   const [removing, setRemoving] = useState(false);
 
   const handleRemove = () => {
     setRemoving(true);
-    setTimeout(() => onRemove(item.id), 300);
+
+    setTimeout(() => {
+      onRemove(item.id);
+    }, 500);
   };
 
   return (
@@ -101,10 +52,13 @@ function WishlistCard({ item, onRemove, onAddToBag }) {
       `}
       style={{ height: 500 }}
     >
-      {/* ── IMAGE SECTION ── */}
-      <div className="relative overflow-hidden bg-[#e9eaea]" style={{ height: "70%" }}>
+      {/* IMAGE SECTION */}
+      <div
+        className="relative overflow-hidden bg-[#e9eaea]"
+        style={{ height: "70%" }}
+      >
         <img
-          src={item.img}
+          src={item.image}
           alt={item.name}
           className="
             w-full h-full object-cover
@@ -113,16 +67,16 @@ function WishlistCard({ item, onRemove, onAddToBag }) {
           "
         />
 
-        {/* Out of stock overlay */}
+        {/* Out Of Stock */}
         {!item.inStock && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <span className="bg-white text-black text-xs font-semibold tracking-widest uppercase px-4 py-2 rounded-full">
-              Out of Stock
+              Out Of Stock
             </span>
           </div>
         )}
 
-        {/* Hover action icons — Eye + Cart (your original style) */}
+        {/* Action Buttons */}
         <div
           className="
             absolute top-5 right-5
@@ -138,7 +92,6 @@ function WishlistCard({ item, onRemove, onAddToBag }) {
               flex items-center justify-center
               hover:bg-black hover:text-white transition
             "
-            aria-label="Quick view"
           >
             <Eye size={20} />
           </button>
@@ -148,20 +101,20 @@ function WishlistCard({ item, onRemove, onAddToBag }) {
             className={`
               w-11 h-11 rounded-full shadow-lg
               flex items-center justify-center transition
-              ${item.added
-                ? "bg-black text-white"
-                : "bg-white hover:bg-black hover:text-white"}
+              ${
+                item.added
+                  ? "bg-black text-white"
+                  : "bg-white hover:bg-black hover:text-white"
+              }
             `}
-            aria-label="Add to cart"
           >
             <ShoppingCart size={20} />
           </button>
         </div>
 
-        {/* Remove from wishlist — top left, appears on hover */}
+        {/* Remove */}
         <button
           onClick={handleRemove}
-          aria-label="Remove from wishlist"
           className="
             absolute top-5 left-5
             w-11 h-11 rounded-full bg-white shadow-lg
@@ -175,17 +128,23 @@ function WishlistCard({ item, onRemove, onAddToBag }) {
           <X size={20} />
         </button>
 
-        {/* Wishlist heart badge — always visible */}
+        {/* Saved Badge */}
         <div className="absolute bottom-4 left-4">
           <div className="flex items-center gap-1.5 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 shadow">
             <Heart size={12} className="fill-red-500 text-red-500" />
-            <span className="text-[10px] font-semibold tracking-widest uppercase text-gray-700">Saved</span>
+
+            <span className="text-[10px] font-semibold tracking-widest uppercase text-gray-700">
+              Saved
+            </span>
           </div>
         </div>
       </div>
 
-      {/* ── BOTTOM CONTENT — your original layout ── */}
-      <div className="px-6 py-5 flex flex-col justify-center" style={{ height: "30%" }}>
+      {/* CONTENT */}
+      <div
+        className="px-6 py-5 flex flex-col justify-center"
+        style={{ height: "30%" }}
+      >
         <p className="text-sm uppercase tracking-[3px] text-gray-500">
           {item.brand}
         </p>
@@ -198,8 +157,13 @@ function WishlistCard({ item, onRemove, onAddToBag }) {
           <p className="text-xl font-semibold text-black">
             {item.price}
           </p>
-          <span className={`text-sm font-medium ${item.inStock ? "text-green-600" : "text-red-400"}`}>
-            {item.inStock ? "In Stock" : "Out of Stock"}
+
+          <span
+            className={`text-sm font-medium ${
+              item.inStock ? "text-green-600" : "text-red-400"
+            }`}
+          >
+            {item.inStock ? "In Stock" : "Out Of Stock"}
           </span>
         </div>
       </div>
@@ -207,52 +171,113 @@ function WishlistCard({ item, onRemove, onAddToBag }) {
   );
 }
 
-
 export default function WishlistPage() {
-  const [items, setItems]         = useState(INITIAL_WISHLIST.map((i) => ({ ...i, added: false })));
+  const dispatch = useDispatch();
+
+  const { wishlist, loading } = useSelector(
+    (state) => state.products
+  );
+
+  console.log(wishlist);
+
+  const [items, setItems] = useState([]);
   const [activeFilter, setFilter] = useState("all");
-  const [toast, setToast]         = useState({ visible: false, message: "" });
+
+  const [toast, setToast] = useState({
+    visible: false,
+    message: "",
+  });
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
+  useEffect(() => {
+    setItems(wishlist || []);
+  }, [wishlist]);
 
   const notify = (msg) => {
-    setToast({ visible: true, message: msg });
-    setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
+    setToast({
+      visible: true,
+      message: msg,
+    });
+
+    setTimeout(() => {
+      setToast((prev) => ({
+        ...prev,
+        visible: false,
+      }));
+    }, 2200);
   };
 
   const handleRemove = (id) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
+    setItems((prev) => prev.filter((item) => item.id !== id));
+
     notify("Removed from wishlist");
   };
 
   const handleAddToBag = (id) => {
     setItems((prev) =>
-      prev.map((i) => {
-        if (i.id !== id) return i;
-        const next = { ...i, added: !i.added };
-        if (next.added) notify(`${i.name} added to bag`);
-        return next;
+      prev.map((item) => {
+        if (item.id !== id) return item;
+
+        const updatedItem = {
+          ...item,
+          added: !item.added,
+        };
+
+        if (updatedItem.added) {
+          notify(`${item.name} added to bag`);
+        }
+
+        return updatedItem;
       })
     );
   };
 
   const handleClearAll = () => {
     setItems([]);
+
     notify("Wishlist cleared");
   };
 
-  const visibleItems = items.filter((i) =>
-    activeFilter === "all" ? true : i.category === activeFilter
+  const visibleItems = items.filter((item) =>
+    activeFilter === "all"
+      ? true
+      : item.category === activeFilter
   );
 
-  return (
-    <div className="min-h-screen bg-[#f2f1f0] px-6 py-10" style={{ fontFamily: "system-ui, sans-serif" }}>
-      <div className="max-w-7xl mx-auto mt-10 pt-5">
+  const totalPrice = visibleItems.reduce((sum, item) => {
+    return (
+      sum +
+      (parseFloat(String(item.price).replace("$", "")) || 0)
+    );
+  }, 0);
 
-        {/* ── Header ── */}
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-2xl font-bold">
+        Loading...
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="min-h-screen bg-[#f2f1f0] px-6 py-10"
+      style={{ fontFamily: "system-ui, sans-serif" }}
+    >
+      <div className="max-w-7xl mx-auto mt-10 pt-5">
+        {/* HEADER */}
         <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[4px] text-gray-400 mb-2">Your collection</p>
+            <p className="text-xs uppercase tracking-[4px] text-gray-400 mb-2">
+              Your collection
+            </p>
+
             <h1 className="text-5xl font-bold text-black leading-none">
               Wishlist
+
               <span className="ml-3 text-2xl font-normal text-gray-400">
                 ({visibleItems.length})
               </span>
@@ -275,79 +300,98 @@ export default function WishlistPage() {
           )}
         </div>
 
-        {/* ── Filter chips ── */}
+        {/* FILTERS */}
         <div className="flex gap-3 mb-10 flex-wrap">
-          {FILTERS.map((f) => (
+          {FILTERS.map((filter) => (
             <button
-              key={f.key}
-              onClick={() => setFilter(f.key)}
+              key={filter.key}
+              onClick={() => setFilter(filter.key)}
               className={`
                 px-5 py-2 rounded-full text-sm font-medium tracking-wide
                 border transition-all duration-300
-                ${activeFilter === f.key
-                  ? "bg-black text-white border-black"
-                  : "bg-white text-gray-600 border-gray-200 hover:border-black hover:text-black"}
+                ${
+                  activeFilter === filter.key
+                    ? "bg-black text-white border-black"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-black hover:text-black"
+                }
               `}
             >
-              {f.label}
+              {filter.label}
             </button>
           ))}
         </div>
 
-        {/* ── Grid ── */}
+        {/* EMPTY */}
         {visibleItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center">
             <Heart size={48} className="text-gray-200 mb-4" />
-            <p className="text-2xl font-bold text-gray-300">Nothing saved yet</p>
-            <p className="text-sm text-gray-400 mt-2">Add some shoes to your wishlist to see them here</p>
+
+            <p className="text-2xl font-bold text-gray-300">
+              Nothing saved yet
+            </p>
+
+            <p className="text-sm text-gray-400 mt-2">
+              Add some shoes to your wishlist to see them here
+            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {visibleItems.map((item) => (
-              <WishlistCard
-                key={item.id}
-                item={item}
-                onRemove={handleRemove}
-                onAddToBag={handleAddToBag}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* ── Footer summary ── */}
-        {visibleItems.length > 0 && (
-          <div className="mt-12 flex items-center justify-between flex-wrap gap-4 border-t border-gray-200 pt-8">
-            <div>
-              <p className="text-xs uppercase tracking-[3px] text-gray-400 mb-1">Total saved value</p>
-              <p className="text-3xl font-bold text-black">
-                ${visibleItems
-                  .reduce((sum, i) => sum + parseFloat(i.price.replace("$", "")), 0)
-                  .toFixed(2)}
-              </p>
+          <>
+            {/* GRID */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {visibleItems.map((item) => (
+                <WishlistCard
+                  key={item.id}
+                  item={item}
+                  onRemove={handleRemove}
+                  onAddToBag={handleAddToBag}
+                />
+              ))}
             </div>
 
-            <button
-              onClick={() => {
-                setItems((prev) => prev.map((i) => ({ ...i, added: true })));
-                notify("All items added to bag");
-              }}
-              className="
-                bg-black text-white text-sm font-semibold
-                tracking-widest uppercase
-                px-8 py-4 rounded-xl
-                hover:bg-neutral-800 active:scale-95
-                transition-all duration-200
-                flex items-center gap-3
-              "
-            >
-              <ShoppingCart size={18} />
-              Add all to bag
-            </button>
-          </div>
+            {/* FOOTER */}
+            <div className="mt-12 flex items-center justify-between flex-wrap gap-4 border-t border-gray-200 pt-8">
+              <div>
+                <p className="text-xs uppercase tracking-[3px] text-gray-400 mb-1">
+                  Total saved value
+                </p>
+
+                <p className="text-3xl font-bold text-black">
+                  ${totalPrice.toFixed(2)}
+                </p>
+              </div>
+
+              <button
+                onClick={() => {
+                  setItems((prev) =>
+                    prev.map((item) => ({
+                      ...item,
+                      added: true,
+                    }))
+                  );
+
+                  notify("All items added to bag");
+                }}
+                className="
+                  bg-black text-white text-sm font-semibold
+                  tracking-widest uppercase
+                  px-8 py-4 rounded-xl
+                  hover:bg-neutral-800 active:scale-95
+                  transition-all duration-200
+                  flex items-center gap-3
+                "
+              >
+                <ShoppingCart size={18} />
+                Add all to bag
+              </button>
+            </div>
+          </>
         )}
       </div>
 
-      <Toast message={toast.message} visible={toast.visible} />
+      <Toast
+        message={toast.message}
+        visible={toast.visible}
+      />
     </div>
   );
 }

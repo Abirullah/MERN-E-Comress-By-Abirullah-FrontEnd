@@ -10,11 +10,12 @@ import {
   LogOut,
   Settings,
   UserCircle,
-  History,
-  ShoppingBag,
 } from "lucide-react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { logoutUser } from "../ReduxSetUp/Feature/Auth/AuthSlice";
 
 const navItems = [
   {
@@ -105,6 +106,8 @@ const mobileMenuVariants = {
 };
 
 export default function Navbar() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -114,9 +117,28 @@ export default function Navbar() {
 
   const searchInputRef = useRef(null);
   const location = useLocation();
+  const { userInfo, logoutLoading } = useSelector(
+    (state) => state.auth
+  );
 
-  // auth state
-  const isLoggedIn = true;
+  const isLoggedIn = Boolean(userInfo);
+  const displayName =
+    userInfo?.username ||
+    userInfo?.Profile?.firstName ||
+    "Guest";
+  const displayEmail = userInfo?.email || "Sign in to continue";
+  const avatarLabel = displayName.charAt(0).toUpperCase();
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUser()).unwrap();
+      setMobileMenuOpen(false);
+      toast.success("Logged out successfully");
+      navigate("/", { replace: true });
+    } catch (error) {
+      toast.error(error?.message || "Logout failed");
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -315,29 +337,52 @@ export default function Navbar() {
                 </button>
 
                 {/* WISHLIST */}
-                <NavLink to="/washinglist">
-                <button className="w-11 h-11 rounded-full border border-white/20 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                  <Heart size={18} />
-                </button>
-                </NavLink>
+                {isLoggedIn ? (
+                  <>
+                    <NavLink to="/washinglist">
+                      <button className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white transition-all duration-300 hover:bg-white hover:text-black">
+                        <Heart size={18} />
+                      </button>
+                    </NavLink>
 
-                {/* ORDERS */}
-                <NavLink to="/ordersplaced">
-                <button className="w-11 h-11 rounded-full border border-white/20 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                  <Package size={18} />
-                </button>
-                </NavLink>
+                    <NavLink to="/ordersplaced">
+                      <button className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white transition-all duration-300 hover:bg-white hover:text-black">
+                        <Package size={18} />
+                      </button>
+                    </NavLink>
 
-                {/* USER */}
-                <NavLink to="/profile">
-                <div className="relative group">
-                  <img
-                    src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400"
-                    alt="user"
-                    className="w-11 h-11 rounded-full object-cover cursor-pointer ring-2 ring-white/20 shadow-md"
-                  />
-                </div>
-                </NavLink>
+                    <NavLink to="/profile">
+                      <div className="relative group">
+                        {userInfo?.Profile?.profilePicture ? (
+                          <img
+                            src={userInfo.Profile.profilePicture}
+                            alt={displayName}
+                            className="h-11 w-11 rounded-full object-cover ring-2 ring-white/20 shadow-md"
+                          />
+                        ) : (
+                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-sm font-bold text-white ring-2 ring-white/20 shadow-md">
+                            {avatarLabel}
+                          </div>
+                        )}
+                      </div>
+                    </NavLink>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <NavLink
+                      to="/login"
+                      className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-white transition hover:bg-white hover:text-black"
+                    >
+                      Login
+                    </NavLink>
+                    <NavLink
+                      to="/register"
+                      className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black transition hover:bg-amber-300"
+                    >
+                      Register
+                    </NavLink>
+                  </div>
+                )}
               </div>
             )}
 
@@ -395,14 +440,24 @@ export default function Navbar() {
                 {/* USER PROFILE SECTION */}
                 <div className="mb-8 p-4 rounded-2xl bg-white/5 border border-white/10">
                   <div className="flex items-center gap-4">
-                    <img
-                      src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400"
-                      alt="user"
-                      className="w-14 h-14 rounded-full object-cover ring-2 ring-white/20"
-                    />
+                    {userInfo?.Profile?.profilePicture ? (
+                      <img
+                        src={userInfo.Profile.profilePicture}
+                        alt={displayName}
+                        className="w-14 h-14 rounded-full object-cover ring-2 ring-white/20"
+                      />
+                    ) : (
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-lg font-bold text-white ring-2 ring-white/20">
+                        {avatarLabel}
+                      </div>
+                    )}
                     <div>
-                      <h4 className="font-semibold text-white text-lg">Abir Afridi</h4>
-                      <p className="text-sm text-white/60">abir@example.com</p>
+                      <h4 className="font-semibold text-white text-lg">
+                        {displayName}
+                      </h4>
+                      <p className="text-sm text-white/60">
+                        {displayEmail}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -458,28 +513,51 @@ export default function Navbar() {
                 {/* ACTION BUTTONS */}
                 <div className="mt-8 pt-6 border-t border-white/10">
                   <div className="grid grid-cols-2 gap-3 mb-6">
-                    <button className="flex items-center justify-center gap-2 py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all duration-300">
+                    <NavLink
+                      to={isLoggedIn ? "/washinglist" : "/login"}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-white/10 py-3 text-white transition-all duration-300 hover:bg-white/20"
+                    >
                       <Heart size={16} />
                       Wishlist
-                    </button>
-                    <button className="flex items-center justify-center gap-2 py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all duration-300">
+                    </NavLink>
+                    <NavLink
+                      to={isLoggedIn ? "/ordersplaced" : "/login"}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-white/10 py-3 text-white transition-all duration-300 hover:bg-white/20"
+                    >
                       <Package size={16} />
                       Orders
-                    </button>
+                    </NavLink>
                     <button className="flex items-center justify-center gap-2 py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all duration-300">
                       <Bell size={16} />
                       Notifications
                     </button>
-                    <button className="flex items-center justify-center gap-2 py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all duration-300">
+                    <NavLink
+                      to={isLoggedIn ? "/profile" : "/register"}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-white/10 py-3 text-white transition-all duration-300 hover:bg-white/20"
+                    >
                       <Settings size={16} />
-                      Settings
-                    </button>
+                      {isLoggedIn ? "Profile" : "Register"}
+                    </NavLink>
                   </div>
 
-                  <button className="w-full py-3 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2">
-                    <LogOut size={16} />
-                    Logout
-                  </button>
+                  {isLoggedIn ? (
+                    <button
+                      onClick={handleLogout}
+                      disabled={logoutLoading}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-red-600 py-3 font-semibold text-white transition-all duration-300 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      <LogOut size={16} />
+                      {logoutLoading ? "Logging out..." : "Logout"}
+                    </button>
+                  ) : (
+                    <NavLink
+                      to="/login"
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 py-3 font-semibold text-black transition-all duration-300 hover:shadow-lg"
+                    >
+                      <UserCircle size={16} />
+                      Login to continue
+                    </NavLink>
+                  )}
                 </div>
               </div>
             </motion.div>

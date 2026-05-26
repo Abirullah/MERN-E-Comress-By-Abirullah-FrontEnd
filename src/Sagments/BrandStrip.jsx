@@ -5,7 +5,7 @@ import reebok from "../../public/Logoes/pngwing.com (3).png";
 import vans from "../../public/Logoes/pngwing.com (8).png";
 import newbalance from "../../public/Logoes/pngwing.com (2).png";
 import skechers from "../../public/Logoes/pngwing.com (5).png";
-import { NavLink } from "react-router";
+import { NavLink } from "react-router-dom";
 
 const brands = [
   nike,

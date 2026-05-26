@@ -1,7 +1,12 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-
+import Loader from "../../components/Loader";
+import {
+  clearAuthMessages,
+  fetchUserProfile,
+  updateUserProfile,
+} from "../../ReduxSetUp/Feature/Auth/AuthSlice";
 
 const emptyProfile = {
   firstName: "",
@@ -13,38 +18,70 @@ const emptyProfile = {
   preferences: "",
 };
 
+const getInitials = (value = "") => {
+  return value
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((segment) => segment[0]?.toUpperCase())
+    .join("");
+};
+
+const trimProfileFields = (profileFields) => {
+  return Object.entries(profileFields).reduce(
+    (accumulator, [key, value]) => {
+      const trimmedValue = value.trim();
+
+      if (trimmedValue) {
+        accumulator[key] = trimmedValue;
+      }
+
+      return accumulator;
+    },
+    {}
+  );
+};
+
 const Profile = () => {
+  const dispatch = useDispatch();
+  const {
+    userInfo,
+    profileLoading,
+    updateLoading,
+    profileError,
+  } = useSelector((state) => state.auth);
+
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [profileFields, setProfileFields] = useState(emptyProfile);
 
-  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(fetchUserProfile());
 
-  const { userInfo } = useSelector((state) => state.auth);
-  const {
-    data: profileData,
-    isLoading: isLoadingProfile,
-    error: profileError,
-  } = useGetProfileQuery();
-  const [updateProfile, { isLoading: loadingUpdateProfile }] =
-    useUpdateProfileMutation();
+    return () => {
+      dispatch(clearAuthMessages());
+    };
+  }, [dispatch]);
 
   useEffect(() => {
-    const source = profileData || userInfo;
-
-    if (!source) {
+    if (!userInfo) {
       return;
     }
 
-    setUsername(source.username || "");
-    setEmail(source.email || "");
+    setUsername(userInfo.username || "");
+    setEmail(userInfo.email || "");
     setProfileFields({
       ...emptyProfile,
-      ...(source.Profile || {}),
+      ...(userInfo.Profile || {}),
     });
-  }, [profileData, userInfo]);
+  }, [userInfo]);
+
+  const initials = useMemo(
+    () => getInitials(username || email || "User"),
+    [email, username]
+  );
 
   const handleProfileFieldChange = (field, value) => {
     setProfileFields((currentFields) => ({
@@ -53,235 +90,282 @@ const Profile = () => {
     }));
   };
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
+  const submitHandler = async (event) => {
+    event.preventDefault();
+
+    if (password && password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
 
     const payload = {
-      username,
-      email,
-      Profile: profileFields,
+      username: username.trim(),
+      email: email.trim(),
     };
 
-    if (password) {
+    const trimmedProfile = trimProfileFields(profileFields);
+
+    if (Object.keys(trimmedProfile).length > 0) {
+      payload.Profile = trimmedProfile;
+    }
+
+    if (password.trim()) {
       payload.password = password;
     }
 
     try {
-      const res = await updateProfile(payload).unwrap();
-      dispatch(setCredentials(normalizeUserSession(res)));
+      await dispatch(updateUserProfile(payload)).unwrap();
       setPassword("");
       setConfirmPassword("");
       toast.success("Profile updated successfully");
     } catch (error) {
-      toast.error(error?.data?.message || error?.message || "Update failed");
+      toast.error(error?.message || "Profile update failed");
     }
   };
 
-  if (isLoadingProfile) {
+  if (profileLoading && !userInfo) {
     return (
-      <div className="flex justify-center py-12">
+      <div className="flex min-h-[60vh] items-center justify-center">
         <Loader />
       </div>
     );
   }
 
-  if (profileError) {
-    return (
-      <div className="app-card p-6">
-        <p className="text-sm font-semibold text-rose-600">
-          {profileError?.data?.message ||
-            profileError?.message ||
-            "Profile could not be loaded."}
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-      <aside className="space-y-6 mt-10">
-        <div className="app-card p-6">
-          <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-900 text-xl font-extrabold text-white">
-              {getInitials(username || email)}
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-slate-900">{username}</p>
-              <p className="text-sm text-slate-500">{email}</p>
-            </div>
-          </div>
+    <div className="mx-auto max-w-7xl px-6 pb-16 pt-32">
+      <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <aside className="space-y-6">
+          <div className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_18px_60px_rgba(15,23,42,0.08)] backdrop-blur">
+            <div className="flex items-center gap-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-900 text-xl font-extrabold text-white">
+                {initials || "U"}
+              </div>
 
-          <div className="mt-6 space-y-3 rounded-[1.75rem] bg-slate-50 p-5 text-sm text-slate-600">
-            <p>
-              This preview form saves directly to local storage using the same
-              screen structure you can keep for the real integration later.
-            </p>
-            <p>
-              No field validation is enforced here, so you can prototype every
-              state quickly.
-            </p>
-            <p>
-              Blank values are fine while you are shaping the UI.
-            </p>
-          </div>
-        </div>
-
-        {loadingUpdateProfile && (
-          <div className="app-card flex justify-center p-6">
-            <Loader />
-          </div>
-        )}
-      </aside>
-
-      <section className="app-card p-6 sm:p-8">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
-          Update profile
-        </h1>
-        <p className="mt-3 section-copy">
-          Everything on this page is stored locally so you can design the full
-          profile workflow first.
-        </p>
-
-        <form onSubmit={submitHandler} className="mt-8 space-y-8">
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div>
-              <label className="field-label">Username</label>
-              <input
-                type="text"
-                className="field-input"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
+              <div>
+                <p className="text-2xl font-bold text-slate-900">
+                  {username || "Your profile"}
+                </p>
+                <p className="text-sm text-slate-500">
+                  {email || "Add your email address"}
+                </p>
+              </div>
             </div>
-            <div>
-              <label className="field-label">Email</label>
-              <input
-                type="email"
-                className="field-input"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="field-label">New password</label>
-              <input
-                type="password"
-                className="field-input"
-                placeholder="Leave blank to keep the current password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="field-label">Confirm password</label>
-              <input
-                type="password"
-                className="field-input"
-                placeholder="Repeat the new password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
-          </div>
 
-          <div className="space-y-4">
-            <div>
-              <p className="text-lg font-bold text-slate-900">Profile details</p>
-              <p className="mt-2 text-sm text-slate-500">
-                These fields are persisted in the local preview store.
+            <div className="mt-6 space-y-3 rounded-[1.75rem] bg-slate-50 p-5 text-sm text-slate-600">
+              <p>Your profile is now connected to the backend.</p>
+              <p>
+                Any changes you save here are sent to
+                <span className="font-semibold text-slate-900">
+                  {" "}
+                  `/api/users/profile`
+                </span>
+                .
               </p>
             </div>
+          </div>
 
+          {updateLoading && (
+            <div className="flex justify-center rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
+              <Loader />
+            </div>
+          )}
+        </aside>
+
+        <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_18px_60px_rgba(15,23,42,0.08)] backdrop-blur sm:p-8">
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+            Update profile
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-slate-500">
+            Keep your username, email, and optional profile fields in sync with
+            the user document stored in MongoDB.
+          </p>
+
+          {profileError && (
+            <div className="mt-6 rounded-[1.5rem] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+              {profileError}
+            </div>
+          )}
+
+          <form onSubmit={submitHandler} className="mt-8 space-y-8">
             <div className="grid gap-5 sm:grid-cols-2">
               <div>
-                <label className="field-label">First name</label>
+                <label className="field-label">Username</label>
                 <input
                   type="text"
                   className="field-input"
-                  value={profileFields.firstName}
-                  onChange={(e) =>
-                    handleProfileFieldChange("firstName", e.target.value)
-                  }
+                  value={username}
+                  onChange={(event) => setUsername(event.target.value)}
                 />
               </div>
+
               <div>
-                <label className="field-label">Last name</label>
+                <label className="field-label">Email</label>
                 <input
-                  type="text"
+                  type="email"
                   className="field-input"
-                  value={profileFields.lastName}
-                  onChange={(e) =>
-                    handleProfileFieldChange("lastName", e.target.value)
-                  }
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                 />
               </div>
+
               <div>
-                <label className="field-label">Phone number</label>
+                <label className="field-label">New password</label>
                 <input
-                  type="text"
+                  type="password"
                   className="field-input"
-                  value={profileFields.phoneNumber}
-                  onChange={(e) =>
-                    handleProfileFieldChange("phoneNumber", e.target.value)
-                  }
+                  placeholder="Leave blank to keep the current password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
                 />
               </div>
+
               <div>
-                <label className="field-label">Profile picture URL</label>
+                <label className="field-label">Confirm password</label>
                 <input
-                  type="text"
+                  type="password"
                   className="field-input"
-                  value={profileFields.profilePicture}
-                  onChange={(e) =>
-                    handleProfileFieldChange("profilePicture", e.target.value)
+                  placeholder="Repeat the new password"
+                  value={confirmPassword}
+                  onChange={(event) =>
+                    setConfirmPassword(event.target.value)
                   }
                 />
               </div>
             </div>
 
-            <div>
-              <label className="field-label">Address</label>
-              <textarea
-                rows="3"
-                className="field-input"
-                value={profileFields.address}
-                onChange={(e) =>
-                  handleProfileFieldChange("address", e.target.value)
-                }
-              />
-            </div>
-
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className="space-y-4">
               <div>
-                <label className="field-label">Account details</label>
-                <textarea
-                  rows="4"
-                  className="field-input"
-                  value={profileFields.accountDetails}
-                  onChange={(e) =>
-                    handleProfileFieldChange("accountDetails", e.target.value)
-                  }
-                />
+                <p className="text-lg font-bold text-slate-900">
+                  Profile details
+                </p>
+                <p className="mt-2 text-sm text-slate-500">
+                  These fields map directly to the nested
+                  <span className="font-semibold text-slate-900">
+                    {" "}
+                    `Profile`
+                  </span>
+                  {" "}object in your backend user model.
+                </p>
               </div>
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div>
+                  <label className="field-label">First name</label>
+                  <input
+                    type="text"
+                    className="field-input"
+                    value={profileFields.firstName}
+                    onChange={(event) =>
+                      handleProfileFieldChange(
+                        "firstName",
+                        event.target.value
+                      )
+                    }
+                  />
+                </div>
+
+                <div>
+                  <label className="field-label">Last name</label>
+                  <input
+                    type="text"
+                    className="field-input"
+                    value={profileFields.lastName}
+                    onChange={(event) =>
+                      handleProfileFieldChange(
+                        "lastName",
+                        event.target.value
+                      )
+                    }
+                  />
+                </div>
+
+                <div>
+                  <label className="field-label">Phone number</label>
+                  <input
+                    type="text"
+                    className="field-input"
+                    value={profileFields.phoneNumber}
+                    onChange={(event) =>
+                      handleProfileFieldChange(
+                        "phoneNumber",
+                        event.target.value
+                      )
+                    }
+                  />
+                </div>
+
+                <div>
+                  <label className="field-label">Address</label>
+                  <input
+                    type="text"
+                    className="field-input"
+                    value={profileFields.address}
+                    onChange={(event) =>
+                      handleProfileFieldChange(
+                        "address",
+                        event.target.value
+                      )
+                    }
+                  />
+                </div>
+
+                <div>
+                  <label className="field-label">Account details</label>
+                  <input
+                    type="text"
+                    className="field-input"
+                    value={profileFields.accountDetails}
+                    onChange={(event) =>
+                      handleProfileFieldChange(
+                        "accountDetails",
+                        event.target.value
+                      )
+                    }
+                  />
+                </div>
+
+                <div>
+                  <label className="field-label">Profile picture URL</label>
+                  <input
+                    type="text"
+                    className="field-input"
+                    value={profileFields.profilePicture}
+                    onChange={(event) =>
+                      handleProfileFieldChange(
+                        "profilePicture",
+                        event.target.value
+                      )
+                    }
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="field-label">Preferences</label>
                 <textarea
                   rows="4"
-                  className="field-input"
+                  className="field-input min-h-32 resize-y"
                   value={profileFields.preferences}
-                  onChange={(e) =>
-                    handleProfileFieldChange("preferences", e.target.value)
+                  onChange={(event) =>
+                    handleProfileFieldChange(
+                      "preferences",
+                      event.target.value
+                    )
                   }
                 />
               </div>
             </div>
-          </div>
 
-          <button type="submit" className="primary-button">
-            Save changes
-          </button>
-        </form>
-      </section>
+            <button
+              type="submit"
+              disabled={updateLoading}
+              className="primary-button w-full disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {updateLoading ? "Saving changes..." : "Save profile"}
+            </button>
+          </form>
+        </section>
+      </div>
     </div>
   );
 };
