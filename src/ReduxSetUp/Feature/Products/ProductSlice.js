@@ -82,9 +82,9 @@ export const createProductReview = createAsyncThunk(
 
 export const fetchWishlist = createAsyncThunk(
   "products/fetchWishlist",
-  async (_, thunkAPI) => {
+  async (userId, thunkAPI) => {
     try {
-      return await fetchwishlist();
+      return await fetchwishlist(userId);
     } catch (error) {
       return thunkAPI.rejectWithValue(
         buildRejectedPayload(error, "Wishlist could not be loaded")

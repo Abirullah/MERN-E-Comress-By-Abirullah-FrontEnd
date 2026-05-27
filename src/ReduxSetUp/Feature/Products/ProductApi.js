@@ -23,7 +23,7 @@ export const createProductReviewAPI = async (productId, reviewData) => {
   return response.data;
 };
 
-export const fetchwishlist = async () => {
-  const response = await API.get("/users/wishlist");
+export const fetchwishlist = async (userId) => {
+  const response = await API.get(`/users/${userId}/wishlist`);
   return response.data;
 };

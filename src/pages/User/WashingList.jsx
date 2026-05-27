@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { Eye, ShoppingCart, X, Heart, Trash2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { fetchProducts } from "../../ReduxSetUp/Feature/Products/ProductSlice";
+import {
+  fetchWishlist,
+  toggleProductWishlist,
+} from "../../ReduxSetUp/Feature/Products/ProductSlice";
 
 const FILTERS = [
   { key: "all", label: "All" },
@@ -10,6 +13,48 @@ const FILTERS = [
   { key: "classic", label: "Classic" },
   { key: "casual", label: "Casual" },
 ];
+
+const FALLBACK_IMAGE = "/Pictures/pexels-ian-panelo-7716266.jpg";
+
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(Number(amount || 0));
+};
+
+const normalizeWishlistItem = (product) => {
+  if (!product) {
+    return null;
+  }
+
+  const numericPrice =
+    Number(product.discountPrice) > 0
+      ? Number(product.discountPrice)
+      : Number(product.price || 0);
+  const filterKeys = [
+    product.category,
+    ...(Array.isArray(product.tags) ? product.tags : []),
+  ]
+    .filter(Boolean)
+    .map((value) => String(value).toLowerCase());
+
+  return {
+    ...product,
+    id: product._id || product.id,
+    image: product.images?.[0] || FALLBACK_IMAGE,
+    price: formatCurrency(numericPrice),
+    numericPrice,
+    inStock:
+      Number(product.countInStock) > 0 ||
+      (product.variants || []).some(
+        (variant) => Number(variant.stock) > 0
+      ),
+    filterKeys,
+    added: false,
+  };
+};
 
 function Toast({ message, visible }) {
   return (
@@ -173,12 +218,13 @@ function WishlistCard({ item, onRemove, onAddToBag }) {
 
 export default function WishlistPage() {
   const dispatch = useDispatch();
-
-  const { wishlist, loading } = useSelector(
-    (state) => state.products
-  );
-
-  console.log(wishlist);
+  const { userInfo } = useSelector((state) => state.auth);
+  const {
+    wishlistitems,
+    wishlistLoading,
+    error,
+  } = useSelector((state) => state.products);
+  const userId = userInfo?._id || userInfo?.id || null;
 
   const [items, setItems] = useState([]);
   const [activeFilter, setFilter] = useState("all");
@@ -189,12 +235,21 @@ export default function WishlistPage() {
   });
 
   useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    if (!userId) {
+      setItems([]);
+      return;
+    }
+
+    dispatch(fetchWishlist(userId));
+  }, [dispatch, userId]);
 
   useEffect(() => {
-    setItems(wishlist || []);
-  }, [wishlist]);
+    setItems(
+      (wishlistitems || [])
+        .map(normalizeWishlistItem)
+        .filter(Boolean)
+    );
+  }, [wishlistitems]);
 
   const notify = (msg) => {
     setToast({
@@ -210,10 +265,22 @@ export default function WishlistPage() {
     }, 2200);
   };
 
-  const handleRemove = (id) => {
+  const handleRemove = async (id) => {
+    const previousItems = items;
     setItems((prev) => prev.filter((item) => item.id !== id));
 
-    notify("Removed from wishlist");
+    try {
+      await dispatch(toggleProductWishlist(id)).unwrap();
+
+      if (userId) {
+        dispatch(fetchWishlist(userId));
+      }
+
+      notify("Removed from wishlist");
+    } catch (removeError) {
+      setItems(previousItems);
+      notify(removeError?.message || "Could not update wishlist");
+    }
   };
 
   const handleAddToBag = (id) => {
@@ -235,26 +302,46 @@ export default function WishlistPage() {
     );
   };
 
-  const handleClearAll = () => {
+  const handleClearAll = async () => {
+    if (!items.length || !userId) {
+      return;
+    }
+
+    const wishlistIds = items.map((item) => item.id);
     setItems([]);
 
-    notify("Wishlist cleared");
+    const results = await Promise.allSettled(
+      wishlistIds.map((id) =>
+        dispatch(toggleProductWishlist(id)).unwrap()
+      )
+    );
+
+    await dispatch(fetchWishlist(userId));
+
+    const hasFailure = results.some(
+      (result) => result.status === "rejected"
+    );
+
+    notify(
+      hasFailure ? "Some items could not be removed" : "Wishlist cleared"
+    );
   };
 
   const visibleItems = items.filter((item) =>
     activeFilter === "all"
       ? true
-      : item.category === activeFilter
+      : item.filterKeys?.includes(activeFilter)
   );
 
   const totalPrice = visibleItems.reduce((sum, item) => {
-    return (
-      sum +
-      (parseFloat(String(item.price).replace("$", "")) || 0)
-    );
+    return sum + Number(item.numericPrice || 0);
   }, 0);
 
-  if (loading) {
+  if (
+    wishlistLoading &&
+    items.length === 0 &&
+    wishlistitems.length === 0
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center text-2xl font-bold">
         Loading...
@@ -385,6 +472,12 @@ export default function WishlistPage() {
               </button>
             </div>
           </>
+        )}
+
+        {error && !wishlistLoading && items.length === 0 && (
+          <div className="mt-8 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-600">
+            {error}
+          </div>
         )}
       </div>
 
