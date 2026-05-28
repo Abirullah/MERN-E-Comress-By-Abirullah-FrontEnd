@@ -20,6 +20,7 @@ import Home from "./pages/Home.jsx";
 import Shop from "./pages/Shop/Shop.jsx";
 import LacosteProductPage from "./pages/Shop/ProductDetails.jsx";
 import OrdersPlaced from "./pages/User/OrdersPlaced.jsx";
+import CheckoutPage from "./pages/Checkout.jsx";
 import RequireAuth from "./components/RequireAuth.jsx";
 
 const router = createBrowserRouter(
@@ -33,6 +34,7 @@ const router = createBrowserRouter(
 
       
       <Route path="shop" element={<Shop />} />
+      <Route path="checkout" element={<CheckoutPage />} />
       <Route
           path="products/:id"
           element={<LacosteProductPage />}

@@ -165,8 +165,8 @@ export default function Navbar() {
       <header
         className={`fixed top-0 left-0 z-50 w-full transition-all duration-500 ${
           scrolled
-            ? "bg-black/30 backdrop-blur-[30px] border-b border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.35)] "
-            : "bg-black/10 backdrop-blur-[14px] border-b border-white/5"
+            ? "bg-black/70 backdrop-blur-[30px] border-b border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.35)] "
+            : "bg-black/70 backdrop-blur-[14px] border-b border-white/5"
         }`}
       >
         <nav className="relative h-[85px] w-full px-6 xl:px-12 flex items-center justify-between text-white">
