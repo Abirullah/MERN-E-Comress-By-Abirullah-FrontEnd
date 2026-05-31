@@ -31,10 +31,10 @@ function App() {
     "/otp",
   ];
 
-  // Check current route
-  const shouldHideNavbar = hideNavbarRoutes.includes(
-    location.pathname
-  );
+  const shouldHideNavbar =
+    hideNavbarRoutes.includes(location.pathname) ||
+    location.pathname === "/shop" ||
+    location.pathname.startsWith("/products/");
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f7f1e7_0%,#ffffff_55%,#edf4ff_100%)] text-slate-900">

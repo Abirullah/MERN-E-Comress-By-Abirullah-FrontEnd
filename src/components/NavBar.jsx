@@ -52,11 +52,6 @@ const navItems = [
     icon: "✨",
   },
   {
-    title: "Most Sell",
-    dropdown: ["Trending", "Top Rated", "Best Sneakers"],
-    icon: "🏆",
-  },
-  {
     title: "Premium",
     dropdown: ["Luxury Collection", "Limited Edition", "Exclusive"],
     icon: "💎",
