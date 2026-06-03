@@ -31,10 +31,7 @@ function App() {
     "/otp",
   ];
 
-  const shouldHideNavbar =
-    hideNavbarRoutes.includes(location.pathname) ||
-    location.pathname === "/shop" ||
-    location.pathname.startsWith("/products/");
+  const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname);
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f7f1e7_0%,#ffffff_55%,#edf4ff_100%)] text-slate-900">

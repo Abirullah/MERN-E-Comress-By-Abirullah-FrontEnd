@@ -1,179 +1,138 @@
+import {
+  Globe,
+  ShoppingBag,
+  Package,
+  ArrowUpRight,
+  Mail,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+
+const footerGroups = [
+  {
+    title: "Shop",
+    links: [
+      { label: "New Arrivals", to: "/shop" },
+      { label: "Best Sellers", to: "/shop" },
+      { label: "Men", to: "/shop" },
+      { label: "Women", to: "/shop" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { label: "About", to: "/" },
+      { label: "Our Story", to: "/" },
+      { label: "Careers", to: "/" },
+      { label: "Contact", to: "/" },
+    ],
+  },
+  {
+    title: "Support",
+    links: [
+      { label: "Shipping", to: "/" },
+      { label: "Returns", to: "/" },
+      { label: "FAQs", to: "/" },
+      { label: "Track Order", to: "/" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { label: "Privacy Policy", to: "/" },
+      { label: "Terms", to: "/" },
+      { label: "Accessibility", to: "/" },
+      { label: "Cookies", to: "/" },
+    ],
+  },
+];
+
+function FooterColumn({ title, links }) {
+  return (
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-950">
+        {title}
+      </h3>
+
+      <ul className="mt-5 space-y-3 text-sm text-slate-500">
+        {links.map((link) => (
+          <li key={link.label}>
+            <Link
+              to={link.to}
+              className="transition hover:text-slate-950"
+            >
+              {link.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 function Footer() {
   return (
-    <footer className="bg-white text-gray-600">
+    <footer className="border-t border-slate-200 bg-[#f7f5ef] text-slate-600">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
-          {/* Left Side */}
-          <div>
-            <h2 className="text-3xl font-bold text-teal-600">
-              YourBrand
-            </h2>
+        <div className="grid gap-12 lg:grid-cols-[1.15fr_1.85fr]">
+          <div className="space-y-6">
+            <div>
+              <p className="text-3xl font-black tracking-[0.28em] text-slate-950">
+                LUXE
+              </p>
+              <p className="mt-4 max-w-md text-sm leading-6 text-slate-500">
+                Premium sneakers and everyday footwear designed for clean
+                silhouettes, comfort, and a sharper finish.
+              </p>
+            </div>
 
-            <p className="mt-4 max-w-xs text-gray-500 leading-relaxed">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Molestias, accusantium.
-            </p>
+            <div className="flex items-center gap-3">
+              {[
+                { icon: Globe, label: "Website" },
+                { icon: ShoppingBag, label: "Shop" },
+                { icon: Package, label: "Packages" },
+                { icon: ArrowUpRight, label: "Explore" },
+              ].map(({ icon: Icon, label }) => (
+                <a
+                  key={label}
+                  href="#"
+                  aria-label={label}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-slate-400 hover:text-slate-950"
+                >
+                  <Icon size={16} />
+                </a>
+              ))}
+            </div>
 
-            {/* Social Icons */}
-            <div className="mt-8 flex gap-4">
-              <a
-                href="#"
-                className="rounded-full border border-gray-200 p-3 text-gray-700 transition hover:bg-teal-600 hover:text-white"
-              >
-                Facebook
-              </a>
-
-              <a
-                href="#"
-                className="rounded-full border border-gray-200 p-3 text-gray-700 transition hover:bg-teal-600 hover:text-white"
-              >
-                Instagram
-              </a>
-
-              <a
-                href="#"
-                className="rounded-full border border-gray-200 p-3 text-gray-700 transition hover:bg-teal-600 hover:text-white"
-              >
-                Twitter
-              </a>
-
-              <a
-                href="#"
-                className="rounded-full border border-gray-200 p-3 text-gray-700 transition hover:bg-teal-600 hover:text-white"
-              >
-                GitHub
-              </a>
+            <div className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500 shadow-sm">
+              <Mail size={16} className="shrink-0 text-slate-400" />
+              <span>hello@luxe.com</span>
             </div>
           </div>
 
-          {/* Right Side */}
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-4">
-            {/* Services */}
-            <div>
-              <h3 className="font-semibold text-gray-900">Services</h3>
-
-              <ul className="mt-6 space-y-4 text-sm">
-                <li>
-                  <a href="#" className="transition hover:text-teal-600">
-                    1on1 Coaching
-                  </a>
-                </li>
-
-                <li>
-                  <a href="#" className="transition hover:text-teal-600">
-                    Company Review
-                  </a>
-                </li>
-
-                <li>
-                  <a href="#" className="transition hover:text-teal-600">
-                    Accounts Review
-                  </a>
-                </li>
-
-                <li>
-                  <a href="#" className="transition hover:text-teal-600">
-                    HR Consulting
-                  </a>
-                </li>
-
-                <li>
-                  <a href="#" className="transition hover:text-teal-600">
-                    SEO Optimisation
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Company */}
-            <div>
-              <h3 className="font-semibold text-gray-900">Company</h3>
-
-              <ul className="mt-6 space-y-4 text-sm">
-                <li>
-                  <a href="#" className="transition hover:text-teal-600">
-                    About
-                  </a>
-                </li>
-
-                <li>
-                  <a href="#" className="transition hover:text-teal-600">
-                    Meet the Team
-                  </a>
-                </li>
-
-                <li>
-                  <a href="#" className="transition hover:text-teal-600">
-                    Careers
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Helpful Links */}
-            <div>
-              <h3 className="font-semibold text-gray-900">Helpful Links</h3>
-
-              <ul className="mt-6 space-y-4 text-sm">
-                <li>
-                  <a href="#" className="transition hover:text-teal-600">
-                    Contact
-                  </a>
-                </li>
-
-                <li>
-                  <a href="#" className="transition hover:text-teal-600">
-                    FAQs
-                  </a>
-                </li>
-
-                <li>
-                  <a href="#" className="transition hover:text-teal-600">
-                    Live Chat
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Legal */}
-            <div>
-              <h3 className="font-semibold text-gray-900">Legal</h3>
-
-              <ul className="mt-6 space-y-4 text-sm">
-                <li>
-                  <a href="#" className="transition hover:text-teal-600">
-                    Accessibility
-                  </a>
-                </li>
-
-                <li>
-                  <a href="#" className="transition hover:text-teal-600">
-                    Returns Policy
-                  </a>
-                </li>
-
-                <li>
-                  <a href="#" className="transition hover:text-teal-600">
-                    Refund Policy
-                  </a>
-                </li>
-
-                <li>
-                  <a href="#" className="transition hover:text-teal-600">
-                    Privacy Policy
-                  </a>
-                </li>
-              </ul>
-            </div>
+          <div className="grid grid-cols-2 gap-10 sm:grid-cols-4">
+            {footerGroups.map((group) => (
+              <FooterColumn
+                key={group.title}
+                title={group.title}
+                links={group.links}
+              />
+            ))}
           </div>
         </div>
 
-        {/* Bottom */}
-        <div className="mt-16 border-t border-gray-200 pt-6">
-          <p className="text-center text-sm text-gray-500">
-            © 2026 YourBrand. All rights reserved.
-          </p>
+        <div className="mt-12 flex flex-col gap-4 border-t border-slate-200 pt-6 text-sm text-slate-400 md:flex-row md:items-center md:justify-between">
+          <p>© 2026 LUXE. All rights reserved.</p>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {["Visa", "Mastercard", "PayPal", "Apple Pay"].map((method) => (
+              <span
+                key={method}
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500"
+              >
+                {method}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </footer>
