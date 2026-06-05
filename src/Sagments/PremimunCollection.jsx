@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   fetchProducts,
-  toggleProductWishlist,
+
+
 } from "../ReduxSetUp/Feature/Products/ProductSlice";
 import { useNavigate } from "react-router-dom";
 
@@ -24,8 +25,7 @@ function PremimunCollection() {
       navigate("/login");
       return;
     }
-
-    dispatch(toggleProductWishlist(id));
+    navigate(`/products/${id}`);
   }
 
   // Fetch Products
@@ -128,23 +128,12 @@ function PremimunCollection() {
             {currentProduct.desc}
           </p>
 
-          {/* BUTTONS */}
-          <div className="flex flex-wrap gap-6 mt-12">
-
             <button
-              onClick={() => AddToChart(currentProduct._id)}
-              className="px-10 py-5 bg-white text-black rounded-full text-lg font-bold hover:scale-105 transition-all duration-500 shadow-[0_0_40px_rgba(255,255,255,0.3)]"
+              onClick={() => navigate(`/products/${currentProduct._id}`)}
+              className="px-10 py-2 border border-white/20 bg-white/5 backdrop-blur-xl text-white rounded-xl text-lg font-semibold hover:bg-white hover:text-black transition-all duration-500"
             >
-              Add To Cart
+              Deatils
             </button>
-
-            <button
-              onClick={() => navigate(`/product/${currentProduct._id}`)}
-              className="px-10 py-5 border border-white/20 bg-white/5 backdrop-blur-xl text-white rounded-full text-lg font-semibold hover:bg-white hover:text-black transition-all duration-500"
-            >
-              View Product
-            </button>
-          </div>
 
           {/* INDICATORS */}
           <div className="flex gap-4 mt-16">

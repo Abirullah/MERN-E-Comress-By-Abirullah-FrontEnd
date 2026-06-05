@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState  } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronDown,
@@ -11,12 +11,8 @@ import {
   ShieldCheck,
   Star,
   Truck,
-  Search,
-  ShoppingBag,
-  User,
-  Menu,
 } from "lucide-react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams , useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -29,34 +25,12 @@ import {
 } from "../../ReduxSetUp/Feature/Products/ProductSlice";
 import Footer from "../../components/Footer";
 
+
 const FALLBACK_IMAGE = "/Pictures/pexels-ian-panelo-7716266.jpg";
 
 const DEFAULT_SHOE_SIZES = ["38", "39", "40", "41", "42", "43", "44", "45"];
 const REVIEW_BATCH_SIZE = 4;
 
-const COLOR_SWATCHES = {
-  black: "#111827",
-  white: "#f8fafc",
-  gray: "#6b7280",
-  grey: "#6b7280",
-  navy: "#1e3a8a",
-  blue: "#2563eb",
-  red: "#dc2626",
-  green: "#15803d",
-  olive: "#556b2f",
-  brown: "#8b5e34",
-  beige: "#d6c5a8",
-  cream: "#f5f0e6",
-  orange: "#f97316",
-  yellow: "#eab308",
-  pink: "#ec4899",
-  purple: "#7c3aed",
-  burgundy: "#7f1d1d",
-  maroon: "#7f1d1d",
-  silver: "#cbd5e1",
-  gold: "#d4af37",
-  teal: "#0f766e",
-};
 
 const formatCurrency = (amount) =>
   new Intl.NumberFormat("en-US", {
@@ -185,27 +159,6 @@ const getVariantForSelection = (product, selectedColor, selectedSize) => {
     variants[0] ||
     null
   );
-};
-
-const resolveSwatchColor = (color) => {
-  const normalizedColor = normalizeValue(color);
-  if (!normalizedColor) {
-    return "#94a3b8";
-  }
-
-  if (COLOR_SWATCHES[normalizedColor]) {
-    return COLOR_SWATCHES[normalizedColor];
-  }
-
-  if (normalizedColor.startsWith("#")) {
-    return normalizedColor;
-  }
-
-  if (typeof window !== "undefined" && window.CSS?.supports?.("color", color)) {
-    return color;
-  }
-
-  return "#94a3b8";
 };
 
 const renderStars = (rating = 0) => {
@@ -353,7 +306,9 @@ function ProductDetailsPage() {
     rating: 5,
     comment: "",
   });
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+
+const navigate = useNavigate();
 
   const initializedProductId = useRef(null);
 
@@ -431,10 +386,14 @@ function ProductDetailsPage() {
   const stockValue = selectedVariant
     ? Number(selectedVariant.stock || 0)
     : Number(product?.countInStock || 0);
-  const ratingValue = Number(product?.rating || 0);
-  const reviewCount = Array.isArray(product?.reviews)
-    ? product.reviews.length
-    : Number(product?.numReviews || 0);
+ const reviews = Array.isArray(product?.reviews) ? product.reviews : [];
+
+const reviewCount = reviews.length;
+
+const ratingValue =
+  reviewCount > 0
+    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount
+    : 0;
 
   const sortedReviews = useMemo(() => {
     const nextReviews = Array.isArray(product?.reviews)
@@ -535,30 +494,7 @@ function ProductDetailsPage() {
     }
   };
 
-  const handleSelectColor = (color) => {
-    setSelectedColor(color);
-    setSelectedImage(0);
-    setQuantity(1);
 
-    const colorVariants = Array.isArray(product?.variants)
-      ? product.variants.filter(
-          (variant) => normalizeValue(variant.color) === normalizeValue(color)
-        )
-      : [];
-
-    const nextVariant =
-      colorVariants.find((variant) => Number(variant.stock) > 0) ||
-      colorVariants[0] ||
-      null;
-
-    if (nextVariant?.size !== undefined && nextVariant?.size !== null) {
-      setSelectedSize(String(nextVariant.size));
-      return;
-    }
-
-    const nextSizes = getAvailableSizes(colorVariants);
-    setSelectedSize(nextSizes[0] || DEFAULT_SHOE_SIZES[0]);
-  };
 
   const handleSelectSize = (size) => {
     setSelectedSize(String(size));
@@ -575,19 +511,6 @@ function ProductDetailsPage() {
 
       return Math.min(maxQuantity, current + 1);
     });
-  };
-
-  const handleAddToCart = () => {
-    if (!product) {
-      return;
-    }
-
-    if (!inStock) {
-      toast.error("This size is sold out");
-      return;
-    }
-
-    toast.success(`${product.name} added to your cart selection`);
   };
 
   const handleReviewChange = (field, value) => {
@@ -843,7 +766,9 @@ function ProductDetailsPage() {
               {/* Add to Cart */}
               <button
                 type="button"
-                onClick={handleAddToCart}
+                onClick={() => navigate(`/checkout/${selectedProduct._id}`, { state: { product, selectedVariant, quantity } })}
+
+                // onClick={() => console.log("Add to cart", { product, selectedVariant, quantity })} 
                 disabled={!inStock}
                 className="w-full bg-gray-900 text-white py-4 rounded-full font-semibold hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >

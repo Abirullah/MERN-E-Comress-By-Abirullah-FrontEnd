@@ -592,7 +592,7 @@ const Profile = () => {
             {/* Quick Nav */}
             <div style={styles.navPills}>
               {[
-                { icon: "📦", label: "My Orders", sub: "Track & manage", path: "/orders" },
+                { icon: "📦", label: "My Orders", sub: "Track & manage", path: "/ordersplaced" },
                 { icon: "♡", label: "Wishlist", sub: "Saved items", path: "/wishlist" },
               ].map((item) => (
                 <button

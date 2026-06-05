@@ -112,8 +112,7 @@ function ProductCard({ product }) {
           </Link>
 
           <Link
-            to={`/products/${productId}`}
-            state={{ product }}
+            to={`/checkout/${productId}`}
             className="
               flex
               h-11

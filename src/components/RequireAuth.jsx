@@ -19,7 +19,7 @@ const RequireAuth = () => {
       <Navigate
         to="/login"
         replace
-        state={{ from: location.pathname }}
+        state={{ from: location.pathname, checkoutState: location.state }}
       />
     );
   }

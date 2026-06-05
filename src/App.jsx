@@ -29,6 +29,8 @@ function App() {
     "/register",
     "/forgot-password",
     "/otp",
+    "/success",
+    "/cancel",
   ];
 
   const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname);

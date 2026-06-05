@@ -1,4 +1,4 @@
-export default function AddressForm() {
+export default function AddressForm({ defaultValues = {} }) {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <div className="flex flex-col gap-2">
@@ -11,6 +11,7 @@ export default function AddressForm() {
           type="text"
           autoComplete="given-name"
           placeholder="John"
+          defaultValue={defaultValues.firstName || ""}
           className="field-input"
           required
         />
@@ -26,6 +27,7 @@ export default function AddressForm() {
           type="text"
           autoComplete="family-name"
           placeholder="Snow"
+          defaultValue={defaultValues.lastName || ""}
           className="field-input"
           required
         />
@@ -41,6 +43,7 @@ export default function AddressForm() {
           type="text"
           autoComplete="shipping address-line1"
           placeholder="Street name and number"
+          defaultValue={defaultValues.address1 || ""}
           className="field-input"
           required
         />
@@ -56,6 +59,7 @@ export default function AddressForm() {
           type="text"
           autoComplete="shipping address-line2"
           placeholder="Apartment, suite, unit, etc. (optional)"
+          defaultValue={defaultValues.address2 || ""}
           className="field-input"
         />
       </div>
@@ -70,6 +74,7 @@ export default function AddressForm() {
           type="text"
           autoComplete="address-level2"
           placeholder="New York"
+          defaultValue={defaultValues.city || ""}
           className="field-input"
           required
         />
@@ -85,6 +90,7 @@ export default function AddressForm() {
           type="text"
           autoComplete="address-level1"
           placeholder="NY"
+          defaultValue={defaultValues.state || ""}
           className="field-input"
           required
         />
@@ -100,6 +106,7 @@ export default function AddressForm() {
           type="text"
           autoComplete="shipping postal-code"
           placeholder="12345"
+          defaultValue={defaultValues.zip || ""}
           className="field-input"
           required
         />
@@ -115,6 +122,7 @@ export default function AddressForm() {
           type="text"
           autoComplete="shipping country-name"
           placeholder="United States"
+          defaultValue={defaultValues.country || ""}
           className="field-input"
           required
         />
@@ -122,7 +130,12 @@ export default function AddressForm() {
 
       <div className="md:col-span-2">
         <label className="inline-flex items-center gap-3 text-sm text-slate-700">
-          <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500" />
+          <input
+            type="checkbox"
+            name="usePaymentAddress"
+            defaultChecked={defaultValues.usePaymentAddress ?? false}
+            className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
+          />
           Use this address for payment details
         </label>
       </div>

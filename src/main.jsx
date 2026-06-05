@@ -21,6 +21,8 @@ import Shop from "./pages/Shop/Shop.jsx";
 import LacosteProductPage from "./pages/Shop/ProductDetails.jsx";
 import OrdersPlaced from "./pages/User/OrdersPlaced.jsx";
 import CheckoutPage from "./pages/Checkout.jsx";
+import CheckoutSuccess from "./pages/CheckoutSuccess.jsx";
+import CheckoutCancel from "./pages/CheckoutCancel.jsx";
 import RequireAuth from "./components/RequireAuth.jsx";
 
 const router = createBrowserRouter(
@@ -31,16 +33,18 @@ const router = createBrowserRouter(
       <Route path="register" element={<Register />} />
       <Route path="forgot-password" element={<ForgotPassword />} />
       <Route path="otp" element={<Otp />} />
+      <Route path="success" element={<CheckoutSuccess />} />
+      <Route path="cancel" element={<CheckoutCancel />} />
 
       
       <Route path="shop" element={<Shop />} />
-      <Route path="checkout" element={<CheckoutPage />} />
       <Route
           path="products/:id"
           element={<LacosteProductPage />}
         />
 
       <Route element={<RequireAuth />}>
+        <Route path="checkout/:id" element={<CheckoutPage />} />
         <Route
           path="washinglist"
           element={<WishlistPage />}

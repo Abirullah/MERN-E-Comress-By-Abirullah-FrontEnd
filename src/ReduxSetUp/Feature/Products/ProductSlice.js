@@ -1,17 +1,63 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getApiErrorMessage } from "../../../Service/Axios";
 import {
+  createCheckoutSessionAPI,
   createProductReviewAPI,
   fetchProductByIdAPI,
   fetchProductsAPI,
   toggleWishlistAPI,
   fetchwishlist,
+  fetchOrdersAPI,
 } from "./ProductApi";
 
 const buildRejectedPayload = (error, fallbackMessage) => ({
   message: getApiErrorMessage(error, fallbackMessage),
   status: error?.response?.status || 500,
 });
+
+const extractOrdersPayload = (payload) => {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (Array.isArray(payload?.docs)) {
+    return payload.docs;
+  }
+
+  if (Array.isArray(payload?.orders)) {
+    return payload.orders;
+  }
+
+  if (Array.isArray(payload?.data)) {
+    return payload.data;
+  }
+
+  if (Array.isArray(payload?.data?.docs)) {
+    return payload.data.docs;
+  }
+
+  if (Array.isArray(payload?.data?.orders)) {
+    return payload.data.orders;
+  }
+
+  if (Array.isArray(payload?.data?.data)) {
+    return payload.data.data;
+  }
+
+  if (Array.isArray(payload?.orders?.docs)) {
+    return payload.orders.docs;
+  }
+
+  if (Array.isArray(payload?.results)) {
+    return payload.results;
+  }
+
+  if (Array.isArray(payload?.result)) {
+    return payload.result;
+  }
+
+  return [];
+};
 
 const initialState = {
   products: [],
@@ -26,6 +72,12 @@ const initialState = {
   wishlistitems: [],
   reviewError: null,
   reviewSuccessMessage: null,
+  checkoutLoading: false,
+  checkoutError: null,
+  checkoutSession: null,
+  orders: [],
+  ordersLoading: false,
+  ordersError: null,
 };
 
 export const fetchProducts = createAsyncThunk(
@@ -88,6 +140,32 @@ export const fetchWishlist = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue(
         buildRejectedPayload(error, "Wishlist could not be loaded")
+      );
+    }
+  }
+);
+
+export const createOrder = createAsyncThunk(
+  "products/createOrder",
+  async (orderData, thunkAPI) => {
+    try {
+      return await createCheckoutSessionAPI(orderData);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        buildRejectedPayload(error, "Order could not be created")
+      );
+    }
+  }
+);
+
+export const Orders = createAsyncThunk(
+  "products/fetchOrders",
+  async (userId, thunkAPI) => {
+    try {
+      return await fetchOrdersAPI(userId);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        buildRejectedPayload(error, "Orders could not be loaded")
       );
     }
   }
@@ -176,7 +254,35 @@ const productSlice = createSlice({
       .addCase(fetchWishlist.rejected, (state, action) => {
         state.wishlistLoading = false;
         state.error = action.payload?.message || "Wishlist could not be loaded";
-      }); 
+      })
+      .addCase(createOrder.pending, (state) => {
+        state.checkoutLoading = true;
+        state.checkoutError = null;
+        state.checkoutSession = null;
+      })
+      .addCase(createOrder.fulfilled, (state, action) => {
+        state.checkoutLoading = false;
+        state.checkoutSession = action.payload;
+      })
+      .addCase(createOrder.rejected, (state, action) => {
+        state.checkoutLoading = false;
+        state.checkoutError =
+          action.payload?.message || "Order could not be created";
+      })
+      .addCase(Orders.pending, (state) => {
+        state.ordersLoading = true;
+        state.ordersError = null;
+      })
+      .addCase(Orders.fulfilled, (state, action) => {
+        state.ordersLoading = false;
+        state.orders = extractOrdersPayload(action.payload);
+      })
+      .addCase(Orders.rejected, (state, action) => {
+        state.ordersLoading = false;
+        state.ordersError =
+          action.payload?.message || "Orders could not be loaded";
+      });
+
   },
 });
 

@@ -5,11 +5,15 @@ const paymentOptions = [
   { id: "bankTransfer", title: "Bank account", subtitle: "Transfer funds directly" },
 ];
 
-export default function PaymentForm() {
-  const [paymentType, setPaymentType] = useState("creditCard");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [expirationDate, setExpirationDate] = useState("");
+export default function PaymentForm({ initialValues = {} }) {
+  const [paymentType, setPaymentType] = useState(
+    initialValues.paymentType || "creditCard"
+  );
+  const [cardNumber, setCardNumber] = useState(initialValues.cardNumber || "");
+  const [cvv, setCvv] = useState(initialValues.cvv || "");
+  const [expirationDate, setExpirationDate] = useState(
+    initialValues.expirationDate || ""
+  );
 
   const handleCardNumberChange = (event) => {
     const value = event.target.value.replace(/\D/g, "");
@@ -36,6 +40,8 @@ export default function PaymentForm() {
 
   return (
     <div className="space-y-6">
+      <input type="hidden" name="paymentType" value={paymentType} />
+
       <div className="grid gap-4 sm:grid-cols-2">
         {paymentOptions.map((option) => {
           const active = paymentType === option.id;
@@ -115,6 +121,7 @@ export default function PaymentForm() {
                 type="text"
                 autoComplete="cc-name"
                 placeholder="John Smith"
+                defaultValue={initialValues.cardName || ""}
                 className="field-input"
                 required
               />
@@ -138,7 +145,12 @@ export default function PaymentForm() {
           </div>
 
           <label className="mt-6 inline-flex items-center gap-3 text-sm text-slate-700">
-            <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500" />
+            <input
+              type="checkbox"
+              name="remember-card"
+              defaultChecked={initialValues.rememberCard ?? false}
+              className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
+            />
             Remember credit card details for next time
           </label>
         </div>

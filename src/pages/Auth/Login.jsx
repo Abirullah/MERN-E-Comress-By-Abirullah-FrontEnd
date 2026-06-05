@@ -18,6 +18,7 @@ const Login = () => {
     (state) => state.auth
   );
   const redirectPath = location.state?.from || "/";
+  const redirectState = location.state?.checkoutState || null;
 
   const [form, setForm] = useState({
     email: "",
@@ -39,9 +40,9 @@ const Login = () => {
 
   useEffect(() => {
     if (userInfo) {
-      navigate(redirectPath, { replace: true });
+      navigate(redirectPath, { replace: true, state: redirectState });
     }
-  }, [navigate, redirectPath, userInfo]);
+  }, [navigate, redirectPath, redirectState, userInfo]);
 
   useEffect(() => {
     return () => {
@@ -61,7 +62,7 @@ const Login = () => {
       ).unwrap();
 
       toast.success("Signed in successfully");
-      navigate(redirectPath, { replace: true });
+      navigate(redirectPath, { replace: true, state: redirectState });
     } catch (authError) {
       toast.error(authError?.message || "Login failed");
     }
@@ -170,4 +171,3 @@ const Login = () => {
 };
 
 export default Login;
-

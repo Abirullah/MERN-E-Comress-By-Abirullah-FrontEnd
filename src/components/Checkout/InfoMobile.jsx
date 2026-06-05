@@ -1,7 +1,14 @@
 import { useState } from "react";
 import Info from "./Info";
 
-export default function InfoMobile({ totalPrice }) {
+export default function InfoMobile({
+  product,
+  selectedVariant,
+  quantity,
+  subtotalPrice,
+  shippingPriceLabel,
+  totalPrice,
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -28,7 +35,14 @@ export default function InfoMobile({ totalPrice }) {
                 Close
               </button>
             </div>
-            <Info totalPrice={totalPrice} />
+            <Info
+              product={product}
+              selectedVariant={selectedVariant}
+              quantity={quantity}
+              subtotalPrice={subtotalPrice}
+              shippingPriceLabel={shippingPriceLabel}
+              totalPrice={totalPrice}
+            />
           </div>
         </div>
       )}
