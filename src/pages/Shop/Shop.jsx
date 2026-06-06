@@ -239,6 +239,8 @@ export default function ShopPage(){
     return ()=>{ dispatch(clearProductMessages()); };
   },[dispatch,products.length]);
 
+  const currentQuery = searchParams.toString();
+
   useEffect(() => {
     const querySearch = searchParams.get("search") || "";
     const querySort = searchParams.get("sort") || "popular";
@@ -251,7 +253,7 @@ export default function ShopPage(){
     if (queryGender !== selGender) setSelGender(queryGender);
     if (queryCategory !== selCat) setSelCat(queryCategory);
     if (querySale !== isSale) setIsSale(querySale);
-  }, [searchParams, search, sort, selGender, selCat, isSale]);
+  }, [currentQuery, searchParams, search, sort, selGender, selCat, isSale]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -262,10 +264,10 @@ export default function ShopPage(){
     if (isSale) params.set("sale", "true");
 
     const queryString = params.toString();
-    if (queryString !== searchParams.toString()) {
+    if (queryString !== currentQuery) {
       setSearchParams(params, { replace: true });
     }
-  }, [search, sort, selGender, selCat, isSale, searchParams, setSearchParams]);
+  }, [search, sort, selGender, selCat, isSale, currentQuery, setSearchParams]);
 
   const maxPrice = useMemo(()=>products.reduce((m,p)=>Math.max(m,price(p)),0),[products]);
 
