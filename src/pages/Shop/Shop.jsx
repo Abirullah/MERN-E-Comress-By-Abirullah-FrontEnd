@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronDown, ChevronRight, ChevronLeft,
@@ -234,40 +234,50 @@ export default function ShopPage(){
   const [priceMax,setPriceMax]   = useState(0);
   const [page,setPage]           = useState(1);
 
-  useEffect(()=>{
-    if(products.length===0) dispatch(fetchProducts());
-    return ()=>{ dispatch(clearProductMessages()); };
-  },[dispatch,products.length]);
-
-  const currentQuery = searchParams.toString();
-
   useEffect(() => {
-    const querySearch = searchParams.get("search") || "";
-    const querySort = searchParams.get("sort") || "popular";
-    const queryGender = searchParams.get("gender") || "all";
-    const queryCategory = searchParams.get("category") || "all";
-    const querySale = searchParams.get("sale") === "true";
+    if (products.length === 0) dispatch(fetchProducts());
+    return () => {
+      dispatch(clearProductMessages());
+    };
+  }, [dispatch, products.length]);
 
-    if (querySearch !== search) setSearch(querySearch);
-    if (querySort !== sort) setSort(querySort);
-    if (queryGender !== selGender) setSelGender(queryGender);
-    if (queryCategory !== selCat) setSelCat(queryCategory);
-    if (querySale !== isSale) setIsSale(querySale);
-  }, [currentQuery, searchParams, search, sort, selGender, selCat, isSale]);
+  const parsedQuery = useMemo(() => ({
+    search: searchParams.get("search") || "",
+    sort: searchParams.get("sort") || "popular",
+    gender: searchParams.get("gender") || "all",
+    category: searchParams.get("category") || "all",
+    sale: searchParams.get("sale") === "true",
+  }), [searchParams]);
 
-  useEffect(() => {
+  const normalizeParams = useCallback((params) => {
+    return new URLSearchParams([...params].sort()).toString();
+  }, []);
+
+  const desiredParams = useMemo(() => {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (sort && sort !== "popular") params.set("sort", sort);
     if (selGender && selGender !== "all") params.set("gender", selGender);
     if (selCat && selCat !== "all") params.set("category", selCat);
     if (isSale) params.set("sale", "true");
+    return params;
+  }, [search, sort, selGender, selCat, isSale]);
 
-    const queryString = params.toString();
-    if (queryString !== currentQuery) {
-      setSearchParams(params, { replace: true });
+  useEffect(() => {
+    if (parsedQuery.search !== search) setSearch(parsedQuery.search);
+    if (parsedQuery.sort !== sort) setSort(parsedQuery.sort);
+    if (parsedQuery.gender !== selGender) setSelGender(parsedQuery.gender);
+    if (parsedQuery.category !== selCat) setSelCat(parsedQuery.category);
+    if (parsedQuery.sale !== isSale) setIsSale(parsedQuery.sale);
+  }, [parsedQuery, search, sort, selGender, selCat, isSale]);
+
+  useEffect(() => {
+    const currentNormalized = normalizeParams(searchParams);
+    const desiredNormalized = normalizeParams(desiredParams);
+    if (currentNormalized !== desiredNormalized) {
+      setSearchParams(desiredParams, { replace: true });
     }
-  }, [search, sort, selGender, selCat, isSale, currentQuery, setSearchParams]);
+  }, [searchParams, desiredParams, normalizeParams, setSearchParams]);
 
   const maxPrice = useMemo(()=>products.reduce((m,p)=>Math.max(m,price(p)),0),[products]);
 
