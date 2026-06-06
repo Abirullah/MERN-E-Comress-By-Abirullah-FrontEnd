@@ -11,10 +11,10 @@ const footerGroups = [
   {
     title: "Shop",
     links: [
-      { label: "New Arrivals", to: "/shop" },
-      { label: "Best Sellers", to: "/shop" },
-      { label: "Men", to: "/shop" },
-      { label: "Women", to: "/shop" },
+      { label: "New Arrivals", to: "/shop?sort=newest" },
+      { label: "Best Sellers", to: "/shop?sort=popular" },
+      { label: "Men", to: "/shop?gender=men" },
+      { label: "Women", to: "/shop?gender=women" },
     ],
   },
   {
@@ -87,14 +87,14 @@ function Footer() {
 
             <div className="flex items-center gap-3">
               {[
-                { icon: Globe, label: "Website" },
-                { icon: ShoppingBag, label: "Shop" },
-                { icon: Package, label: "Packages" },
-                { icon: ArrowUpRight, label: "Explore" },
-              ].map(({ icon: Icon, label }) => (
+                { icon: Globe, label: "Website", href: "/" },
+                { icon: ShoppingBag, label: "Shop", href: "/shop" },
+                { icon: Package, label: "Packages", href: "/" },
+                { icon: ArrowUpRight, label: "Explore", href: "/shop" },
+              ].map(({ icon: Icon, label, href }) => (
                 <a
                   key={label}
-                  href="#"
+                  href={href}
                   aria-label={label}
                   className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-slate-400 hover:text-slate-950"
                 >

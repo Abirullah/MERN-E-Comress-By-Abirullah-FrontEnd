@@ -4,7 +4,7 @@ import {
   ChevronDown, ChevronRight, ChevronLeft,
   Loader2, Search, Star, X, SlidersHorizontal,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Footer from "../../components/Footer";
 import {
@@ -220,11 +220,14 @@ function Card({product}){
 export default function ShopPage(){
   const dispatch = useDispatch();
   const {products,loading,error} = useSelector(s=>s.products);
+  const [searchParams,setSearchParams] = useSearchParams();
 
-  const [search,setSearch]       = useState("");
-  const [sort,setSort]           = useState("popular");
+  const [search,setSearch]       = useState(searchParams.get("search") || "");
+  const [sort,setSort]           = useState(searchParams.get("sort") || "popular");
   const [showSidebar,setShowSidebar] = useState(()=>typeof window!=="undefined"?window.innerWidth>=1024:true);
-  const [selCat,setSelCat]       = useState("all");
+  const [selGender,setSelGender] = useState(searchParams.get("gender") || "all");
+  const [selCat,setSelCat]       = useState(searchParams.get("category") || "all");
+  const [isSale,setIsSale]       = useState(searchParams.get("sale")==="true");
   const [selColor,setSelColor]   = useState("all");
   const [selSize,setSelSize]     = useState("");
   const [selStyle,setSelStyle]   = useState("");
@@ -235,6 +238,34 @@ export default function ShopPage(){
     if(products.length===0) dispatch(fetchProducts());
     return ()=>{ dispatch(clearProductMessages()); };
   },[dispatch,products.length]);
+
+  useEffect(() => {
+    const querySearch = searchParams.get("search") || "";
+    const querySort = searchParams.get("sort") || "popular";
+    const queryGender = searchParams.get("gender") || "all";
+    const queryCategory = searchParams.get("category") || "all";
+    const querySale = searchParams.get("sale") === "true";
+
+    if (querySearch !== search) setSearch(querySearch);
+    if (querySort !== sort) setSort(querySort);
+    if (queryGender !== selGender) setSelGender(queryGender);
+    if (queryCategory !== selCat) setSelCat(queryCategory);
+    if (querySale !== isSale) setIsSale(querySale);
+  }, [searchParams, search, sort, selGender, selCat, isSale]);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    if (sort && sort !== "popular") params.set("sort", sort);
+    if (selGender && selGender !== "all") params.set("gender", selGender);
+    if (selCat && selCat !== "all") params.set("category", selCat);
+    if (isSale) params.set("sale", "true");
+
+    const queryString = params.toString();
+    if (queryString !== searchParams.toString()) {
+      setSearchParams(params, { replace: true });
+    }
+  }, [search, sort, selGender, selCat, isSale, searchParams, setSearchParams]);
 
   const maxPrice = useMemo(()=>products.reduce((m,p)=>Math.max(m,price(p)),0),[products]);
 
@@ -253,7 +284,13 @@ export default function ShopPage(){
     const t=norm(search);
     let list=[...products];
     if(t) list=list.filter(p=>[p.name,p.brand,p.category,p.description,p.gender,...(p.tags||[])].filter(Boolean).join(" ").toLowerCase().includes(t));
-    if(selCat!=="all") list=list.filter(p=>norm(p.category||p.gender)===norm(selCat));
+    if(selGender!=="all") list=list.filter(p=>{
+      const productGender = norm(p.gender||"");
+      const productCategory = norm(p.category||"");
+      return productGender===norm(selGender) || productCategory===norm(selGender);
+    });
+    if(selCat!=="all") list=list.filter(p=>norm(p.category||"")===norm(selCat));
+    if(isSale) list=list.filter(p=>Number(p.discountPrice)>0 || p.onSale===true || p.sale===true);
     if(selColor!=="all") list=list.filter(p=>{const c=colors(p);return c.length===0||c.some(x=>norm(x)===norm(selColor));});
     if(selSize) list=list.filter(p=>{const s=sizes(p);return s.length===0||s.some(x=>norm(x)===norm(selSize));});
     if(priceMax>0) list=list.filter(p=>price(p)<=priceMax);
@@ -265,7 +302,7 @@ export default function ShopPage(){
       default: list.sort((a,b)=>{const r=Number(b.rating||0)-Number(a.rating||0);return r!==0?r:Number(b.numReviews||0)-Number(a.numReviews||0);});
     }
     return list;
-  },[products,search,selCat,selColor,selSize,priceMax,sort]);
+  },[products,search,selCat,selGender,selColor,selSize,priceMax,sort,isSale]);
 
   const totalPages = Math.max(1,Math.ceil(filtered.length/PRODUCTS_PER_PAGE));
   const paged      = filtered.slice((page-1)*PRODUCTS_PER_PAGE,page*PRODUCTS_PER_PAGE);
@@ -281,7 +318,35 @@ export default function ShopPage(){
     return p;
   };
 
-  const catLabel = selCat==="all"?"Casual":label(selCat);
+  const catLabel = selCat === "all"
+    ? selGender === "all"
+      ? isSale
+        ? "Sale Items"
+        : "All Shoes"
+      : isSale
+        ? `${label(selGender)} Sale`
+        : label(selGender)
+    : label(selCat);
+
+  const breadcrumbItems = [
+    { label: "Home", to: "/" },
+    { label: "Shop", to: "/shop" },
+  ];
+  if (selGender !== "all") {
+    breadcrumbItems.push({
+      label: label(selGender),
+      to: `/shop?gender=${encodeURIComponent(selGender)}`,
+    });
+  }
+  if (selCat !== "all") {
+    const query = new URLSearchParams();
+    if (selGender !== "all") query.set("gender", selGender);
+    query.set("category", selCat);
+    breadcrumbItems.push({
+      label: label(selCat),
+      to: `/shop?${query.toString()}`,
+    });
+  }
 
   /* guards */
   if(loading&&products.length===0)
@@ -299,10 +364,19 @@ export default function ShopPage(){
         <div className="mx-auto  px-10 sm:px-6 lg:px-8 pb-16">
 
           {/* breadcrumb */}
-          <nav className="mb-5 flex items-center gap-1.5  text-gray-400">
-            <Link to="/" className="hover:text-gray-700 transition">Home</Link>
-            <ChevronRight size={11}/>
-            <span className="text-gray-700">{catLabel}</span>
+          <nav className="mb-5 flex items-center gap-1.5 text-gray-400">
+            {breadcrumbItems.map((item, index) => (
+              <span key={item.label} className="flex items-center gap-1.5">
+                {index > 0 && <ChevronRight size={11} />}
+                {index === breadcrumbItems.length - 1 ? (
+                  <span className="text-gray-700">{item.label}</span>
+                ) : (
+                  <Link to={item.to} className="hover:text-gray-700 transition">
+                    {item.label}
+                  </Link>
+                )}
+              </span>
+            ))}
           </nav>
 
           {/* two-column layout */}

@@ -20,43 +20,72 @@ import { logoutUser } from "../ReduxSetUp/Feature/Auth/AuthSlice";
 const navItems = [
   {
     title: "Sale",
-    dropdown: ["Women Shoes", "Men Shoes", "Kids Shoes"],
+    to: "/shop?sale=true",
+    dropdown: [
+      { label: "Women Shoes", params: { sale: "true", gender: "women" } },
+      { label: "Men Shoes", params: { sale: "true", gender: "men" } },
+      { label: "Kids Shoes", params: { sale: "true", gender: "kids" } },
+    ],
     icon: "🔥",
   },
   {
     title: "Men",
+    to: "/shop?gender=men",
     dropdown: [
-      "Football Shoes",
-      "Street Wear",
-      "Formal Leather Shoes",
-      "Jordan",
-      "Sneakers",
-      "Running",
+      { label: "Football Shoes", params: { gender: "men", category: "football shoes" } },
+      { label: "Street Wear", params: { gender: "men", category: "street wear" } },
+      { label: "Formal Leather Shoes", params: { gender: "men", category: "formal leather shoes" } },
+      { label: "Jordan", params: { gender: "men", category: "jordan" } },
+      { label: "Sneakers", params: { gender: "men", category: "sneakers" } },
+      { label: "Running", params: { gender: "men", category: "running" } },
     ],
     icon: "👔",
   },
   {
     title: "Women",
+    to: "/shop?gender=women",
     dropdown: [
-      "Heels",
-      "Sneakers",
-      "Sports Wear",
-      "Leather Shoes",
-      "Street Wear",
+      { label: "Heels", params: { gender: "women", category: "heels" } },
+      { label: "Sneakers", params: { gender: "women", category: "sneakers" } },
+      { label: "Sports Wear", params: { gender: "women", category: "sports wear" } },
+      { label: "Leather Shoes", params: { gender: "women", category: "leather shoes" } },
+      { label: "Street Wear", params: { gender: "women", category: "street wear" } },
     ],
     icon: "👠",
   },
   {
     title: "New Arrival",
-    dropdown: ["Men", "Women", "Kids"],
+    to: "/shop?sort=newest",
+    dropdown: [
+      { label: "Men", params: { sort: "newest", gender: "men" } },
+      { label: "Women", params: { sort: "newest", gender: "women" } },
+      { label: "Kids", params: { sort: "newest", gender: "kids" } },
+    ],
     icon: "✨",
   },
   {
     title: "Premium",
-    dropdown: ["Luxury Collection", "Limited Edition", "Exclusive"],
+    to: "/shop?category=premium",
+    dropdown: [
+      { label: "Luxury Collection", params: { category: "luxury collection" } },
+      { label: "Limited Edition", params: { category: "limited edition" } },
+      { label: "Exclusive", params: { category: "exclusive" } },
+    ],
     icon: "💎",
   },
 ];
+
+const buildSearchLink = (params) => {
+  const searchParams = new URLSearchParams();
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && String(value).trim() !== "") {
+      searchParams.set(key, String(value).trim());
+    }
+  });
+
+  const query = searchParams.toString();
+  return query ? `/shop?${query}` : "/shop";
+};
 
 const dropdownVariants = {
   hidden: {
@@ -265,9 +294,11 @@ export default function Navbar() {
                       onMouseEnter={() => setActiveDropdown(item.title)}
                       onMouseLeave={() => setActiveDropdown(null)}
                     >
-                      <button className="flex items-center gap-1 text-[13px] uppercase tracking-[1px] font-semibold text-white/80 hover:text-white transition-all duration-300">
-                        {item.title}
-
+                      <NavLink
+                        to={item.to || "/shop"}
+                        className="flex items-center gap-1 text-[13px] uppercase tracking-[1px] font-semibold text-white/80 hover:text-white transition-all duration-300"
+                      >
+                        <span>{item.title}</span>
                         <motion.div
                           animate={{
                             rotate: activeDropdown === item.title ? 180 : 0,
@@ -276,7 +307,7 @@ export default function Navbar() {
                         >
                           <ChevronDown size={14} />
                         </motion.div>
-                      </button>
+                      </NavLink>
 
                       <AnimatePresence>
                         {activeDropdown === item.title && (
@@ -291,10 +322,10 @@ export default function Navbar() {
                               {item.dropdown.map((subItem, idx) => (
                                 <NavLink
                                   key={idx}
-                                  to="/shop"
+                                  to={buildSearchLink(subItem.params)}
                                   className="flex items-center px-4 py-3 rounded-2xl text-[14px] font-medium text-black/70 hover:bg-black/5 hover:text-black transition-all duration-300"
                                 >
-                                  {subItem}
+                                  {subItem.label}
                                 </NavLink>
                               ))}
                             </div>
@@ -490,11 +521,11 @@ export default function Navbar() {
                               {item.dropdown.map((subItem, subIdx) => (
                                 <NavLink
                                   key={subIdx}
-                                  to="/shop"
+                                  to={buildSearchLink(subItem.params)}
                                   onClick={() => setMobileMenuOpen(false)}
                                   className="py-2 text-white/60 hover:text-white transition-colors text-sm"
                                 >
-                                  {subItem}
+                                  {subItem.label}
                                 </NavLink>
                               ))}
                             </div>
