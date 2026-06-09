@@ -563,7 +563,7 @@ const ratingValue =
   if (detailsError && !product) {
     return (
       <div className="mx-auto flex min-h-screen max-w-4xl items-center justify-center px-6">
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-5 text-center text-red-600">
+        <div className="rounded-2xl border border-red-200 bg-red-100 px-6 py-5 text-center text-red-600">
           {detailsError}
         </div>
       </div>
