@@ -26,7 +26,6 @@ const navItems = [
       { label: "Men Shoes", params: { sale: "true", gender: "men" } },
       { label: "Kids Shoes", params: { sale: "true", gender: "kids" } },
     ],
-    icon: "🔥",
   },
   {
     title: "Men",
@@ -39,7 +38,6 @@ const navItems = [
       { label: "Sneakers", params: { gender: "men", category: "sneakers" } },
       { label: "Running", params: { gender: "men", category: "running" } },
     ],
-    icon: "👔",
   },
   {
     title: "Women",
@@ -51,7 +49,6 @@ const navItems = [
       { label: "Leather Shoes", params: { gender: "women", category: "leather shoes" } },
       { label: "Street Wear", params: { gender: "women", category: "street wear" } },
     ],
-    icon: "👠",
   },
   {
     title: "New Arrival",
@@ -61,7 +58,6 @@ const navItems = [
       { label: "Women", params: { sort: "newest", gender: "women" } },
       { label: "Kids", params: { sort: "newest", gender: "kids" } },
     ],
-    icon: "✨",
   },
   {
     title: "Premium",
@@ -71,7 +67,6 @@ const navItems = [
       { label: "Limited Edition", params: { category: "limited edition" } },
       { label: "Exclusive", params: { category: "exclusive" } },
     ],
-    icon: "💎",
   },
 ];
 
@@ -96,7 +91,7 @@ const dropdownVariants = {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.25,
+      duration: 0.35,
       ease: "easeOut",
     },
   },
@@ -104,7 +99,8 @@ const dropdownVariants = {
     opacity: 0,
     y: 10,
     transition: {
-      duration: 0.2,
+      duration: 0.35,
+      ease: "easeOut",
     },
   },
 };
