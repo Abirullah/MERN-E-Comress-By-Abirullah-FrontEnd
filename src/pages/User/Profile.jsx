@@ -122,10 +122,14 @@ const Profile = () => {
     }
   };
 
-  // const handleLogout = () => {
-  //   dispatch(logoutUser());
-  //   navigate("/login");
-  // };
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUser()).unwrap();
+      navigate("/login", { replace: true });
+    } catch (err) {
+      toast.error(err?.message || "Logout failed");
+    }
+  };
 
   if (profileLoading && !userInfo) {
     return (
@@ -232,6 +236,19 @@ const Profile = () => {
                   <span className="ml-auto opacity-35 text-sm">›</span>
                 </button>
               ))}
+
+              {/* Logout button (visible in desktop profile quick nav) */}
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-3 mt-3 bg-red-50 border border-red-200 text-red-700 rounded-[0.9rem] px-4 py-3 text-sm font-semibold cursor-pointer transition-all w-full hover:bg-red-100"
+              >
+                <span className="w-8 h-8 rounded-xl bg-red-100 flex items-center justify-center text-base flex-shrink-0">⎋</span>
+                <span>
+                  <div className="font-semibold text-sm">Logout</div>
+                  <div className="text-[0.72rem] text-[#55556a]">Sign out of your account</div>
+                </span>
+                <span className="ml-auto opacity-35 text-sm">›</span>
+              </button>
 
               {/* Change Password */}
               <button

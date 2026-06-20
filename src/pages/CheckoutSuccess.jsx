@@ -1,9 +1,35 @@
 import { CheckCircle2, ArrowRight } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Orders } from "../ReduxSetUp/Feature/Products/ProductSlice";
 
 export default function CheckoutSuccess() {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { userInfo } = useSelector((s) => s.auth);
+
+  // Try to refresh orders a few times after returning from Stripe (helps local testing without webhooks)
+  useEffect(() => {
+    if (!sessionId || !userInfo) return;
+
+    let attempts = 0;
+    const maxAttempts = 8; // ~24 seconds
+    const userId = userInfo._id || userInfo.id || null;
+    if (!userId) return;
+
+    const id = setInterval(() => {
+      attempts += 1;
+      dispatch(Orders(userId));
+      if (attempts >= maxAttempts) {
+        clearInterval(id);
+      }
+    }, 3000);
+
+    return () => clearInterval(id);
+  }, [sessionId, userInfo, dispatch]);
 
   return (
     <div className="min-h-screen px-4 py-16 pt-28">
@@ -37,6 +63,16 @@ export default function CheckoutSuccess() {
             View orders
             <ArrowRight size={16} />
           </Link>
+          <button
+            onClick={() => {
+              const userId = userInfo?._id || userInfo?.id || null;
+              if (userId) dispatch(Orders(userId));
+              navigate("/ordersplaced");
+            }}
+            className="inline-flex items-center justify-center gap-2 rounded-3xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-300"
+          >
+            Sync orders
+          </button>
           <Link
             to="/shop"
             className="inline-flex items-center justify-center rounded-3xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-300"

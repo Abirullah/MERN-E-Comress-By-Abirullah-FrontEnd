@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getApiErrorMessage } from "../../../Service/Axios";
+import { getApiErrorMessage } from "../../../Service/apiUtils";
 import {
   fetchProfileAPI,
   loginUserAPI,
