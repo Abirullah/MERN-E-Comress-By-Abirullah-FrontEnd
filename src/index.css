@@ -93,3 +93,137 @@ body {
     @apply inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500;
   }
 }
+
+@layer utilities {
+  .theme-card {
+    @apply rounded-[2rem] border border-slate-200/60 bg-white/90 shadow-[0_25px_80px_-50px_rgba(15,23,42,0.2)] backdrop-blur;
+  }
+}
+
+@layer base {
+  :root {
+    color: #0f172a;
+    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    --bg-page: #f7f1e7;
+    --bg-surface: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --border-default: #e2e8f0;
+    --accent: #d4a544;
+    --accent-strong: #b8922a;
+    --shadow-color: rgba(15, 23, 42, 0.08);
+    --input-bg: #ffffff;
+    --input-border: #cbd5e1;
+    --input-text: #0f172a;
+    --card-bg: rgba(255, 255, 255, 0.9);
+    --card-border: rgba(148, 163, 184, 0.18);
+    --hover-bg: rgba(212, 165, 68, 0.08);
+  }
+
+  .light {
+    --bg-page: #ffffff;
+    --bg-surface: #ebe8e8;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --border-default: #e2e8f0;
+    --accent: #d4a544;
+    --accent-strong: #b8922a;
+    --shadow-color: rgba(15, 23, 42, 0.08);
+    --input-bg: #ffffff;
+    --input-border: #cbd5e1;
+    --input-text: #0f172a;
+    --card-bg: rgba(255, 255, 255, 0.92);
+    --card-border: rgba(148, 163, 184, 0.18);
+    --hover-bg: rgba(212, 165, 68, 0.08);
+  }
+
+  .dark {
+    --bg-page: #080808;
+    --bg-surface: rgba(15, 15, 15, 0.9);
+    --text-primary: #f4f1e1;
+    --text-secondary: #a8a18f;
+    --border-default: rgba(255, 255, 255, 0.08);
+    --accent: #d4a544;
+    --accent-strong: #b8922a;
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --input-bg: #121212;
+    --input-border: #2f2f2f;
+    --input-text: #f4f1e1;
+    --card-bg: rgba(19, 19, 19, 0.88);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --hover-bg: rgba(212, 165, 68, 0.1);
+  }
+
+  body {
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: rgba(212, 165, 68, 0.24);
+    color: #111827;
+  }
+}
+
+/* Global overrides: remap frequently-used Tailwind arbitrary color utilities
+   to CSS variables so the theme toggle (root .light/.dark) updates them
+   without having to change every component. */
+
+/* Backgrounds */
+.bg-\[\#080808\] { background-color: var(--bg-page) !important; }
+.bg-\[\#0e0e0e\] { background-color: var(--card-bg) !important; }
+.bg-\[\#1a1a1a\] { background-color: var(--bg-surface) !important; }
+.bg-\[\#0a0a0a\] { background-color: var(--card-bg) !important; }
+
+/* Text colors */
+.text-\[\#ddd4be\] { color: var(--text-primary) !important; }
+.text-\[\#6b6666\], .text-\[\#5a5a5a\], .text-\[\#706d6d\] { color: var(--text-secondary) !important; }
+.text-\[\#080808\] { color: var(--input-text) !important; }
+.text-\[\#d4a544\] { color: var(--accent) !important; }
+
+/* Borders */
+.border-\[\#1e1e1e\] { border-color: var(--border-default) !important; }
+.border-\[\#4a3d2d\] { border-color: var(--border-default) !important; }
+
+/* Accent */
+.bg-\[\#d4a544\] { background-color: var(--accent) !important; }
+.border-\[\#d4a544\] { border-color: var(--accent) !important; }
+.text-\[\#d4a544\] { color: var(--accent) !important; }
+.fill-\[\#d4a544\] { fill: var(--accent) !important; }
+
+/* Hover variants (common) */
+.hover\:bg-\[\#d4a544\]:hover { background-color: var(--accent) !important; }
+.hover\:text-\[\#d4a544\]:hover { color: var(--accent) !important; }
+.hover\:border-\[\#d4a544\]:hover { border-color: var(--accent) !important; }
+
+/* Gradients / partial opacity helpers */
+.from-\[\#d4a544\] { --tw-gradient-from: var(--accent); }
+.to-\[\#0e0e0e\] { --tw-gradient-to: var(--card-bg); }
+.from-\[\#080808\] { --tw-gradient-from: var(--bg-page); }
+
+/* Opacity-suffixed utility variants */
+.bg-\[\#080808\]\/95 { background-color: color-mix(in srgb, var(--bg-page) 95%, transparent) !important; }
+.bg-\[\#080808\]\/90 { background-color: color-mix(in srgb, var(--bg-page) 90%, transparent) !important; }
+.bg-\[\#0e0e0e\]\/95 { background-color: color-mix(in srgb, var(--card-bg) 95%, transparent) !important; }
+.hover\:border-\[\#d4a544\]\/50:hover { border-color: color-mix(in srgb, var(--accent) 50%, transparent) !important; }
+.bg-\[\#d4a544\]\/10 { background-color: color-mix(in srgb, var(--accent) 10%, transparent) !important; }
+
+/* Additional hex mappings seen in components */
+.bg-\[\#0a0a0a\] { background-color: var(--bg-surface) !important; }
+.bg-\[\#2e1a1a\] { background-color: var(--card-bg) !important; }
+.bg-\[\#1a1a1a\] { background-color: var(--surface) !important; }
+.bg-\[\#2a1515\] { background-color: var(--card-bg) !important; }
+.border-\[\#4a2d2d\] { border-color: var(--border-default) !important; }
+.border-\[\#2a1515\] { border-color: var(--border-default) !important; }
+.text-\[\#333\] { color: var(--text-secondary) !important; }
+.text-\[\#444\] { color: var(--text-secondary) !important; }
+.text-\[\#555\] { color: var(--text-secondary) !important; }
+
+

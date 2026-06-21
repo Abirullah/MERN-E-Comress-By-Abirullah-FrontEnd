@@ -17,15 +17,6 @@ function PremiumCollection() {
 
   const currentProduct = products[current];
 
-  function AddToChart(id) {
-    const UserInfor = JSON.parse(localStorage.getItem("userInfo"));
-
-    if (!UserInfor) {
-      navigate("/login");
-      return;
-    }
-    navigate(`/products/${id}`);
-  }
 
   // Fetch Products
   useEffect(() => {

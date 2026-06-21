@@ -25,7 +25,7 @@ const SkateShoeHome = () => {
             SNEAKERS
           </p>
 
-          <p className="font-bebas text-end pr-10 text-2xl md:text-4xl tracking-[4px]">
+          <p className="font-bebas text-end pr-10 text-black text-2xl md:text-4xl tracking-[4px]">
             VAST COLLECTION
           </p>
         </div>

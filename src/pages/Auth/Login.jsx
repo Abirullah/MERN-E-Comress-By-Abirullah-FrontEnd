@@ -10,6 +10,8 @@ import {
 } from "../../ReduxSetUp/Feature/Auth/AuthSlice";
 import AuthLayout from "./AuthLayout";
 import AuthSocialButtons from "./AuthSessionButton";
+import AuthButton from "../../components/AuthButton";
+import AuthInputField from "../../components/AuthInputField";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -80,27 +82,16 @@ const Login = () => {
       title="Sign in"
       description="Access your orders, wishlist & profile"
     >
-      <form onSubmit={handleSubmit}>
-        <label className="mb-1.5 block text-[9px] text-start uppercase tracking-[0.18em] text-[#666262]">
-          Email Address
-        </label>
-
-        <div className="relative mb-4">
-          <Mail
-            size={14}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#706d6d]"
-          />
-
-          <input
-            type="email"
-            placeholder="you@example.com"
-            value={form.email}
-            onChange={handleChange("email")}
-            autoComplete="email"
-            required
-            className="w-full rounded-lg border border-[#1e1e1e] bg-[#0e0e0e] py-[10px] pl-[13px] pr-[38px] text-[18px] text-[#ddd4be] outline-none ring-0 focus:outline-none focus:ring-0 placeholder:text-[#333] focus-visible:outline-none focus-visible:ring-0 focus:border-[#d4a544] focus:bg-[#100e08]"
-          />
-        </div>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <AuthInputField
+          label="Email Address"
+          icon="Mail"
+          type="email"
+          placeholder="you@example.com"
+          value={form.email}
+          onChange={handleChange("email")}
+          autoComplete="email"
+        />
 
         <div className="mb-1.5 flex items-center justify-between">
           <label className="text-[9px] self-start uppercase tracking-[0.18em] text-[#5a5a5a]">
@@ -112,22 +103,15 @@ const Login = () => {
           </Link>
         </div>
 
-        <div className="relative mb-5">
-          <LockKeyhole
-            size={14}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#706d6d]"
-          />
-
-          <input
-            type="password"
-            placeholder="Enter password"
-            value={form.password}
-            onChange={handleChange("password")}
-            autoComplete="current-password"
-            required
-            className="w-full rounded-lg border border-[#1e1e1e] bg-[#0e0e0e] py-[10px] pl-[13px] pr-[38px] text-[18px] text-[#ddd4be] outline-none ring-0 focus:outline-none focus:ring-0 placeholder:text-[#333] focus-visible:outline-none focus-visible:ring-0 focus:border-[#d4a544] focus:bg-[#100e08]"
-          />
-        </div>
+        <AuthInputField
+          label="Password"
+          icon="LockKeyhole"
+          type="password"
+          placeholder="Enter password"
+          value={form.password}
+          onChange={handleChange("password")}
+          autoComplete="current-password"
+        />
 
         <label className="mb-5 flex cursor-pointer items-center gap-2">
           <input
@@ -140,13 +124,9 @@ const Login = () => {
           <span className="text-[11px] text-[#4a4a4a]">Keep me signed in</span>
         </label>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="mb-4 w-full rounded-lg bg-[#d4a544] p-3 text-[11px] font-bold uppercase tracking-[0.22em] text-[#080808] transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {loading ? "Signing in..." : "Sign In"}
-        </button>
+        <AuthButton type="submit" loading={loading} className="mb-4">
+          Sign In
+        </AuthButton>
       </form>
 
       <p className="mb-4 py-5 text-center text-[11px] text-[#5e5a5a]">

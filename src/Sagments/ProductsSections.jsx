@@ -182,12 +182,12 @@ function ProductsSections() {
         />
         <div className="absolute inset-0 bg-black/65 backdrop-blur-[2px]" />
 
-        <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
+        <div className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center px-6 text-center">
           <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.3em] text-[#d4a544]">
             Premium Sneakers
           </p>
 
-          <h1 className="text-5xl font-black leading-none text-[#ddd4be] md:text-8xl">
+          <h1 className="text-5xl font-black leading-none text-[#c2c1c1] md:text-8xl">
             STREET
             <br />
             CULTURE

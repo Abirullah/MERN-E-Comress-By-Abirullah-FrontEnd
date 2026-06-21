@@ -171,23 +171,13 @@ const Profile = () => {
         @keyframes ringPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.25;transform:scale(1.04)}}
         @keyframes particleRise{0%{opacity:0;transform:translateY(0)}15%{opacity:0.7}85%{opacity:0.1}100%{opacity:0;transform:translateY(-300px)}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-        .lx-ring{position:absolute;border-radius:9999px;border:1px solid rgba(212,165,68,0.09);animation:ringPulse 4s ease-in-out infinite}
-        .lx-particle{position:absolute;width:2px;height:2px;border-radius:9999px;background:#d4a544;opacity:0;animation:particleRise 6s ease-in-out infinite}
+        .lx-ring{position:absolute;border-radius:9999px;border:1px solid var(--hover-bg);animation:ringPulse 4s ease-in-out infinite}
+        .lx-particle{position:absolute;width:2px;height:2px;border-radius:9999px;background:var(--accent);opacity:0;animation:particleRise 6s ease-in-out infinite}
         .fade-up{animation:fadeUp 0.35s ease both}
-        .tab-btn{padding:8px 18px;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;border-radius:8px;border:1px solid transparent;cursor:pointer;transition:all 0.2s;font-family:'Tenor Sans',sans-serif}
-        .tab-active{background:rgba(212,165,68,0.12);border-color:#3a2d0e;color:#d4a544}
-        .tab-inactive{background:transparent;border-color:transparent;color:#555}
-        .tab-inactive:hover{color:#888;background:rgba(255,255,255,0.03)}
-        .nav-btn{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:10px;border:1px solid #1a1a1a;background:rgba(15,15,15,0.6);color:#888;font-size:12px;cursor:pointer;transition:all 0.2s;text-align:left;font-family:'Tenor Sans',sans-serif}
-        .nav-btn:hover{border-color:#d4a544;color:#d4a544;background:rgba(212,165,68,0.05)}
-        .gold-btn{width:100%;padding:12px;background:#d4a544;border:none;border-radius:10px;color:#080808;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;font-family:'Tenor Sans',sans-serif;font-weight:700;cursor:pointer;transition:opacity 0.2s,transform 0.15s}
-        .gold-btn:hover{opacity:0.88;transform:translateY(-1px)}
-        .gold-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-        .ghost-btn{padding:10px 18px;background:transparent;border:1px solid #242424;border-radius:8px;color:#888;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:'Tenor Sans',sans-serif;cursor:pointer;transition:all 0.2s}
-        .ghost-btn:hover{border-color:#d4a544;color:#d4a544}
-        .stat-card{background:rgba(15,15,15,0.8);border:1px solid #1a1a1a;border-radius:12px;padding:16px 12px;text-align:center;transition:border-color 0.2s}
-        .stat-card:hover{border-color:rgba(212,165,68,0.3)}
+        .stat-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:16px 12px;text-align:center;transition:border-color 0.2s}
+        .stat-card:hover{border-color:var(--accent)}
       `}</style>
+      
       {Array.from({ length: 20 }).map((_, i) => (
         <div key={i} className="lx-particle" style={{
           left: `${8 + ((i * 6) % 85)}%`,
@@ -196,6 +186,7 @@ const Profile = () => {
           animationDuration: `${5 + (i % 4)}s`,
         }} />
       ))}
+      
       <div className="absolute inset-0" style={{ background: "linear-gradient(160deg,rgba(8,8,8,0.6) 0%,rgba(8,8,8,0.45) 50%,rgba(8,8,8,0.7) 100%)" }} />
 
       {/* ── Page ── */}
@@ -215,7 +206,7 @@ const Profile = () => {
           <aside className="flex flex-col gap-4">
 
             {/* Avatar + identity */}
-            <div >
+            <div>
               <div className="flex flex-col items-center text-center gap-3">
                 <div className="relative">
                   <div
@@ -223,14 +214,13 @@ const Profile = () => {
                     style={{ background: "linear-gradient(135deg,#d4a544,#f0d060,#b8922a)" }}
                   >
                     {profileFields.profilePicture ? (
-                      <img src={profileFields.profilePicture} alt="avatar" className="w-full h-full  object-cover" />
+                      <img src={profileFields.profilePicture} alt="avatar" className="w-full h-full rounded-2xl object-cover" />
                     ) : (
-                      <div className="w-full h-full rounded-full bg-[#0e0e0e] flex items-center justify-center text-2xl font-bold text-[#d4a544]">
+                      <div className="w-full h-full rounded-2xl bg-[#0e0e0e] flex items-center justify-center text-2xl font-bold text-[#d4a544]">
                         {initials || "U"}
                       </div>
                     )}
                   </div>
-                  
                 </div>
 
                 <div>
@@ -239,7 +229,6 @@ const Profile = () => {
                   </div>
                   <div className="text-[11px] text-[#555] mt-0.5 tracking-wide">{email}</div>
                 </div>
-
               </div>
             </div>
 
@@ -261,22 +250,23 @@ const Profile = () => {
 
             {/* Nav links */}
             <div className="flex flex-col gap-2">
-              <button onClick={() => navigate("/ordersplaced")} className="nav-btn">
+              <button onClick={() => navigate("/ordersplaced")} className="flex items-center gap-3 w-full p-3 rounded-lg border border-[#1e1e1e] bg-[#0e0e0e] text-[#6b6666] text-xs cursor-pointer transition-all hover:border-[#d4a544]/50 hover:text-[#d4a544] hover:bg-[#d4a544]/5 text-left">
                 <span className="w-8 h-8 rounded-lg bg-[rgba(212,165,68,0.08)] border border-[#1e1e1e] flex items-center justify-center text-[#d4a544] flex-shrink-0">
                   <Icon d={ICONS.box} size={14} />
                 </span>
                 <span className="flex-1">
-                  <div className="text-[12px] font-medium text-[#bbb]">My Orders</div>
+                  <div className="text-xs font-medium text-[#bbb]">My Orders</div>
                   <div className="text-[10px] text-[#444] mt-0.5">Track & manage</div>
                 </span>
                 <span className="text-[#333]"><Icon d={ICONS.chevron} size={14} /></span>
               </button>
-              <button onClick={() => navigate("/washinglist")} className="nav-btn">
+              
+              <button onClick={() => navigate("/washinglist")} className="flex items-center gap-3 w-full p-3 rounded-lg border border-[#1e1e1e] bg-[#0e0e0e] text-[#6b6666] text-xs cursor-pointer transition-all hover:border-[#d4a544]/50 hover:text-[#d4a544] hover:bg-[#d4a544]/5 text-left">
                 <span className="w-8 h-8 rounded-lg bg-[rgba(212,165,68,0.08)] border border-[#1e1e1e] flex items-center justify-center text-[#d4a544] flex-shrink-0">
                   <Icon d={ICONS.heart} size={14} />
                 </span>
                 <span className="flex-1">
-                  <div className="text-[12px] font-medium text-[#bbb]">Wishlist</div>
+                  <div className="text-xs font-medium text-[#bbb]">Wishlist</div>
                   <div className="text-[10px] text-[#444] mt-0.5">Saved items</div>
                 </span>
                 <span className="text-[#333]"><Icon d={ICONS.chevron} size={14} /></span>
@@ -286,8 +276,7 @@ const Profile = () => {
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className="flex items-center justify-center gap-2 w-full py-3 rounded-10 text-[#e05555] text-[11px] tracking-[0.15em] uppercase border border-[#2a1515] bg-[rgba(220,80,80,0.04)] cursor-pointer transition-all hover:border-[#e05555] hover:bg-[rgba(220,80,80,0.08)]"
-              style={{ borderRadius: 10 }}
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-lg text-[#e57373] text-[11px] tracking-[0.15em] uppercase border border-[#4a2d2d] bg-[rgba(220,80,80,0.04)] cursor-pointer transition-all hover:border-[#e57373]/50 hover:bg-[rgba(220,80,80,0.08)]"
             >
               <Icon d={ICONS.logout} size={14} />
               Sign out
@@ -295,13 +284,11 @@ const Profile = () => {
           </aside>
 
           {/* ══ RIGHT PANEL ══ */}
-          <main style={{ background: "rgba(12,12,12,0.85)", border: "1px solid #1e1e1e", borderRadius: 16, backdropFilter: "blur(8px)", overflow: "hidden" }}>
-
-
+          <div style={{ background: "rgba(12,12,12,0.85)", border: "1px solid #1e1e1e", borderRadius: 16, backdropFilter: "blur(8px)", overflow: "hidden" }}>
             <div className="p-6">
               {/* Error banner */}
               {profileError && (
-                <div className="flex items-center gap-3 bg-[rgba(220,80,80,0.06)] border border-[#3a1515] rounded-lg px-4 py-3 text-[#e05555] text-xs mb-5">
+                <div className="flex items-center gap-3 bg-[rgba(220,80,80,0.06)] border border-[#3a1515] rounded-lg px-4 py-3 text-[#e57373] text-xs mb-5">
                   <Icon d={ICONS.x} size={14} />
                   {profileError}
                 </div>
@@ -319,7 +306,7 @@ const Profile = () => {
                     </div>
                   </div>
 
-                  <div style={{  overflow: "hidden" }}>
+                  <div style={{ overflow: "hidden" }}>
                     <InfoRow icon="user"  label="Username" value={username} />
                     <InfoRow icon="mail"  label="Email address" value={email} />
                     <InfoRow icon="phone" label="Phone number" value={profileFields.phoneNumber} />
@@ -330,10 +317,10 @@ const Profile = () => {
 
                   {/* Quick action */}
                   <div className="mt-5 grid grid-cols-2 gap-3">
-                    <button onClick={() => setActiveTab("edit")} className="gold-btn">
+                    <button onClick={() => setActiveTab("edit")} className="w-full p-3 bg-[#d4a544] border-none rounded-lg text-[#080808] text-[10px] tracking-[0.22em] uppercase font-bold cursor-pointer transition-all hover:opacity-90 hover:-translate-y-0.5">
                       Update details
                     </button>
-                    <button onClick={() => setActiveTab("password")} className="ghost-btn" style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                    <button onClick={() => setActiveTab("password")} className="w-full p-3 bg-transparent border border-[#1e1e1e] rounded-lg text-[#6b6666] text-[10px] tracking-[0.15em] uppercase cursor-pointer transition-all hover:border-[#d4a544]/50 hover:text-[#d4a544] flex items-center justify-center gap-2">
                       <Icon d={ICONS.lock} size={12} />
                       Change password
                     </button>
@@ -403,7 +390,6 @@ const Profile = () => {
                       <div className="h-px flex-1 bg-[#d4a544] opacity-20" />
                     </div>
                     <div className="flex items-center gap-4">
-                      {/* Preview */}
                       <div
                         className="w-16 h-16 rounded-full flex-shrink-0 flex items-center justify-center text-lg font-bold text-[#d4a544]"
                         style={{ border: "2px solid #242424", background: "#0e0e0e" }}
@@ -425,10 +411,10 @@ const Profile = () => {
 
                   {/* Actions */}
                   <div className="flex items-center gap-3">
-                    <button type="submit" disabled={updateLoading} className="gold-btn" style={{ flex: 2 }}>
+                    <button type="submit" disabled={updateLoading} className="w-full p-3 bg-[#d4a544] border-none rounded-lg text-[#080808] text-[10px] tracking-[0.22em] uppercase font-bold cursor-pointer transition-all hover:opacity-90 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" style={{ flex: 2 }}>
                       {updateLoading ? "Saving…" : "Save changes"}
                     </button>
-                    <button type="button" onClick={() => setActiveTab("info")} className="ghost-btn" style={{ flex: 1 }}>
+                    <button type="button" onClick={() => setActiveTab("info")} className="p-3 bg-transparent border border-[#1e1e1e] rounded-lg text-[#6b6666] text-[10px] tracking-[0.15em] uppercase cursor-pointer transition-all hover:border-[#d4a544]/50 hover:text-[#d4a544]" style={{ flex: 1 }}>
                       Cancel
                     </button>
                   </div>
@@ -489,10 +475,10 @@ const Profile = () => {
                     )}
 
                     <div className="flex gap-3 mt-2">
-                      <button onClick={handlePasswordSubmit} disabled={updateLoading} className="gold-btn" style={{ flex: 2 }}>
+                      <button onClick={handlePasswordSubmit} disabled={updateLoading} className="w-full p-3 bg-[#d4a544] border-none rounded-lg text-[#080808] text-[10px] tracking-[0.22em] uppercase font-bold cursor-pointer transition-all hover:opacity-90 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" style={{ flex: 2 }}>
                         {updateLoading ? "Saving…" : "Update password"}
                       </button>
-                      <button onClick={() => setActiveTab("info")} className="ghost-btn" style={{ flex: 1 }}>
+                      <button onClick={() => setActiveTab("info")} className="p-3 bg-transparent border border-[#1e1e1e] rounded-lg text-[#6b6666] text-[10px] tracking-[0.15em] uppercase cursor-pointer transition-all hover:border-[#d4a544]/50 hover:text-[#d4a544]" style={{ flex: 1 }}>
                         Cancel
                       </button>
                     </div>
@@ -500,7 +486,7 @@ const Profile = () => {
                 </div>
               )}
             </div>
-          </main>
+          </div>
         </div>
       </div>
     </div>

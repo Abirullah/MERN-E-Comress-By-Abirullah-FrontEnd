@@ -5,6 +5,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Navbar from "./components/NavBar";
+import ThemeToggle from "./components/ThemeToggle";
 
 import { fetchUserProfile } from "./ReduxSetUp/Feature/Auth/AuthSlice";
 
@@ -36,9 +37,12 @@ function App() {
   const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname);
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f7f1e7_0%,#ffffff_55%,#edf4ff_100%)] text-slate-900">
-      
-      <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(circle_at_top,_rgba(251,191,36,0.22),_transparent_58%)]" />
+    <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-primary)] transition-colors duration-300">
+      <div style={{ position: "fixed", right: "1rem", bottom: "1rem", zIndex: "5000000000000000000" }}>
+        <ThemeToggle />
+      </div>
+
+      <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(circle_at_top,_rgba(212,165,68,0.18),_transparent_58%)]" />
 
       {/* Hide Navbar on Auth Pages */}
       {!shouldHideNavbar && <Navbar />}
