@@ -2,9 +2,10 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { LockKeyhole, Mail, UserRound } from "lucide-react";
+
 import AuthLayout from "./AuthLayout";
 import AuthSocialButtons from "./AuthSessionButton";
-import { UserRound, Mail, LockKeyhole } from "lucide-react";
 import {
   clearAuthMessages,
   registerUser,
@@ -14,9 +15,7 @@ const Register = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const { loading, error, userInfo } = useSelector(
-    (state) => state.auth
-  );
+  const { loading, userInfo } = useSelector((state) => state.auth);
   const redirectPath = location.state?.from || "/";
 
   const [form, setForm] = useState({
@@ -34,16 +33,14 @@ const Register = () => {
   };
 
   useEffect(() => {
+    dispatch(clearAuthMessages());
+  }, [dispatch]);
+
+  useEffect(() => {
     if (userInfo) {
       navigate(redirectPath, { replace: true });
     }
   }, [navigate, redirectPath, userInfo]);
-
-  useEffect(() => {
-    return () => {
-      dispatch(clearAuthMessages());
-    };
-  }, [dispatch]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -65,89 +62,94 @@ const Register = () => {
       toast.success("Account created successfully");
       navigate(redirectPath, { replace: true });
     } catch (registrationError) {
-      toast.error(
-        registrationError?.message || "Registration failed"
-      );
+      toast.error(registrationError?.message || "Registration failed");
     }
   };
 
   return (
     <AuthLayout
       badge="Create account"
-      title="Sign Up"
+      title="Build your account"
+      description="Register once and keep your order history, wishlist, and checkout details in one place."
     >
-
-
       <form onSubmit={handleSubmit} className="space-y-5">
-        {error && (
-          <div className="rounded-[1.5rem] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
-            {error}
-          </div>
-        )}
-
         <div>
-          <label className="field-label">Username</label>
+          <label className="mb-1.5 block text-[9px] text-start uppercase tracking-[0.18em] text-[#666262]">
+            Username
+          </label>
 
           <div className="relative">
-            <UserRound className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+            <UserRound className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#706d6d]" />
 
             <input
               type="text"
               placeholder="Choose a username"
               value={form.username}
               onChange={handleChange("username")}
-              className="field-input pl-12"
+              className="w-full rounded-lg border border-[#1e1e1e] bg-[#0e0e0e] py-[10px] pl-[13px] pr-[38px] text-[18px] text-[#ddd4be] outline-none ring-0 focus:outline-none focus:ring-0 placeholder:text-[#333] focus-visible:outline-none focus-visible:ring-0 focus:border-[#d4a544] focus:bg-[#100e08]"
+              autoComplete="username"
+              required
             />
           </div>
         </div>
 
         <div>
-          <label className="field-label">Email</label>
+          <label className="mb-1.5 block text-[9px] text-start uppercase tracking-[0.18em] text-[#666262]">
+            Email
+          </label>
 
           <div className="relative">
-            <Mail className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+            <Mail className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#706d6d]" />
 
             <input
               type="email"
               placeholder="you@example.com"
               value={form.email}
               onChange={handleChange("email")}
-              className="field-input pl-12"
+              className="w-full rounded-lg border border-[#1e1e1e] bg-[#0e0e0e] py-[10px] pl-[13px] pr-[38px] text-[18px] text-[#ddd4be] outline-none ring-0 focus:outline-none focus:ring-0 placeholder:text-[#333] focus-visible:outline-none focus-visible:ring-0 focus:border-[#d4a544] focus:bg-[#100e08]"
+              autoComplete="email"
+              required
             />
           </div>
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <label className="field-label">Password</label>
+            <label className="mb-1.5 block text-[9px] text-start uppercase tracking-[0.18em] text-[#666262]">
+              Password
+            </label>
 
             <div className="relative">
-              <LockKeyhole className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+              <LockKeyhole className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#706d6d]" />
 
               <input
                 type="password"
                 placeholder="Create password"
                 value={form.password}
                 onChange={handleChange("password")}
-                className="field-input pl-12"
+                className="w-full rounded-lg border border-[#1e1e1e] bg-[#0e0e0e] py-[10px] pl-[13px] pr-[38px] text-[18px] text-[#ddd4be] outline-none ring-0 focus:outline-none focus:ring-0 placeholder:text-[#333] focus-visible:outline-none focus-visible:ring-0 focus:border-[#d4a544] focus:bg-[#100e08]"
+                autoComplete="new-password"
+                required
               />
             </div>
           </div>
 
           <div>
-            <label className="field-label">
+            <label className="mb-1.5 block text-[9px] text-start  uppercase tracking-[0.18em] text-[#666262]">
               Confirm Password
             </label>
 
             <div className="relative">
-              <LockKeyhole className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+              <LockKeyhole className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#706d6d]" />
 
               <input
                 type="password"
                 placeholder="Repeat password"
                 value={form.confirmPassword}
                 onChange={handleChange("confirmPassword")}
-                className="field-input pl-12"
+                className="w-full rounded-lg border border-[#1e1e1e] bg-[#0e0e0e] py-[10px] pl-[13px] pr-[38px] text-[18px] text-[#ddd4be] outline-none ring-0 focus:outline-none focus:ring-0 placeholder:text-[#333] focus-visible:outline-none focus-visible:ring-0 focus:border-[#d4a544] focus:bg-[#100e08]"
+                autoComplete="new-password"
+                required
               />
             </div>
           </div>
@@ -156,24 +158,18 @@ const Register = () => {
         <button
           type="submit"
           disabled={loading}
-          className="primary-button w-full disabled:cursor-not-allowed disabled:opacity-70"
+          className="mb-0 w-full rounded-lg bg-[#d4a544] p-3 text-[11px] font-bold uppercase tracking-[0.22em] text-[#080808] transition-opacity disabled:cursor-not-allowed disabled:opacity-70"
         >
           {loading ? "Creating account..." : "Create account"}
         </button>
       </form>
 
-      <p className="mt-6 text-sm text-slate-600">
-        Already have an account?{" "}
-
-        <Link
-          to="/login"
-          className="font-semibold text-slate-900 hover:text-amber-700"
-        >
+      <p className="mt-6 text-sm text-[#c3b591]">
+        Already have an account?{' '}
+        <Link to="/login" className="font-semibold text-[#d4a544] hover:text-[#f5db8f]">
           Sign in
         </Link>
       </p>
-
-            
 
       <div className="my-6 flex items-center gap-3">
         <div className="h-px flex-1 bg-slate-200" />
@@ -183,9 +179,9 @@ const Register = () => {
         <div className="h-px flex-1 bg-slate-200" />
       </div>
       <AuthSocialButtons />
-
     </AuthLayout>
   );
 };
 
 export default Register;
+

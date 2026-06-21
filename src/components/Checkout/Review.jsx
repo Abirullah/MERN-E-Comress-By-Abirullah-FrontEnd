@@ -26,16 +26,6 @@ const formatAddress = (shippingDetails) => {
   return parts.length > 0 ? parts : ["No shipping details saved yet"];
 };
 
-const maskCardNumber = (value) => {
-  const digits = String(value || "").replace(/\D/g, "");
-
-  if (digits.length <= 4) {
-    return digits || "Not provided";
-  }
-
-  return `**** **** **** ${digits.slice(-4)}`;
-};
-
 export default function Review({
   product,
   selectedVariant,
@@ -46,8 +36,8 @@ export default function Review({
   paymentDetails,
 }) {
   const shippingLines = formatAddress(shippingDetails || {});
-  const paymentType =
-    paymentDetails?.paymentType === "bankTransfer" ? "Bank account" : "Card";
+  const paymentType = paymentDetails?.paymentType === "cod" ? "Cash on delivery" : "Bank transfer";
+  const paymentSlipName = paymentDetails?.paymentSlipName || paymentDetails?.paymentSlip?.name || "";
 
   return (
     <div className="space-y-6">
@@ -62,7 +52,7 @@ export default function Review({
         <div className="mt-4 flex items-center justify-between">
           <div>
             <p className="text-sm font-semibold text-slate-700">Shipping</p>
-            <p className="text-sm text-slate-500">Handled in the Stripe checkout session.</p>
+            <p className="text-sm text-slate-500">Free delivery on this order.</p>
           </div>
           <p className="text-sm text-slate-900">Free</p>
         </div>
@@ -93,26 +83,22 @@ export default function Review({
                 <span className="text-slate-500">Method:</span>
                 <span className="font-medium text-slate-900">{paymentType}</span>
               </div>
-              <div className="flex justify-between gap-4 text-sm text-slate-700">
-                <span className="text-slate-500">Card number:</span>
-                <span className="font-medium text-slate-900">
-                  {maskCardNumber(paymentDetails?.cardNumber)}
-                </span>
-              </div>
-              <div className="flex justify-between gap-4 text-sm text-slate-700">
-                <span className="text-slate-500">Expiration:</span>
-                <span className="font-medium text-slate-900">
-                  {paymentDetails?.expirationDate || "Not provided"}
-                </span>
-              </div>
-              {product && (
+              {paymentDetails?.paymentType === "bankTransfer" ? (
+                <div className="flex justify-between gap-4 text-sm text-slate-700">
+                  <span className="text-slate-500">Screenshot:</span>
+                  <span className="font-medium text-slate-900">
+                    {paymentSlipName || "Uploaded"}
+                  </span>
+                </div>
+              ) : null}
+              {product ? (
                 <div className="flex justify-between gap-4 text-sm text-slate-700">
                   <span className="text-slate-500">Variant:</span>
                   <span className="font-medium text-slate-900">
                     {formatVariantLabel(selectedVariant)}
                   </span>
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
@@ -120,3 +106,4 @@ export default function Review({
     </div>
   );
 }
+

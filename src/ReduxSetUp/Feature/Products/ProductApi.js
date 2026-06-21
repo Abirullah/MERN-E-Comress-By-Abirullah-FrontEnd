@@ -35,9 +35,14 @@ export const createCheckoutSessionAPI = async (orderData = {}) => {
     throw new Error("Product id is required to start checkout");
   }
 
-  const quantity = Number(orderData?.quantity || 1);
   const response = await API.post(`/users/products/${productId}/checkout`, {
-    quantity,
+    productId,
+    quantity: Number(orderData?.quantity || 1),
+    paymentType: orderData?.paymentType,
+    shippingDetails: orderData?.shippingDetails,
+    paymentDetails: orderData?.paymentDetails,
+    selectedVariant: orderData?.selectedVariant,
+    paymentSlipData: orderData?.paymentSlipData || orderData?.paymentDetails?.paymentSlipData || null,
   });
   return response.data;
 };

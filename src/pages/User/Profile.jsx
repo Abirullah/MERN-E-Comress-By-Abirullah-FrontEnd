@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loader from "../../components/Loader";
-
 import {
   clearAuthMessages,
   fetchUserProfile,
@@ -11,9 +10,7 @@ import {
   logoutUser,
 } from "../../ReduxSetUp/Feature/Auth/AuthSlice";
 
-/* ─────────────────────────────────────────────
-   Helpers
-───────────────────────────────────────────── */
+/* ── Helpers ── */
 const emptyProfile = {
   firstName: "",
   lastName: "",
@@ -25,12 +22,7 @@ const emptyProfile = {
 };
 
 const getInitials = (value = "") =>
-  value
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((s) => s[0]?.toUpperCase())
-    .join("");
+  value.split(" ").filter(Boolean).slice(0, 2).map((s) => s[0]?.toUpperCase()).join("");
 
 const trimProfileFields = (fields) =>
   Object.entries(fields).reduce((acc, [k, v]) => {
@@ -39,21 +31,74 @@ const trimProfileFields = (fields) =>
     return acc;
   }, {});
 
-/* ─────────────────────────────────────────────
-   Main Profile Component
-───────────────────────────────────────────── */
+/* ── Icons ── */
+const Icon = ({ d, size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d={d} />
+  </svg>
+);
+
+const ICONS = {
+  box:      "M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z",
+  heart:    "M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z",
+  logout:   "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9",
+  edit:     "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z",
+  chevron:  "M9 18l6-6-6-6",
+  eye:      "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
+  lock:     "M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zM7 11V7a5 5 0 0 1 10 0v4",
+  camera:   "M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
+  user:     "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
+  mail:     "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6",
+  phone:    "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z",
+  map:      "M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z M12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
+  save:     "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8",
+  x:        "M18 6L6 18M6 6l12 12",
+};
+
+/* ── Styled Input ── */
+const Field = ({ label, icon, children }) => (
+  <div className="flex flex-col gap-1.5">
+    {label && (
+      <label className="flex items-center gap-1.5 text-[9px] font-semibold tracking-[0.2em] uppercase text-[#5a5a5a]">
+        {icon && <span className="text-[#d4a544]"><Icon d={ICONS[icon]} size={11} /></span>}
+        {label}
+      </label>
+    )}
+    {children}
+  </div>
+);
+
+const inputCls =
+  "w-full bg-[#0c0c0c] border border-[#242424] rounded-lg px-4 py-2.5 text-[#ddd4be] text-sm outline-none transition-all placeholder:text-[#2e2e2e] focus:border-[#d4a544] focus:bg-[#0f0d08] focus:shadow-[0_0_0_3px_rgba(212,165,68,0.08)]";
+
+/* ── Profile View Row ── */
+const InfoRow = ({ icon, label, value }) => (
+  <div className="flex items-start gap-4 py-4 border-b border-[#161616] last:border-0">
+    <div className="w-8 h-8 rounded-lg bg-[rgba(212,165,68,0.08)] border border-[#1e1e1e] flex items-center justify-center text-[#d4a544] flex-shrink-0 mt-0.5">
+      <Icon d={ICONS[icon]} size={14} />
+    </div>
+    <div className="min-w-0 flex-1">
+      <div className="text-[9px] tracking-[0.2em] uppercase text-[#444] mb-1">{label}</div>
+      <div className="text-sm text-[#c8bea8] font-medium truncate">{value || <span className="text-[#3a3a3a] italic text-xs">Not set</span>}</div>
+    </div>
+  </div>
+);
+
+/* ═══════════════════════════════════════════════
+   Main Component
+═══════════════════════════════════════════════ */
 const Profile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userInfo, profileLoading, updateLoading, profileError } = useSelector((s) => s.auth);
 
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
+  const [username, setUsername]         = useState("");
+  const [email, setEmail]               = useState("");
   const [profileFields, setProfileFields] = useState(emptyProfile);
-  const [showDetails, setShowDetails] = useState(false);
-  const [showPasswordFields, setShowPasswordFields] = useState(false);
-  const [password, setPassword] = useState("");
+  const [activeTab, setActiveTab]       = useState("info");   // "info" | "edit" | "password"
+  const [password, setPassword]         = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPass, setShowPass]         = useState(false);
 
   useEffect(() => {
     dispatch(fetchUserProfile());
@@ -68,384 +113,395 @@ const Profile = () => {
   }, [userInfo]);
 
   const initials = useMemo(() => getInitials(username || email || "User"), [username, email]);
-  const totalSpent = userInfo?.totalSpent ?? 0;
-  const totalOrders = userInfo?.totalOrders ?? 0;
+  const totalSpent   = userInfo?.totalSpent   ?? 0;
+  const totalOrders  = userInfo?.totalOrders  ?? 0;
   const wishlistCount = userInfo?.wishlistCount ?? 0;
 
   const handleFieldChange = (field, value) =>
     setProfileFields((prev) => ({ ...prev, [field]: value }));
 
   const handlePhotoChange = (file) => {
-    if (!file) {
-      setProfileFields((prev) => ({ ...prev, profilePicture: "" }));
-      return;
-    }
-
+    if (!file) { setProfileFields((p) => ({ ...p, profilePicture: "" })); return; }
     const reader = new FileReader();
-    reader.onload = () => {
-      setProfileFields((prev) => ({ ...prev, profilePicture: reader.result }));
-    };
+    reader.onload = () => setProfileFields((p) => ({ ...p, profilePicture: reader.result }));
     reader.readAsDataURL(file);
   };
 
   const handlePasswordSubmit = async () => {
-    if (!password.trim()) {
-      toast.error("Please enter a new password");
-      return;
-    }
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-
+    if (!password.trim())           { toast.error("Enter a new password"); return; }
+    if (password !== confirmPassword) { toast.error("Passwords do not match"); return; }
     try {
       await dispatch(updateUserProfile({ password })).unwrap();
-      toast.success("Password updated successfully!");
-      setPassword("");
-      setConfirmPassword("");
-      setShowPasswordFields(false);
-    } catch (err) {
-      toast.error(err?.message || "Failed to update password");
-    }
+      toast.success("Password updated");
+      setPassword(""); setConfirmPassword(""); setActiveTab("info");
+    } catch (err) { toast.error(err?.message || "Failed to update password"); }
   };
 
   const submitHandler = async (e) => {
     e.preventDefault();
     const payload = { username: username.trim(), email: email.trim() };
     const trimmed = trimProfileFields(profileFields);
-    if (Object.keys(trimmed).length > 0) payload.Profile = trimmed;
+    if (Object.keys(trimmed).length) payload.Profile = trimmed;
     try {
       await dispatch(updateUserProfile(payload)).unwrap();
-      toast.success("Profile updated successfully!");
-    } catch (err) {
-      toast.error(err?.message || "Profile update failed");
-    }
+      toast.success("Profile saved");
+      setActiveTab("info");
+    } catch (err) { toast.error(err?.message || "Update failed"); }
   };
 
   const handleLogout = async () => {
     try {
       await dispatch(logoutUser()).unwrap();
       navigate("/login", { replace: true });
-    } catch (err) {
-      toast.error(err?.message || "Logout failed");
-    }
+    } catch (err) { toast.error(err?.message || "Logout failed"); }
   };
 
   if (profileLoading && !userInfo) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center">
+      <div className="min-h-screen bg-[#080808] flex items-center justify-center">
         <Loader />
       </div>
     );
   }
 
-  const inputCls =
-    "bg-white border border-[rgba(15,23,42,0.12)] rounded-xl px-4 py-3 text-[#0f172a] text-sm outline-none transition-colors w-full focus:border-[rgba(212,175,55,0.5)] placeholder:text-[#94a3b8] box-border";
-
-  const textareaCls =
-    "bg-white border border-[rgba(15,23,42,0.12)] rounded-xl px-4 py-3 text-[#0f172a] text-sm outline-none transition-colors w-full focus:border-[rgba(212,175,55,0.5)] placeholder:text-[#94a3b8] resize-y min-h-[100px] box-border";
-
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-[#0f172a] pb-16 relative">
-      {/* Google Font */}
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;0,9..40,800&display=swap'); * { font-family: 'DM Sans', 'Segoe UI', sans-serif; }`}</style>
+    <div className="relative min-h-screen bg-[#080808] overflow-hidden" style={{ fontFamily: "'Tenor Sans', sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Tenor+Sans&display=swap');
+        @keyframes ringPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.25;transform:scale(1.04)}}
+        @keyframes particleRise{0%{opacity:0;transform:translateY(0)}15%{opacity:0.7}85%{opacity:0.1}100%{opacity:0;transform:translateY(-300px)}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        .lx-ring{position:absolute;border-radius:9999px;border:1px solid rgba(212,165,68,0.09);animation:ringPulse 4s ease-in-out infinite}
+        .lx-particle{position:absolute;width:2px;height:2px;border-radius:9999px;background:#d4a544;opacity:0;animation:particleRise 6s ease-in-out infinite}
+        .fade-up{animation:fadeUp 0.35s ease both}
+        .tab-btn{padding:8px 18px;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;border-radius:8px;border:1px solid transparent;cursor:pointer;transition:all 0.2s;font-family:'Tenor Sans',sans-serif}
+        .tab-active{background:rgba(212,165,68,0.12);border-color:#3a2d0e;color:#d4a544}
+        .tab-inactive{background:transparent;border-color:transparent;color:#555}
+        .tab-inactive:hover{color:#888;background:rgba(255,255,255,0.03)}
+        .nav-btn{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:10px;border:1px solid #1a1a1a;background:rgba(15,15,15,0.6);color:#888;font-size:12px;cursor:pointer;transition:all 0.2s;text-align:left;font-family:'Tenor Sans',sans-serif}
+        .nav-btn:hover{border-color:#d4a544;color:#d4a544;background:rgba(212,165,68,0.05)}
+        .gold-btn{width:100%;padding:12px;background:#d4a544;border:none;border-radius:10px;color:#080808;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;font-family:'Tenor Sans',sans-serif;font-weight:700;cursor:pointer;transition:opacity 0.2s,transform 0.15s}
+        .gold-btn:hover{opacity:0.88;transform:translateY(-1px)}
+        .gold-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+        .ghost-btn{padding:10px 18px;background:transparent;border:1px solid #242424;border-radius:8px;color:#888;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:'Tenor Sans',sans-serif;cursor:pointer;transition:all 0.2s}
+        .ghost-btn:hover{border-color:#d4a544;color:#d4a544}
+        .stat-card{background:rgba(15,15,15,0.8);border:1px solid #1a1a1a;border-radius:12px;padding:16px 12px;text-align:center;transition:border-color 0.2s}
+        .stat-card:hover{border-color:rgba(212,165,68,0.3)}
+      `}</style>
+      {Array.from({ length: 20 }).map((_, i) => (
+        <div key={i} className="lx-particle" style={{
+          left: `${8 + ((i * 6) % 85)}%`,
+          bottom: `${(i * 7) % 30}%`,
+          animationDelay: `${(i * 0.45).toFixed(1)}s`,
+          animationDuration: `${5 + (i % 4)}s`,
+        }} />
+      ))}
+      <div className="absolute inset-0" style={{ background: "linear-gradient(160deg,rgba(8,8,8,0.6) 0%,rgba(8,8,8,0.45) 50%,rgba(8,8,8,0.7) 100%)" }} />
 
-      {/* Grid overlay */}
-      <div
-        className="fixed inset-0 pointer-events-none z-0"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-        }}
-      />
+      {/* ── Page ── */}
+      <div className="relative z-10 max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-12 fade-up mt-7">
 
-      <div className="relative z-10 max-w-[1100px] mx-auto px-6 py-8 mt-20">
+        {/* Page header */}
+        <div className="my-8 flex flex-col items-center justify-center gap-2">
+          <div className="text-[10px] tracking-[0.3em] uppercase text-[#d4a544] mb-2">Account</div>
+          <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 38, fontWeight: 300, color: "#f0ead8", letterSpacing: "0.05em", lineHeight: 1 }}>
+            My Profile
+          </h1>
+        </div>
 
-        {/* Two-column layout */}
+        <div className="grid gap-5 lg:grid-cols-[280px_1fr] items-start">
 
+          {/* ══ LEFT SIDEBAR ══ */}
+          <aside className="flex flex-col gap-4">
 
-          {/* ── Left Sidebar ── */}
-          <aside>
-            {/* Avatar card */}
-            <div className="bg-white border border-[rgba(15,23,42,0.08)] rounded-3xl p-6 shadow-[0_25px_70px_rgba(15,23,42,0.08)] mb-4 text-center">
-              <div className="flex justify-center mb-3">
-                <div
-                  className="w-[88px] h-[88px] rounded-full p-[3px]"
-                  style={{ background: "linear-gradient(135deg, #d4af37, #f0d060, #b8922a)" }}
-                >
-                  {profileFields.profilePicture ? (
-                    <img
-                      src={profileFields.profilePicture}
-                      alt="avatar"
-                      className="w-full h-full rounded-full object-cover"
-                      onError={(e) => { e.currentTarget.style.display = "none"; }}
-                    />
-                  ) : (
-                    <div className="w-full h-full rounded-full bg-[#111118] flex items-center justify-center text-[1.6rem] font-extrabold text-[#d4af37] tracking-tight">
-                      {initials || "U"}
-                    </div>
-                  )}
+            {/* Avatar + identity */}
+            <div >
+              <div className="flex flex-col items-center text-center gap-3">
+                <div className="relative">
+                  <div
+                    className="w-[120px] h-[120px] rounded-2xl overflow-hidden p-[2.5px] flex-shrink-0"
+                    style={{ background: "linear-gradient(135deg,#d4a544,#f0d060,#b8922a)" }}
+                  >
+                    {profileFields.profilePicture ? (
+                      <img src={profileFields.profilePicture} alt="avatar" className="w-full h-full  object-cover" />
+                    ) : (
+                      <div className="w-full h-full rounded-full bg-[#0e0e0e] flex items-center justify-center text-2xl font-bold text-[#d4a544]">
+                        {initials || "U"}
+                      </div>
+                    )}
+                  </div>
+                  
                 </div>
-              </div>
-              <div className="text-xl font-bold text-[#0f172a] mb-0.5">
-                {username || "Your Name"}
-              </div>
-              <div className="text-xs text-[#6b6b80] tracking-wide">
-                {email || "your@email.com"}
+
+                <div>
+                  <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 22, fontWeight: 400, color: "#f0ead8", letterSpacing: "0.03em" }}>
+                    {username || "Your Name"}
+                  </div>
+                  <div className="text-[11px] text-[#555] mt-0.5 tracking-wide">{email}</div>
+                </div>
+
               </div>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="grid grid-cols-3 gap-2.5">
               {[
                 { value: `$${totalSpent.toLocaleString()}`, label: "Spent" },
-                { value: totalOrders, label: "Orders" },
-                { value: wishlistCount, label: "Saved" },
+                { value: totalOrders,    label: "Orders" },
+                { value: wishlistCount,  label: "Saved" },
               ].map(({ value, label }) => (
-                <div
-                  key={label}
-                  className="bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-4 text-center"
-                >
-                  <div className="text-lg font-extrabold text-[#d4af37] tabular-nums">{value}</div>
-                  <div className="text-[0.65rem] font-semibold tracking-[0.12em] uppercase text-[#55556a] mt-0.5">
-                    {label}
+                <div key={label} className="stat-card">
+                  <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 22, fontWeight: 400, color: "#d4a544", letterSpacing: "0.02em" }}>
+                    {value}
                   </div>
+                  <div className="text-[9px] tracking-[0.15em] uppercase text-[#444] mt-1">{label}</div>
                 </div>
               ))}
             </div>
 
-            {/* Quick Nav */}
-            <div className="flex flex-col gap-2.5">
-              {[
-                { icon: "📦", label: "My Orders", sub: "Track & manage", path: "/ordersplaced" },
-                { icon: "♡", label: "Wishlist", sub: "Saved items", path: "/wishlist" },
-              ].map((item) => (
-                <button
-                  key={item.path}
-                  onClick={() => navigate(item.path)}
-                  className="flex items-center gap-3 bg-[rgba(15,23,42,0.03)] border border-[rgba(15,23,42,0.08)] rounded-[0.9rem] px-4 py-3 text-[#334155] text-sm font-medium cursor-pointer transition-all text-left w-full hover:border-[rgba(15,23,42,0.2)] hover:bg-[rgba(15,23,42,0.08)] hover:text-[#0f172a]"
-                >
-                  <span className="w-8 h-8 rounded-xl bg-[rgba(15,23,42,0.08)] flex items-center justify-center text-base flex-shrink-0">
-                    {item.icon}
-                  </span>
-                  <span>
-                    <div className="font-semibold text-sm text-[#d0d0e0]">{item.label}</div>
-                    <div className="text-[0.72rem] text-[#55556a]">{item.sub}</div>
-                  </span>
-                  <span className="ml-auto opacity-35 text-sm">›</span>
-                </button>
-              ))}
-
-              {/* Logout button (visible in desktop profile quick nav) */}
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-3 mt-3 bg-red-50 border border-red-200 text-red-700 rounded-[0.9rem] px-4 py-3 text-sm font-semibold cursor-pointer transition-all w-full hover:bg-red-100"
-              >
-                <span className="w-8 h-8 rounded-xl bg-red-100 flex items-center justify-center text-base flex-shrink-0">⎋</span>
-                <span>
-                  <div className="font-semibold text-sm">Logout</div>
-                  <div className="text-[0.72rem] text-[#55556a]">Sign out of your account</div>
+            {/* Nav links */}
+            <div className="flex flex-col gap-2">
+              <button onClick={() => navigate("/ordersplaced")} className="nav-btn">
+                <span className="w-8 h-8 rounded-lg bg-[rgba(212,165,68,0.08)] border border-[#1e1e1e] flex items-center justify-center text-[#d4a544] flex-shrink-0">
+                  <Icon d={ICONS.box} size={14} />
                 </span>
-                <span className="ml-auto opacity-35 text-sm">›</span>
+                <span className="flex-1">
+                  <div className="text-[12px] font-medium text-[#bbb]">My Orders</div>
+                  <div className="text-[10px] text-[#444] mt-0.5">Track & manage</div>
+                </span>
+                <span className="text-[#333]"><Icon d={ICONS.chevron} size={14} /></span>
               </button>
-
-              {/* Change Password */}
-              <button
-                onClick={() => {
-                  setShowDetails(true);
-                  setShowPasswordFields(true);
-                }}
-                className="flex items-center gap-3 bg-[rgba(15,23,42,0.05)] border border-[rgba(15,23,42,0.1)] rounded-[0.9rem] px-4 py-3 text-[#0f172a] text-sm font-semibold cursor-pointer w-full text-left transition-all hover:bg-[rgba(15,23,42,0.1)] tracking-wide"
-              >
-                <span className="w-8 h-8 rounded-xl bg-[rgba(15,23,42,0.1)] flex items-center justify-center text-base flex-shrink-0">
-                  🔑
+              <button onClick={() => navigate("/washinglist")} className="nav-btn">
+                <span className="w-8 h-8 rounded-lg bg-[rgba(212,165,68,0.08)] border border-[#1e1e1e] flex items-center justify-center text-[#d4a544] flex-shrink-0">
+                  <Icon d={ICONS.heart} size={14} />
                 </span>
-                <span className="font-semibold text-sm text-[#0f172a]">Change Password</span>
-                <span className="ml-auto opacity-35 text-sm">›</span>
+                <span className="flex-1">
+                  <div className="text-[12px] font-medium text-[#bbb]">Wishlist</div>
+                  <div className="text-[10px] text-[#444] mt-0.5">Saved items</div>
+                </span>
+                <span className="text-[#333]"><Icon d={ICONS.chevron} size={14} /></span>
               </button>
             </div>
+
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-10 text-[#e05555] text-[11px] tracking-[0.15em] uppercase border border-[#2a1515] bg-[rgba(220,80,80,0.04)] cursor-pointer transition-all hover:border-[#e05555] hover:bg-[rgba(220,80,80,0.08)]"
+              style={{ borderRadius: 10 }}
+            >
+              <Icon d={ICONS.logout} size={14} />
+              Sign out
+            </button>
           </aside>
 
-          {/* ── Right: Profile Info ── */}
-          <section className="bg-white border border-[rgba(15,23,42,0.08)] rounded-3xl p-8 shadow-[0_25px_70px_rgba(15,23,42,0.08)]">
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
-              <div>
-                <div className="text-2xl font-extrabold text-[#0f172a] tracking-tight mb-1">Your account overview</div>
-                <p className="text-sm text-[#475569] leading-relaxed">
-                  View your current profile details and click Update Info to edit everything in one place.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowDetails((prev) => !prev)}
-                className="rounded-full border border-[rgba(15,23,42,0.1)] bg-[rgba(15,23,42,0.05)] px-5 py-3 text-sm font-semibold text-[#0f172a] transition hover:bg-[rgba(15,23,42,0.1)]"
-              >
-                {showDetails ? "Hide update form" : "Update info"}
-              </button>
-            </div>
+          {/* ══ RIGHT PANEL ══ */}
+          <main style={{ background: "rgba(12,12,12,0.85)", border: "1px solid #1e1e1e", borderRadius: 16, backdropFilter: "blur(8px)", overflow: "hidden" }}>
 
-            {profileError && (
-              <div className="bg-red-500/[0.08] border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-[0.82rem] mb-5">
-                {profileError}
-              </div>
-            )}
 
-            {!showDetails ? (
-              <div className="grid grid-cols-1 gap-4">
-                <div className="rounded-3xl border border-[rgba(15,23,42,0.08)] p-6 bg-[rgba(248,250,252,0.95)]">
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="p-6">
+              {/* Error banner */}
+              {profileError && (
+                <div className="flex items-center gap-3 bg-[rgba(220,80,80,0.06)] border border-[#3a1515] rounded-lg px-4 py-3 text-[#e05555] text-xs mb-5">
+                  <Icon d={ICONS.x} size={14} />
+                  {profileError}
+                </div>
+              )}
+
+              {/* ── TAB: Overview ── */}
+              {activeTab === "info" && (
+                <div className="fade-up">
+                  <div className="flex items-center justify-between mb-5">
                     <div>
-                      <div className="text-[0.85rem] uppercase tracking-[0.18em] text-[#334155] mb-2">Username</div>
-                      <div className="text-base font-semibold text-[#0f172a]">{username || "Your Name"}</div>
-                    </div>
-                    <div>
-                      <div className="text-[0.85rem] uppercase tracking-[0.18em] text-[#334155] mb-2">Email</div>
-                      <div className="text-base font-semibold text-[#0f172a]">{email || "your@email.com"}</div>
-                    </div>
-                    <div>
-                      <div className="text-[0.85rem] uppercase tracking-[0.18em] text-[#334155] mb-2">Phone</div>
-                      <div className="text-base font-semibold text-[#0f172a]">{profileFields.phoneNumber || "Not set"}</div>
-                    </div>
-                    <div>
-                      <div className="text-[0.85rem] uppercase tracking-[0.18em] text-[#334155] mb-2">Address</div>
-                      <div className="text-base font-semibold text-[#0f172a]">{profileFields.address || "Not set"}</div>
+                      <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 300, color: "#e8e0cc" }}>
+                        Account details
+                      </div>
+                      <div className="text-[10px] text-[#444] mt-1">Your personal information</div>
                     </div>
                   </div>
-                </div>
 
-                <div className="rounded-3xl border border-[rgba(15,23,42,0.08)] p-6 bg-[rgba(248,250,252,0.95)]">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <div className="text-[0.85rem] uppercase tracking-[0.18em] text-[#334155] mb-2">Preferences</div>
-                      <div className="text-base font-semibold text-[#0f172a]">{profileFields.preferences || "Not added yet"}</div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowDetails(true);
-                        setShowPasswordFields(false);
-                      }}
-                      className="rounded-full border border-[rgba(15,23,42,0.1)] bg-[rgba(15,23,42,0.05)] px-4 py-2 text-sm font-semibold text-[#0f172a] transition hover:bg-[rgba(15,23,42,0.1)]"
-                    >
+                  <div style={{  overflow: "hidden" }}>
+                    <InfoRow icon="user"  label="Username" value={username} />
+                    <InfoRow icon="mail"  label="Email address" value={email} />
+                    <InfoRow icon="phone" label="Phone number" value={profileFields.phoneNumber} />
+                    <InfoRow icon="map"   label="Address" value={profileFields.address} />
+                    <InfoRow icon="user"  label="First name" value={profileFields.firstName} />
+                    <InfoRow icon="user"  label="Last name" value={profileFields.lastName} />
+                  </div>
+
+                  {/* Quick action */}
+                  <div className="mt-5 grid grid-cols-2 gap-3">
+                    <button onClick={() => setActiveTab("edit")} className="gold-btn">
                       Update details
                     </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={submitHandler} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[0.7rem] font-semibold tracking-widest uppercase text-[#55556a]">Username</label>
-                    <input type="text" className={inputCls} value={username} onChange={(e) => setUsername(e.target.value)} />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[0.7rem] font-semibold tracking-widest uppercase text-[#55556a]">Email</label>
-                    <input type="email" className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[
-                    { key: "firstName", label: "First Name" },
-                    { key: "lastName", label: "Last Name" },
-                    { key: "phoneNumber", label: "Phone Number" },
-                    { key: "address", label: "Address" },
-                    { key: "accountDetails", label: "Account Details" },
-                  ].map(({ key, label }) => (
-                    <div key={key} className="flex flex-col gap-1.5">
-                      <label className="text-[0.7rem] font-semibold tracking-widest uppercase text-[#55556a]">{label}</label>
-                      <input type="text" className={inputCls} value={profileFields[key]} onChange={(e) => handleFieldChange(key, e.target.value)} />
-                    </div>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5 sm:col-span-2">
-                    <label className="text-[0.7rem] font-semibold tracking-widest uppercase text-[#55556a]">Profile Picture</label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="w-full rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-4 py-3 text-sm text-[#0f172a] outline-none transition-colors file:mr-4 file:border-0 file:bg-[#f8fafc] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#0f172a] file:cursor-pointer"
-                      onChange={(e) => handlePhotoChange(e.target.files?.[0])}
-                    />
-                    {profileFields.profilePicture && (
-                      <div className="mt-3 w-28 h-28 overflow-hidden rounded-3xl border border-[rgba(15,23,42,0.12)]">
-                        <img src={profileFields.profilePicture} alt="Profile preview" className="h-full w-full object-cover" />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[0.7rem] font-semibold tracking-widest uppercase text-[#55556a]">Preferences</label>
-                  <textarea rows={4} className={textareaCls} value={profileFields.preferences} onChange={(e) => handleFieldChange("preferences", e.target.value)} />
-                </div>
-
-                <div className="rounded-3xl border border-[rgba(15,23,42,0.08)] bg-[rgba(248,250,252,0.95)] p-5">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <div className="text-sm font-semibold text-[#0f172a]">Password</div>
-                      <div className="text-sm text-[#475569]">Update your password as part of this flow.</div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowPasswordFields((prev) => !prev)}
-                      className="rounded-full border border-[rgba(15,23,42,0.1)] bg-[rgba(15,23,42,0.05)] px-4 py-2 text-sm font-semibold text-[#0f172a] transition hover:bg-[rgba(15,23,42,0.1)]"
-                    >
-                      {showPasswordFields ? "Hide password" : "Update password"}
+                    <button onClick={() => setActiveTab("password")} className="ghost-btn" style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                      <Icon d={ICONS.lock} size={12} />
+                      Change password
                     </button>
                   </div>
+                </div>
+              )}
 
-                  {showPasswordFields && (
-                    <div className="mt-5 grid grid-cols-1 gap-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-[0.7rem] font-semibold tracking-widest uppercase text-[#55556a]">New Password</label>
+              {/* ── TAB: Edit Profile ── */}
+              {activeTab === "edit" && (
+                <form onSubmit={submitHandler} className="fade-up">
+                  <div className="mb-6">
+                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 300, color: "#e8e0cc" }}>
+                      Edit profile
+                    </div>
+                    <div className="text-[10px] text-[#444] mt-1">Changes are saved immediately</div>
+                  </div>
+
+                  {/* Account section */}
+                  <div className="mb-5">
+                    <div className="text-[9px] tracking-[0.25em] uppercase text-[#d4a544] mb-3 flex items-center gap-2">
+                      <div className="h-px flex-1 bg-[#d4a544] opacity-20" />
+                      Account
+                      <div className="h-px flex-1 bg-[#d4a544] opacity-20" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <Field label="Username" icon="user">
+                        <input type="text" className={inputCls} value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
+                      </Field>
+                      <Field label="Email" icon="mail">
+                        <input type="email" className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+                      </Field>
+                    </div>
+                  </div>
+
+                  {/* Personal section */}
+                  <div className="mb-5">
+                    <div className="text-[9px] tracking-[0.25em] uppercase text-[#d4a544] mb-3 flex items-center gap-2">
+                      <div className="h-px flex-1 bg-[#d4a544] opacity-20" />
+                      Personal
+                      <div className="h-px flex-1 bg-[#d4a544] opacity-20" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {[
+                        { key: "firstName",     label: "First name",      icon: "user"  },
+                        { key: "lastName",      label: "Last name",       icon: "user"  },
+                        { key: "phoneNumber",   label: "Phone number",    icon: "phone" },
+                        { key: "address",       label: "Address",         icon: "map"   },
+                      ].map(({ key, label, icon }) => (
+                        <Field key={key} label={label} icon={icon}>
                           <input
-                            type="password"
+                            type="text"
                             className={inputCls}
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="New password"
+                            value={profileFields[key]}
+                            onChange={(e) => handleFieldChange(key, e.target.value)}
+                            placeholder={label}
                           />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-[0.7rem] font-semibold tracking-widest uppercase text-[#55556a]">Confirm Password</label>
-                          <input
-                            type="password"
-                            className={inputCls}
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="Confirm password"
-                          />
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handlePasswordSubmit}
-                        className="w-full max-w-[220px] rounded-full bg-[#0f172a] px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                        </Field>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Photo section */}
+                  <div className="mb-6">
+                    <div className="text-[9px] tracking-[0.25em] uppercase text-[#d4a544] mb-3 flex items-center gap-2">
+                      <div className="h-px flex-1 bg-[#d4a544] opacity-20" />
+                      Profile photo
+                      <div className="h-px flex-1 bg-[#d4a544] opacity-20" />
+                    </div>
+                    <div className="flex items-center gap-4">
+                      {/* Preview */}
+                      <div
+                        className="w-16 h-16 rounded-full flex-shrink-0 flex items-center justify-center text-lg font-bold text-[#d4a544]"
+                        style={{ border: "2px solid #242424", background: "#0e0e0e" }}
                       >
-                        Save password
+                        {profileFields.profilePicture
+                          ? <img src={profileFields.profilePicture} alt="preview" className="w-full h-full rounded-full object-cover" />
+                          : initials || "U"
+                        }
+                      </div>
+                      <label className="cursor-pointer flex-1">
+                        <div className="border border-dashed border-[#2a2a2a] rounded-lg px-4 py-3 text-center hover:border-[#d4a544] transition-colors">
+                          <div className="text-[#555] text-xs">Click to upload photo</div>
+                          <div className="text-[#333] text-[10px] mt-0.5">JPG, PNG up to 5MB</div>
+                        </div>
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handlePhotoChange(e.target.files?.[0])} />
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-3">
+                    <button type="submit" disabled={updateLoading} className="gold-btn" style={{ flex: 2 }}>
+                      {updateLoading ? "Saving…" : "Save changes"}
+                    </button>
+                    <button type="button" onClick={() => setActiveTab("info")} className="ghost-btn" style={{ flex: 1 }}>
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* ── TAB: Password ── */}
+              {activeTab === "password" && (
+                <div className="fade-up max-w-md">
+                  <div className="mb-6">
+                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 300, color: "#e8e0cc" }}>
+                      Update password
+                    </div>
+                    <div className="text-[10px] text-[#444] mt-1">Choose a strong, unique password</div>
+                  </div>
+
+                  <div className="flex flex-col gap-4">
+                    <Field label="New password" icon="lock">
+                      <div className="relative">
+                        <input
+                          type={showPass ? "text" : "password"}
+                          className={inputCls + " pr-10"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="New password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPass((p) => !p)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#444] hover:text-[#888] transition-colors"
+                        >
+                          <Icon d={ICONS.eye} size={14} />
+                        </button>
+                      </div>
+                    </Field>
+
+                    <Field label="Confirm password" icon="lock">
+                      <input
+                        type={showPass ? "text" : "password"}
+                        className={inputCls}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Confirm password"
+                      />
+                    </Field>
+
+                    {/* Strength hint */}
+                    {password && (
+                      <div className="flex gap-1.5">
+                        {[1,2,3,4].map((n) => (
+                          <div
+                            key={n}
+                            className="h-1 flex-1 rounded-full transition-all"
+                            style={{ background: password.length >= n * 3 ? "#d4a544" : "#1e1e1e" }}
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex gap-3 mt-2">
+                      <button onClick={handlePasswordSubmit} disabled={updateLoading} className="gold-btn" style={{ flex: 2 }}>
+                        {updateLoading ? "Saving…" : "Update password"}
+                      </button>
+                      <button onClick={() => setActiveTab("info")} className="ghost-btn" style={{ flex: 1 }}>
+                        Cancel
                       </button>
                     </div>
-                  )}
+                  </div>
                 </div>
-
-                <button
-                  type="submit"
-                  disabled={updateLoading}
-                  className={`w-full py-3.5 bg-[#0f172a] border-none rounded-xl text-white text-sm font-extrabold tracking-widest uppercase cursor-pointer transition-opacity ${
-                    updateLoading ? "opacity-60 cursor-not-allowed" : "hover:opacity-85"
-                  }`}
-                >
-                  {updateLoading ? "Saving…" : "✦ Save Changes"}
-                </button>
-              </form>
-            )}
-          </section>
-      
+              )}
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   );

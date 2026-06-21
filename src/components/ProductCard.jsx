@@ -1,4 +1,4 @@
-import { Eye, ShoppingCart } from "lucide-react";
+import { Eye, ShoppingCart, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const FALLBACK_IMAGE = "/Pictures/pexels-ian-panelo-7716266.jpg";
@@ -17,6 +17,22 @@ const getPrimaryImage = (product) => {
   return product?.images?.[0] || FALLBACK_IMAGE;
 };
 
+const renderStars = (rating = 0) => {
+  const normalizedRating = Number(rating || 0);
+
+  return Array.from({ length: 5 }, (_, index) => (
+    <Star
+      key={index}
+      size={12}
+      className={
+        index < Math.round(normalizedRating)
+          ? "fill-[#d4a544] text-[#d4a544]"
+          : "text-[#333]"
+      }
+    />
+  ));
+};
+
 function ProductCard({ product }) {
   if (!product) {
     return null;
@@ -29,6 +45,9 @@ function ProductCard({ product }) {
     Number(product.discountPrice) > 0 &&
     Number(product.discountPrice) < Number(product.price);
   const inStock = Number(product.countInStock) > 0;
+  const discountPercent = hasDiscount
+    ? Math.round((1 - Number(product.discountPrice) / Number(product.price)) * 100)
+    : 0;
 
   return (
     <div
@@ -43,15 +62,17 @@ function ProductCard({ product }) {
         overflow-hidden
         rounded-[1.75rem]
         border
-        border-white/70
-        bg-[#ebeaea]
+        border-[#1e1e1e]
+        bg-[#0e0e0e]
         transition-all
         duration-500
         hover:-translate-y-2
         hover:shadow-2xl
+        hover:shadow-[#d4a544]/5
+        hover:border-[#d4a544]/30
       "
     >
-      <div className="relative h-[320px] overflow-hidden bg-[#e9eaea]">
+      <div className="relative h-[320px] overflow-hidden bg-[#1a1a1a]">
         <Link to={`/products/${productId}`} state={{ product }}>
           <img
             src={getPrimaryImage(product)}
@@ -68,9 +89,9 @@ function ProductCard({ product }) {
           />
         </Link>
 
-        {product.off > 0 && (
-          <span className="absolute left-5 top-5 rounded-full bg-black px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white">
-            {product.off}% off
+        {discountPercent > 0 && (
+          <span className="absolute left-5 top-5 rounded-lg bg-[#d4a544] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#080808]">
+            {discountPercent}% off
           </span>
         )}
 
@@ -100,15 +121,20 @@ function ProductCard({ product }) {
               items-center
               justify-center
               rounded-full
-              bg-white
+              bg-[#0e0e0e]
+              border
+              border-[#1e1e1e]
+              text-[#ddd4be]
               shadow-lg
-              transition
-              hover:bg-black
-              hover:text-white
+              transition-all
+              duration-300
+              hover:bg-[#d4a544]
+              hover:text-[#080808]
+              hover:border-[#d4a544]
             "
             aria-label={`View ${product.name}`}
           >
-            <Eye size={20} />
+            <Eye size={18} />
           </Link>
 
           <Link
@@ -120,52 +146,64 @@ function ProductCard({ product }) {
               items-center
               justify-center
               rounded-full
-              bg-white
+              bg-[#0e0e0e]
+              border
+              border-[#1e1e1e]
+              text-[#ddd4be]
               shadow-lg
-              transition
-              hover:bg-black
-              hover:text-white
+              transition-all
+              duration-300
+              hover:bg-[#d4a544]
+              hover:text-[#080808]
+              hover:border-[#d4a544]
             "
-            aria-label={`Open ${product.name}`}
+            aria-label={`Buy ${product.name}`}
           >
-            <ShoppingCart size={20} />
+            <ShoppingCart size={18} />
           </Link>
         </div>
       </div>
 
       <div className="flex flex-1 flex-col justify-between px-6 py-5">
         <div>
-          <p className="text-sm uppercase tracking-[3px] text-gray-500">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#5a5a5a]">
             {product.brand || product.category || "Premium shoes"}
           </p>
 
           <Link to={`/products/${productId}`} state={{ product }}>
-            <h2 className="mt-2 text-2xl font-bold text-black transition-colors duration-300 group-hover:text-amber-700">
+            <h2 className="mt-2 text-xl font-bold text-[#ddd4be] transition-colors duration-300 group-hover:text-[#d4a544] line-clamp-2">
               {product.name}
             </h2>
           </Link>
 
-          <p className="mt-2 line-clamp-2 text-sm text-slate-500">
+          <div className="flex items-center gap-1 mt-2">
+            {renderStars(product.rating)}
+            <span className="text-[11px] text-[#5a5a5a] ml-1">
+              {Number(product.rating || 0).toFixed(1)}
+            </span>
+          </div>
+
+          <p className="mt-2 line-clamp-2 text-sm text-[#6b6666]">
             {product.description}
           </p>
         </div>
 
         <div className="mt-5 flex items-end justify-between gap-4">
           <div>
-            <p className="text-xl font-semibold text-black">
+            <p className="text-xl font-bold text-[#ddd4be]">
               {formatCurrency(currentPrice)}
             </p>
 
             {hasDiscount && (
-              <p className="text-sm text-slate-400 line-through">
+              <p className="text-sm text-[#5a5a5a] line-through">
                 {formatCurrency(product.price)}
               </p>
             )}
           </div>
 
           <span
-            className={`text-sm font-medium ${
-              inStock ? "text-green-600" : "text-rose-500"
+            className={`text-[11px] font-semibold uppercase tracking-[0.12em] ${
+              inStock ? "text-[#8fbc8f]" : "text-[#e57373]"
             }`}
           >
             {inStock ? "In Stock" : "Sold Out"}

@@ -10,6 +10,7 @@ import {
   LogOut,
   Settings,
   UserCircle,
+  Sparkles,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -185,11 +186,11 @@ export default function Navbar() {
       <header
         className={`fixed top-0 left-0 z-50 w-full transition-all duration-500 ${
           scrolled
-            ? "bg-black/70 backdrop-blur-[30px] border-b border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.35)] "
-            : "bg-black/70 backdrop-blur-[14px] border-b border-white/5"
+            ? "bg-[#080808]/95 backdrop-blur-[30px] border-b border-[#d4a544]/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+            : "bg-[#080808]/90 backdrop-blur-[14px] border-b border-[#1e1e1e]"
         }`}
       >
-        <nav className="relative h-[85px] w-full px-6 xl:px-12 flex items-center justify-between text-white">
+        <nav className="relative h-[85px] w-full px-6 xl:px-12 flex items-center justify-between text-[#ddd4be]">
           
           {/* LEFT SIDE */}
           <div
@@ -200,7 +201,7 @@ export default function Navbar() {
             {/* SEARCH BUTTON */}
             <button
               onClick={() => setSearchOpen(!searchOpen)}
-              className="w-11 h-11 rounded-full border border-white/20 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300 shrink-0"
+              className="w-11 h-11 rounded-lg border border-[#1e1e1e] text-[#6b6666] bg-[#0e0e0e] flex items-center justify-center hover:border-[#d4a544]/50 hover:text-[#d4a544] transition-all duration-300 shrink-0"
             >
               {searchOpen ? <X size={18} className="z-20" /> : <Search size={18} />}
             </button>
@@ -213,29 +214,16 @@ export default function Navbar() {
                   animate={{ opacity: 1, width: "100%" }}
                   exit={{ opacity: 0, width: 0 }}
                   transition={{ duration: 0.35 }}
-                  className="
-                    absolute 
-                    left-1/2 
-                    -translate-x-1/2 
-                    w-[90%] 
-                    md:w-[80%] 
-                    lg:w-[70%] 
-                    flex 
-                    items-center 
-                    justify-center
-                  "
+                  className="absolute left-1/2 -translate-x-1/2 w-[90%] md:w-[80%] lg:w-[70%] flex items-center justify-center"
                 >
-                  {/* SEARCH CONTAINER */}
-                  <div className="w-full flex items-center justify-between  backdrop-blur-2xl  shadow-[0_8px_32px_rgba(0,0,0,0.25)]  px-5 py-2 overflow-hidden">
+                  <div className="w-full flex items-center justify-between px-5 py-2 overflow-hidden">
                     
-                    {/* EMPTY DIV FOR BALANCE - hidden on mobile */}
                     <div className="hidden lg:block w-[100px]"></div>
 
-                    {/* SEARCH INPUT - CENTERED */}
                     <div className="relative flex-1 max-w-md mx-auto">
                       <Search
                         size={18}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 z-10"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5a5a5a] z-10"
                       />
 
                       <input
@@ -244,37 +232,23 @@ export default function Navbar() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search premium shoes..."
-                        className="
-                          w-full
-                          h-[50px]
-                          bg-transparent
-                          pl-11
-                          pr-4
-                          text-white
-                          placeholder:text-gray-300
-                          outline-none
-                          border-none
-                          focus:outline-none
-                          focus:ring-0
-                        "
+                        className="w-full h-[50px] bg-transparent pl-11 pr-4 text-[#ddd4be] placeholder:text-[#5a5a5a] outline-none border-none focus:outline-none focus:ring-0"
                       />
                       
-                      {/* CROSS BUTTON */}
                       {searchQuery && (
                         <button
                           onClick={() => setSearchQuery("")}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-white transition-colors"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5a5a5a] hover:text-[#d4a544] transition-colors"
                         >
                           <X size={16} />
                         </button>
                       )}
                     </div>
 
-                    {/* RIGHT LOGO - RIGHTMOST POSITION */}
                     <div className="hidden lg:flex items-center justify-end pr-9 w-[100px]">
                       <NavLink
                         to="/"
-                        className="text-2xl font-black tracking-[8px] text-white whitespace-nowrap hover:tracking-[12px] transition-all duration-500"
+                        className="text-2xl font-black tracking-[8px] text-[#ddd4be] whitespace-nowrap hover:text-[#d4a544] transition-all duration-500"
                       >
                         LUXE
                       </NavLink>
@@ -292,7 +266,7 @@ export default function Navbar() {
                     >
                       <NavLink
                         to={item.to || "/shop"}
-                        className="flex items-center gap-1 text-[13px] uppercase tracking-[1px] font-semibold text-white/80 hover:text-white transition-all duration-300"
+                        className="flex items-center gap-1 text-[11px] uppercase tracking-[0.2em] font-bold text-[#6b6666] hover:text-[#d4a544] transition-all duration-300"
                       >
                         <span>{item.title}</span>
                         <motion.div
@@ -312,14 +286,14 @@ export default function Navbar() {
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            className="absolute top-[45px] left-0 w-[260px] rounded-3xl border border-black/10 bg-white/80 backdrop-blur-5xl shadow-2xl overflow-hidden "
+                            className="absolute top-[45px] left-0 w-[260px] rounded-2xl border border-[#1e1e1e] bg-[#0e0e0e] backdrop-blur-xl shadow-2xl overflow-hidden"
                           >
-                            <div className="p-4">
+                            <div className="p-3">
                               {item.dropdown.map((subItem, idx) => (
                                 <NavLink
                                   key={idx}
                                   to={buildSearchLink(subItem.params)}
-                                  className="flex items-center px-4 py-3 rounded-2xl text-[14px] font-medium text-black/70 hover:bg-black/5 hover:text-black transition-all duration-300"
+                                  className="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-[#6b6666] hover:bg-[#d4a544]/5 hover:text-[#d4a544] transition-all duration-300"
                                 >
                                   {subItem.label}
                                 </NavLink>
@@ -340,9 +314,10 @@ export default function Navbar() {
             <div className="absolute left-1/2 -translate-x-1/2">
               <NavLink
                 to="/"
-                className="text-[30px] font-black tracking-[10px] text-white hover:tracking-[12px] transition-all duration-500"
+                className="text-[30px] font-black tracking-[10px] text-[#ddd4be] hover:text-[#d4a544] transition-all duration-500 flex items-center gap-2"
               >
                 LUXE
+                <Sparkles size={20} className="text-[#d4a544]" />
               </NavLink>
             </div>
           )}
@@ -353,22 +328,22 @@ export default function Navbar() {
             {!searchOpen && (
               <div className="hidden xl:flex items-center gap-3">
                 {/* NOTIFICATION */}
-                <button className="relative w-11 h-11 rounded-full border border-white/20 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
+                <button className="relative w-11 h-11 rounded-lg border border-[#1e1e1e] text-[#6b6666] bg-[#0e0e0e] flex items-center justify-center hover:border-[#d4a544]/50 hover:text-[#d4a544] transition-all duration-300">
                   <Bell size={18} />
-                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500" />
+                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#d4a544]" />
                 </button>
 
                 {/* WISHLIST */}
                 {isLoggedIn ? (
                   <>
                     <NavLink to="/washinglist">
-                      <button className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white transition-all duration-300 hover:bg-white hover:text-black">
+                      <button className="flex h-11 w-11 items-center justify-center rounded-lg border border-[#1e1e1e] text-[#6b6666] bg-[#0e0e0e] transition-all duration-300 hover:border-[#d4a544]/50 hover:text-[#d4a544]">
                         <Heart size={18} />
                       </button>
                     </NavLink>
 
                     <NavLink to="/ordersplaced">
-                      <button className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white transition-all duration-300 hover:bg-white hover:text-black">
+                      <button className="flex h-11 w-11 items-center justify-center rounded-lg border border-[#1e1e1e] text-[#6b6666] bg-[#0e0e0e] transition-all duration-300 hover:border-[#d4a544]/50 hover:text-[#d4a544]">
                         <Package size={18} />
                       </button>
                     </NavLink>
@@ -379,10 +354,10 @@ export default function Navbar() {
                           <img
                             src={userInfo.Profile.profilePicture}
                             alt={displayName}
-                            className="h-11 w-11 rounded-full object-cover ring-2 ring-white/20 shadow-md"
+                            className="h-11 w-11 rounded-full object-cover ring-2 ring-[#d4a544]/30 shadow-md"
                           />
                         ) : (
-                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-sm font-bold text-white ring-2 ring-white/20 shadow-md">
+                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#d4a544]/10 text-sm font-bold text-[#d4a544] ring-2 ring-[#d4a544]/30 shadow-md">
                             {avatarLabel}
                           </div>
                         )}
@@ -393,13 +368,13 @@ export default function Navbar() {
                   <div className="flex items-center gap-3">
                     <NavLink
                       to="/login"
-                      className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-white transition hover:bg-white hover:text-black"
+                      className="rounded-lg border border-[#1e1e1e] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#ddd4be] bg-[#0e0e0e] transition-all duration-300 hover:border-[#d4a544]/50 hover:text-[#d4a544]"
                     >
                       Login
                     </NavLink>
                     <NavLink
                       to="/register"
-                      className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black transition hover:bg-amber-300"
+                      className="rounded-lg bg-[#d4a544] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#080808] transition-all duration-300 hover:bg-[#c19a3e] hover:-translate-y-0.5 shadow-lg shadow-[#d4a544]/10"
                     >
                       Register
                     </NavLink>
@@ -408,13 +383,13 @@ export default function Navbar() {
               </div>
             )}
 
-            {/* MOBILE MENU BUTTON - Rightmost position */}
+            {/* MOBILE MENU BUTTON */}
             {!searchOpen && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setMobileMenuOpen(true)}
-                className="xl:hidden w-11 h-11 rounded-full border border-white/20 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"
+                className="xl:hidden w-11 h-11 rounded-lg border border-[#1e1e1e] text-[#6b6666] bg-[#0e0e0e] flex items-center justify-center hover:border-[#d4a544]/50 hover:text-[#d4a544] transition-all duration-300"
               >
                 <Menu size={20} />
               </motion.button>
@@ -433,7 +408,7 @@ export default function Navbar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 xl:hidden"
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 xl:hidden"
             />
 
             {/* MENU */}
@@ -442,42 +417,42 @@ export default function Navbar() {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="fixed right-0 top-0 h-full w-[85%] sm:w-[400px] bg-gradient-to-br from-gray-900 to-black z-50 shadow-2xl xl:hidden overflow-y-auto"
+              className="fixed right-0 top-0 h-full w-[85%] sm:w-[400px] bg-gradient-to-br from-[#0a0a0a] to-[#0e0e0e] z-50 shadow-2xl xl:hidden overflow-y-auto border-l border-[#1e1e1e]"
             >
               <div className="p-6">
                 {/* TOP */}
-                <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/10">
-                  <span className="text-2xl font-black tracking-[6px] text-white">
+                <div className="flex items-center justify-between mb-8 pb-4 border-b border-[#1e1e1e]">
+                  <span className="text-2xl font-black tracking-[6px] text-[#ddd4be]">
                     LUXE
                   </span>
 
                   <button
                     onClick={() => setMobileMenuOpen(false)}
-                    className="w-10 h-10 rounded-full border border-white/20 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"
+                    className="w-10 h-10 rounded-lg border border-[#1e1e1e] text-[#6b6666] bg-[#0e0e0e] flex items-center justify-center hover:border-[#d4a544]/50 hover:text-[#d4a544] transition-all duration-300"
                   >
                     <X size={18} />
                   </button>
                 </div>
 
                 {/* USER PROFILE SECTION */}
-                <div className="mb-8 p-4 rounded-2xl bg-white/5 border border-white/10">
+                <div className="mb-8 p-4 rounded-2xl bg-[#0e0e0e] border border-[#1e1e1e]">
                   <div className="flex items-center gap-4">
                     {userInfo?.Profile?.profilePicture ? (
                       <img
                         src={userInfo.Profile.profilePicture}
                         alt={displayName}
-                        className="w-14 h-14 rounded-full object-cover ring-2 ring-white/20"
+                        className="w-14 h-14 rounded-full object-cover ring-2 ring-[#d4a544]/30"
                       />
                     ) : (
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-lg font-bold text-white ring-2 ring-white/20">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#d4a544]/10 text-lg font-bold text-[#d4a544] ring-2 ring-[#d4a544]/30">
                         {avatarLabel}
                       </div>
                     )}
                     <div>
-                      <h4 className="font-semibold text-white text-lg">
+                      <h4 className="font-semibold text-[#ddd4be] text-lg">
                         {displayName}
                       </h4>
-                      <p className="text-sm text-white/60">
+                      <p className="text-sm text-[#6b6666]">
                         {displayEmail}
                       </p>
                     </div>
@@ -487,13 +462,12 @@ export default function Navbar() {
                 {/* NAVIGATION ITEMS WITH DROPDOWNS */}
                 <div className="flex flex-col gap-2">
                   {navItems.map((item, idx) => (
-                    <div key={idx} className="border-b border-white/10">
+                    <div key={idx} className="border-b border-[#1e1e1e]">
                       <button
                         onClick={() => setMobileDropdownOpen(mobileDropdownOpen === idx ? null : idx)}
-                        className="flex items-center justify-between w-full py-4 text-white/80 hover:text-white transition-colors"
+                        className="flex items-center justify-between w-full py-4 text-[#6b6666] hover:text-[#d4a544] transition-colors"
                       >
                         <span className="flex items-center gap-3 text-[15px] font-medium">
-                          <span className="text-xl">{item.icon}</span>
                           {item.title}
                         </span>
                         <motion.div
@@ -519,7 +493,7 @@ export default function Navbar() {
                                   key={subIdx}
                                   to={buildSearchLink(subItem.params)}
                                   onClick={() => setMobileMenuOpen(false)}
-                                  className="py-2 text-white/60 hover:text-white transition-colors text-sm"
+                                  className="py-2 text-[#6b6666] hover:text-[#d4a544] transition-colors text-sm"
                                 >
                                   {subItem.label}
                                 </NavLink>
@@ -533,29 +507,29 @@ export default function Navbar() {
                 </div>
 
                 {/* ACTION BUTTONS */}
-                <div className="mt-8 pt-6 border-t border-white/10">
+                <div className="mt-8 pt-6 border-t border-[#1e1e1e]">
                   <div className="grid grid-cols-2 gap-3 mb-6">
                     <NavLink
                       to={isLoggedIn ? "/washinglist" : "/login"}
-                      className="flex items-center justify-center gap-2 rounded-xl bg-white/10 py-3 text-white transition-all duration-300 hover:bg-white/20"
+                      className="flex items-center justify-center gap-2 rounded-xl bg-[#0e0e0e] border border-[#1e1e1e] py-3 text-[#6b6666] transition-all duration-300 hover:border-[#d4a544]/50 hover:text-[#d4a544]"
                     >
                       <Heart size={16} />
                       Wishlist
                     </NavLink>
                     <NavLink
                       to={isLoggedIn ? "/ordersplaced" : "/login"}
-                      className="flex items-center justify-center gap-2 rounded-xl bg-white/10 py-3 text-white transition-all duration-300 hover:bg-white/20"
+                      className="flex items-center justify-center gap-2 rounded-xl bg-[#0e0e0e] border border-[#1e1e1e] py-3 text-[#6b6666] transition-all duration-300 hover:border-[#d4a544]/50 hover:text-[#d4a544]"
                     >
                       <Package size={16} />
                       Orders
                     </NavLink>
-                    <button className="flex items-center justify-center gap-2 py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all duration-300">
+                    <button className="flex items-center justify-center gap-2 py-3 rounded-xl bg-[#0e0e0e] border border-[#1e1e1e] text-[#6b6666] hover:border-[#d4a544]/50 hover:text-[#d4a544] transition-all duration-300">
                       <Bell size={16} />
                       Notifications
                     </button>
                     <NavLink
                       to={isLoggedIn ? "/profile" : "/register"}
-                      className="flex items-center justify-center gap-2 rounded-xl bg-white/10 py-3 text-white transition-all duration-300 hover:bg-white/20"
+                      className="flex items-center justify-center gap-2 rounded-xl bg-[#0e0e0e] border border-[#1e1e1e] py-3 text-[#6b6666] transition-all duration-300 hover:border-[#d4a544]/50 hover:text-[#d4a544]"
                     >
                       <Settings size={16} />
                       {isLoggedIn ? "Profile" : "Register"}
@@ -566,7 +540,7 @@ export default function Navbar() {
                     <button
                       onClick={handleLogout}
                       disabled={logoutLoading}
-                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-red-600 py-3 font-semibold text-white transition-all duration-300 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70"
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2e1a1a] border border-[#4a2d2d] py-3.5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#e57373] transition-all duration-300 hover:bg-[#4a2d2d] disabled:cursor-not-allowed disabled:opacity-70"
                     >
                       <LogOut size={16} />
                       {logoutLoading ? "Logging out..." : "Logout"}
@@ -574,7 +548,7 @@ export default function Navbar() {
                   ) : (
                     <NavLink
                       to="/login"
-                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 py-3 font-semibold text-black transition-all duration-300 hover:shadow-lg"
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#d4a544] py-3.5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#080808] transition-all duration-300 hover:bg-[#c19a3e] shadow-lg shadow-[#d4a544]/10"
                     >
                       <UserCircle size={16} />
                       Login to continue

@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronDown, ChevronRight, ChevronLeft,
   Loader2, Search, Star, X, SlidersHorizontal,
+  Package,
 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -37,7 +38,7 @@ const colors = (p) => !Array.isArray(p?.variants)?[]: [...new Set(p.variants.map
 const Stars = ({rating=0}) => {
   const n=Number(rating||0);
   return <>{Array.from({length:5},(_,i)=>(
-    <Star key={i} size={12} className={i<Math.round(n)?"fill-amber-400 text-amber-400":"fill-gray-200 text-gray-200"}/>
+    <Star key={i} size={12} className={i<Math.round(n)?"fill-[#d4a544] text-[#d4a544]":"text-[#333]"}/>
   ))}</>;
 };
 
@@ -45,11 +46,11 @@ const Stars = ({rating=0}) => {
 function Sec({title,open:initOpen=true,children}){
   const [open,setOpen]=useState(initOpen);
   return (
-    <div className="py-4 border-b border-gray-200 last:border-0">
+    <div className="py-4 border-b border-[#1e1e1e] last:border-0">
       <button type="button" onClick={()=>setOpen(c=>!c)}
         className="flex w-full items-center justify-between">
-        <span className="text-sm font-semibold text-gray-900">{title}</span>
-        <ChevronDown size={15} className={`text-gray-500 transition-transform ${open?"rotate-180":""}`}/>
+        <span className="text-sm font-semibold text-[#ddd4be]">{title}</span>
+        <ChevronDown size={15} className={`text-[#5a5a5a] transition-transform ${open?"rotate-180":""}`}/>
       </button>
       <AnimatePresence initial={false}>
         {open&&(
@@ -74,12 +75,12 @@ function Sidebar({
 }){
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between pb-4 border-b border-gray-200">
-        <span className="text-base font-bold text-gray-900">Filters</span>
+      <div className="flex items-center justify-between pb-4 border-b border-[#1e1e1e]">
+        <span className="text-base font-bold text-[#ddd4be]">Filters</span>
         <div className="flex items-center gap-2">
-          <SlidersHorizontal size={16} className="text-gray-500"/>
+          <SlidersHorizontal size={16} className="text-[#5a5a5a]"/>
           <button type="button" onClick={onClose} className="lg:hidden ml-1">
-            <X size={15} className="text-gray-500"/>
+            <X size={15} className="text-[#5a5a5a]"/>
           </button>
         </div>
       </div>
@@ -90,9 +91,9 @@ function Sidebar({
             <li key={cat}>
               <button type="button" onClick={()=>setSelectedCategory(cat)}
                 className={`flex w-full items-center justify-between rounded-md px-2 py-2 text-sm transition
-                  ${norm(selectedCategory)===norm(cat)?"font-semibold text-gray-900":"text-gray-500 hover:text-gray-900"}`}>
+                  ${norm(selectedCategory)===norm(cat)?"font-semibold text-[#d4a544]":"text-[#6b6666] hover:text-[#ddd4be]"}`}>
                 <span>{cat==="all"?"All":label(cat)}</span>
-                <ChevronRight size={13} className="text-gray-400"/>
+                <ChevronRight size={13} className="text-[#5a5a5a]"/>
               </button>
             </li>
           ))}
@@ -101,17 +102,17 @@ function Sidebar({
 
       <Sec title="Price">
         <div className="space-y-3 px-3">
-          <div className="relative h-1.5 rounded-full bg-gray-200">
-            <div className="absolute left-0 top-0 h-full rounded-full bg-black"
+          <div className="relative h-1.5 rounded-full bg-[#1e1e1e]">
+            <div className="absolute left-0 top-0 h-full rounded-full bg-[#d4a544]"
               style={{width:`${maxPrice>0?(priceMax/maxPrice)*100:0}%`}}/>
             <input type="range" min={0} max={maxPrice||1000} value={priceMax}
               onChange={e=>setPriceMax(Number(e.target.value))}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               disabled={maxPrice===0}/>
-            <div className="absolute top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-white border-2 border-black shadow pointer-events-none"
+            <div className="absolute top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-[#0e0e0e] border-2 border-[#d4a544] shadow pointer-events-none"
               style={{left:`calc(${maxPrice>0?(priceMax/maxPrice)*100:0}% - 8px)`}}/>
           </div>
-          <div className="flex justify-between text-xs text-gray-500">
+          <div className="flex justify-between text-[10px] text-[#5a5a5a]">
             <span>{fmt(priceMin)}</span>
             <span>{fmt(priceMax||maxPrice)}</span>
           </div>
@@ -123,10 +124,10 @@ function Sidebar({
           {(shoeSizes.length>0?shoeSizes:DEFAULT_SIZE_OPTIONS).map(s=>(
             <button key={s} type="button"
               onClick={()=>setSelectedSize(norm(selectedSize)===norm(s)?"":String(s))}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium border transition
+              className={`rounded-lg px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] border transition-all duration-300
                 ${norm(selectedSize)===norm(s)
-                  ?"bg-black text-white border-black"
-                  :"bg-white text-gray-600 border-gray-200 hover:border-gray-400"}`}>
+                  ?"bg-[#d4a544] text-[#080808] border-[#d4a544]"
+                  :"bg-[#0e0e0e] text-[#6b6666] border-[#1e1e1e] hover:border-[#d4a544]/50 hover:text-[#d4a544]"}`}>
               {s}
             </button>
           ))}
@@ -139,9 +140,9 @@ function Sidebar({
             <li key={style}>
               <button type="button" onClick={()=>setSelectedStyle(selectedStyle===style?"":style)}
                 className={`flex w-full items-center justify-between rounded-md px-2 py-2 text-sm transition
-                  ${selectedStyle===style?"font-semibold text-gray-900":"text-gray-500 hover:text-gray-900"}`}>
+                  ${selectedStyle===style?"font-semibold text-[#d4a544]":"text-[#6b6666] hover:text-[#ddd4be]"}`}>
                 <span>{style}</span>
-                <ChevronRight size={13} className="text-gray-400"/>
+                <ChevronRight size={13} className="text-[#5a5a5a]"/>
               </button>
             </li>
           ))}
@@ -150,7 +151,7 @@ function Sidebar({
 
       <div className="pt-4">
         <button type="button" onClick={onApply}
-          className="w-full rounded-full bg-black py-3 text-sm font-semibold text-white hover:bg-gray-800 transition">
+          className="w-full rounded-lg bg-[#d4a544] py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#080808] hover:bg-[#c19a3e] transition-all duration-300 shadow-lg shadow-[#d4a544]/10 hover:shadow-xl hover:shadow-[#d4a544]/20">
           Apply Filter
         </button>
       </div>
@@ -168,7 +169,7 @@ function Card({product}){
 
   return (
     <Link to={`/products/${id}`} state={{product}} className="group block">
-      <article className="flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-100 hover:shadow-md transition-shadow duration-300">
+      <article className="flex flex-col rounded-2xl overflow-hidden bg-[#0e0e0e] border border-[#1e1e1e] hover:border-[#d4a544]/30 hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1">
         <div className="relative overflow-hidden">
           <div className="aspect-[4/4] p-2">
             <img src={img0(product)} alt={product.name}
@@ -176,19 +177,19 @@ function Card({product}){
           </div>
         </div>
         <div className="px-3 pb-3 pt-3 space-y-1.5">
-          <h2 className="font-bold text-gray-900 leading-snug truncate">{product.name}</h2>
+          <h2 className="font-bold text-[#ddd4be] leading-snug truncate group-hover:text-[#d4a544] transition-colors">{product.name}</h2>
           <div className="flex items-center gap-1">
             <Stars rating={product.rating}/>
-            <span className="text-[11px] text-gray-500 ml-0.5">
+            <span className="text-[11px] text-[#5a5a5a] ml-0.5">
               {Number(product.rating||0).toFixed(1)}/5
             </span>
           </div>
           <div className="flex items-center gap-2 pt-0.5">
-            <span className="text-base font-bold text-gray-900">{fmt(p)}</span>
+            <span className="text-base font-bold text-[#ddd4be]">{fmt(p)}</span>
             {hasDisc && (
               <>
-                <span className="text-gray-400 line-through">{fmt(product.price)}</span>
-                <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-500">
+                <span className="text-[#5a5a5a] line-through">{fmt(product.price)}</span>
+                <span className="rounded-lg bg-[#d4a544] px-2 py-0.5 text-[10px] font-bold uppercase text-[#080808]">
                   -{pct}%
                 </span>
               </>
@@ -206,8 +207,7 @@ export default function ShopPage(){
   const {products, loading, error} = useSelector(s => s.products);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // ✅ FIX: Read directly from searchParams — single source of truth
-  // Local UI-only state (not in URL)
+  // Local UI-only state
   const [selColor,  setSelColor]    = useState("all");
   const [selSize,   setSelSize]     = useState("");
   const [selStyle,  setSelStyle]    = useState("");
@@ -217,14 +217,12 @@ export default function ShopPage(){
     typeof window !== "undefined" ? window.innerWidth >= 1024 : true
   );
 
-  // ✅ FIX: Derive these directly from URL — no useState mirrors
   const search    = searchParams.get("search")   || "";
   const sort      = searchParams.get("sort")     || "popular";
   const selGender = searchParams.get("gender")   || "all";
   const selCat    = searchParams.get("category") || "all";
   const isSale    = searchParams.get("sale")     === "true";
 
-  // ✅ FIX: Helper to update URL params without triggering loops
   const updateParam = useCallback((key, value, defaultValue = "") => {
     setSearchParams(prev => {
       const next = new URLSearchParams(prev);
@@ -244,11 +242,10 @@ export default function ShopPage(){
   const setSelCat    = useCallback((v) => updateParam("category", v, "all"),       [updateParam]);
   const setIsSale    = useCallback((v) => updateParam("sale",     v ? "true" : ""), [updateParam]);
 
-  // Fetch products once
   useEffect(() => {
     if (products.length === 0) dispatch(fetchProducts());
     return () => { dispatch(clearProductMessages()); };
-  }, [dispatch]); // ✅ removed products.length dependency — was causing refetches
+  }, [dispatch]);
 
   const maxPrice = useMemo(() =>
     products.reduce((m, p) => Math.max(m, price(p)), 0),
@@ -259,7 +256,6 @@ export default function ShopPage(){
     setPriceMax(c => c === 0 || c > maxPrice ? maxPrice : c);
   }, [maxPrice]);
 
-  // Reset page when filters change
   useEffect(() => { setPage(1); }, [search, selCat, selGender, selColor, selSize, selStyle, priceMax, sort, isSale]);
 
   const catOptions  = useMemo(() => [...new Set(products.map(p => p.category || p.gender).filter(Boolean).map(String))], [products]);
@@ -329,28 +325,58 @@ export default function ShopPage(){
   }
 
   if (loading && products.length === 0)
-    return <div className="flex min-h-screen items-center justify-center bg-white pt-28"><Loader2 size={36} className="animate-spin text-gray-400"/></div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#080808] pt-28">
+        <div className="text-center">
+          <div className="relative">
+            <div className="h-16 w-16 animate-spin rounded-full border-4 border-[#1e1e1e] border-t-[#d4a544] mx-auto" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Package size={20} className="text-[#d4a544]" />
+            </div>
+          </div>
+          <p className="mt-4 text-[11px] text-[#6b6666] uppercase tracking-[0.18em]">
+            Loading products...
+          </p>
+        </div>
+      </div>
+    );
 
   if (error)
-    return <section className="min-h-screen bg-white px-4 pt-28"><div className="mx-auto max-w-4xl rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-600">{error}</div></section>;
+    return (
+      <section className="min-h-screen bg-[#080808] px-4 pt-28">
+        <div className="mx-auto max-w-4xl rounded-2xl border border-[#4a2d2d] bg-gradient-to-r from-[#2e1a1a] to-[#0e0e0e] p-6 text-center">
+          <p className="text-[#e57373] uppercase tracking-[0.15em] text-[10px] font-semibold mb-2">Error</p>
+          <p className="text-[11px] text-[#8b7070]">{error}</p>
+        </div>
+      </section>
+    );
 
   if (products.length === 0)
-    return <><section className="min-h-screen bg-white px-4 pt-28"><div className="mx-auto max-w-7xl rounded-2xl border border-gray-100 bg-gray-50 px-6 py-20 text-center"><h2 className="text-2xl font-bold text-gray-900">No Products Found</h2></div></section><Footer/></>;
+    return (
+      <>
+        <section className="min-h-screen bg-[#080808] px-4 pt-28">
+          <div className="mx-auto max-w-7xl rounded-2xl border border-[#1e1e1e] bg-[#0e0e0e] px-6 py-20 text-center">
+            <h2 className="text-2xl font-bold text-[#ddd4be]">No Products Found</h2>
+          </div>
+        </section>
+        <Footer/>
+      </>
+    );
 
   return (
     <>
-      <section className="min-h-screen bg-white pt-24 sm:pt-28">
+      <section className="min-h-screen bg-[#080808] pt-24 sm:pt-28">
         <div className="mx-auto px-10 sm:px-6 lg:px-8 pb-16">
 
           {/* breadcrumb */}
-          <nav className="mb-5 flex items-center gap-1.5 text-gray-400">
+          <nav className="mb-5 flex items-center gap-1.5 text-[#5a5a5a]">
             {breadcrumbItems.map((item, index) => (
               <span key={item.label} className="flex items-center gap-1.5">
                 {index > 0 && <ChevronRight size={11} />}
                 {index === breadcrumbItems.length - 1 ? (
-                  <span className="text-gray-700">{item.label}</span>
+                  <span className="text-[#ddd4be]">{item.label}</span>
                 ) : (
-                  <Link to={item.to} className="hover:text-gray-700 transition">{item.label}</Link>
+                  <Link to={item.to} className="hover:text-[#d4a544] transition">{item.label}</Link>
                 )}
               </span>
             ))}
@@ -361,7 +387,7 @@ export default function ShopPage(){
             {/* ── SIDEBAR ── */}
             {showSidebar && (
               <aside className="hidden lg:block shrink-0 w-[300px] self-start sticky top-24">
-                <div className="rounded-2xl border border-gray-200 bg-white p-5">
+                <div className="rounded-2xl border border-[#1e1e1e] bg-[#0e0e0e] p-5">
                   <Sidebar
                     categoryOptions={catOptions} shoeSizes={sizeOptions}
                     selectedCategory={selCat}   setSelectedCategory={setSelCat}
@@ -380,29 +406,29 @@ export default function ShopPage(){
 
               <div className="mb-5 flex items-center justify-between gap-4">
                 <div className="flex items-baseline gap-3 flex-wrap">
-                  <h1 className="text-2xl font-extrabold text-gray-900">{catLabel}</h1>
-                  <p className="text-xs text-gray-400">
+                  <h1 className="text-2xl font-extrabold text-[#ddd4be]">{catLabel}</h1>
+                  <p className="text-[10px] text-[#5a5a5a] uppercase tracking-[0.15em]">
                     Showing {filtered.length===0?0:(page-1)*PRODUCTS_PER_PAGE+1}–{Math.min(page*PRODUCTS_PER_PAGE,filtered.length)} of {filtered.length} Products
                   </p>
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
                   <button type="button" onClick={()=>setShowSidebar(c=>!c)}
-                    className="lg:hidden inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-3 py-2 text-gray-600 hover:bg-gray-50">
+                    className="lg:hidden inline-flex items-center gap-1.5 rounded-lg border border-[#1e1e1e] px-3 py-2 text-[#6b6666] hover:border-[#d4a544]/50 hover:text-[#d4a544] transition-all">
                     <SlidersHorizontal size={13}/>
                   </button>
 
                   <div className="relative hidden sm:block">
-                    <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"/>
+                    <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5a5a5a] pointer-events-none"/>
                     <input type="search" value={search} onChange={e => setSearch(e.target.value)}
                       placeholder="Search products…"
-                      className="rounded-full border border-gray-200 bg-gray-50 py-2 pl-9 pr-4 text-gray-900 outline-none focus:border-gray-400 w-44"/>
+                      className="rounded-lg border border-[#1e1e1e] bg-[#0e0e0e] py-2 pl-9 pr-4 text-[#ddd4be] outline-none focus:border-[#d4a544]/50 placeholder:text-[#5a5a5a] w-44"/>
                   </div>
 
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs text-gray-500 whitespace-nowrap">Sort by:</span>
+                    <span className="text-[10px] text-[#5a5a5a] uppercase tracking-[0.15em] whitespace-nowrap">Sort by:</span>
                     <select value={sort} onChange={e => setSort(e.target.value)}
-                      className="rounded-full border border-gray-200 bg-white px-3 py-2 font-semibold text-gray-900 outline-none focus:border-gray-400 cursor-pointer">
+                      className="rounded-lg border border-[#1e1e1e] bg-[#0e0e0e] px-3 py-2 text-sm font-semibold text-[#ddd4be] outline-none focus:border-[#d4a544]/50 cursor-pointer">
                       <option value="popular">Most Popular</option>
                       <option value="newest">Newest</option>
                       <option value="low">Price: Low → High</option>
@@ -413,12 +439,16 @@ export default function ShopPage(){
                 </div>
               </div>
 
-              {loading && <div className="flex h-60 items-center justify-center"><Loader2 size={32} className="animate-spin text-gray-300"/></div>}
+              {loading && (
+                <div className="flex h-60 items-center justify-center">
+                  <Loader2 size={32} className="animate-spin text-[#d4a544]"/>
+                </div>
+              )}
 
               {!loading && !error && filtered.length === 0 && (
-                <div className="rounded-2xl border border-gray-100 bg-gray-50 px-6 py-20 text-center">
-                  <h2 className="text-xl font-bold text-gray-900">No Products Found</h2>
-                  <p className="mt-2 text-sm text-gray-400">Try adjusting your filters.</p>
+                <div className="rounded-2xl border border-[#1e1e1e] bg-[#0e0e0e] px-6 py-20 text-center">
+                  <h2 className="text-xl font-bold text-[#ddd4be]">No Products Found</h2>
+                  <p className="mt-2 text-sm text-[#5a5a5a]">Try adjusting your filters.</p>
                 </div>
               )}
 
@@ -429,26 +459,26 @@ export default function ShopPage(){
               )}
 
               {!loading && filtered.length > PRODUCTS_PER_PAGE && (
-                <div className="mt-10 flex items-center justify-between border-t border-gray-200 pt-6">
+                <div className="mt-10 flex items-center justify-between border-t border-[#1e1e1e] pt-6">
                   <button type="button" onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-2 text-sm text-gray-600 disabled:opacity-40 hover:bg-gray-50 transition">
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#1e1e1e] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#6b6666] disabled:opacity-40 hover:border-[#d4a544]/50 hover:text-[#d4a544] transition-all">
                     <ChevronLeft size={13}/>Previous
                   </button>
 
                   <div className="flex items-center gap-1">
                     {pageNums().map((n,i) =>
                       n === "…"
-                        ? <span key={`e${i}`} className="px-1 text-sm text-gray-400">…</span>
+                        ? <span key={`e${i}`} className="px-1 text-sm text-[#5a5a5a]">…</span>
                         : <button key={n} type="button" onClick={()=>setPage(n)}
-                            className={`h-9 w-9 rounded-full text-sm font-medium transition
-                              ${page===n?"bg-black text-white":"text-gray-600 hover:bg-gray-100"}`}>
+                            className={`h-9 w-9 rounded-lg text-sm font-semibold transition-all duration-300
+                              ${page===n?"bg-[#d4a544] text-[#080808]":"text-[#6b6666] hover:bg-[#0e0e0e] hover:text-[#d4a544]"}`}>
                             {n}
                           </button>
                     )}
                   </div>
 
                   <button type="button" onClick={()=>setPage(p=>Math.min(totalPages,p+1))} disabled={page===totalPages}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-2 text-sm text-gray-600 disabled:opacity-40 hover:bg-gray-50 transition">
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#1e1e1e] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#6b6666] disabled:opacity-40 hover:border-[#d4a544]/50 hover:text-[#d4a544] transition-all">
                     Next<ChevronRight size={13}/>
                   </button>
                 </div>
@@ -465,10 +495,10 @@ export default function ShopPage(){
         {showSidebar && (
           <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}
             className="fixed inset-0 z-50 lg:hidden">
-            <button type="button" aria-label="close" className="absolute inset-0 bg-black/40" onClick={()=>setShowSidebar(false)}/>
+            <button type="button" aria-label="close" className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={()=>setShowSidebar(false)}/>
             <motion.aside initial={{x:"-100%"}} animate={{x:0}} exit={{x:"-100%"}}
               transition={{type:"spring",damping:26,stiffness:200}}
-              className="absolute left-0 top-0 h-full w-[85%] max-w-[320px] overflow-y-auto bg-white p-5 shadow-xl">
+              className="absolute left-0 top-0 h-full w-[85%] max-w-[320px] overflow-y-auto bg-[#0e0e0e] p-5 shadow-xl border-r border-[#1e1e1e]">
               <Sidebar
                 categoryOptions={catOptions} shoeSizes={sizeOptions}
                 selectedCategory={selCat}   setSelectedCategory={setSelCat}

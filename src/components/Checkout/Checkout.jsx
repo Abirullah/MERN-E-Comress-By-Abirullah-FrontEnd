@@ -77,12 +77,10 @@ const readShippingDetails = (formData) => ({
 });
 
 const readPaymentDetails = (formData) => ({
-  paymentType: String(formData.get("paymentType") || "creditCard"),
-  cardNumber: String(formData.get("card-number") || ""),
-  cvv: String(formData.get("cvv") || ""),
-  cardName: String(formData.get("card-name") || ""),
-  expirationDate: String(formData.get("card-expiration") || ""),
-  rememberCard: Boolean(formData.get("remember-card")),
+  paymentType: String(formData.get("paymentType") || "bankTransfer"),
+  paymentSlip: formData.get("payment-slip") || null,
+  paymentSlipName:
+    formData.get("payment-slip")?.name || formData.get("paymentSlipName") || "",
 });
 
 function getStepContent({
@@ -143,12 +141,9 @@ export default function Checkout() {
     getShippingDefaults(userInfo)
   );
   const [paymentDetails, setPaymentDetails] = useState({
-    paymentType: "creditCard",
-    cardNumber: "",
-    cvv: "",
-    cardName: "",
-    expirationDate: "",
-    rememberCard: false,
+    paymentType: "bankTransfer",
+    paymentSlip: null,
+    paymentSlipName: "",
   });
 
   useEffect(() => {
@@ -257,16 +252,71 @@ export default function Checkout() {
     }
 
     try {
-      const response = await dispatch(
-        createOrder({ productId, quantity })
-      ).unwrap();
+      const currentPaymentType = paymentDetails?.paymentType || "bankTransfer";
+      const orderPayload = {
+        productId,
+        quantity,
+        shippingDetails,
+        paymentType: currentPaymentType,
+        selectedVariant,
+        paymentDetails: {
+          ...paymentDetails,
+          paymentType: currentPaymentType,
+        },
+      };
 
-      if (response?.url) {
-        window.location.assign(response.url);
-        return;
+      delete orderPayload.paymentDetails.paymentSlip;
+
+      if (currentPaymentType === "bankTransfer") {
+        if (!paymentDetails?.paymentSlip) {
+          toast.error("Please upload the bank transfer screenshot before continuing.");
+          return;
+        }
+
+        const file = paymentDetails.paymentSlip;
+
+        if (typeof file !== "string") {
+          try {
+            orderPayload.paymentDetails.paymentSlipData = await new Promise(
+              (resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = (error) => reject(error);
+                reader.readAsDataURL(file);
+              }
+            );
+            orderPayload.paymentDetails.paymentSlipName = file.name;
+            orderPayload.paymentDetails.paymentSlipMimeType = file.type;
+            orderPayload.paymentSlipData = orderPayload.paymentDetails.paymentSlipData;
+          } catch (conversionError) {
+            toast.error("We could not read the payment screenshot. Please try again.");
+            return;
+          }
+        } else {
+          orderPayload.paymentSlipData = paymentDetails.paymentSlipData || null;
+        }
       }
 
-      throw new Error("Stripe did not return a checkout URL.");
+      const response = await dispatch(createOrder(orderPayload)).unwrap();
+
+      if (currentPaymentType === "creditCard") {
+        if (response?.url) {
+          window.location.assign(response.url);
+          return;
+        }
+
+        throw new Error("Stripe did not return a checkout URL.");
+      }
+
+      if (response?.status === "ok" || response?.success || response) {
+        navigate("/checkout-success", {
+          state: {
+            paymentType: currentPaymentType,
+            order: response?.order || null,
+          },
+        });
+        return;
+      }
     } catch (error) {
       toast.error(error?.message || "We could not start checkout right now.");
     }
@@ -457,17 +507,17 @@ export default function Checkout() {
                   </button>
 
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <button
-                      type="submit"
-                      disabled={checkoutLoading || (activeStep === 2 && !canCheckout)}
-                      className="inline-flex items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {checkoutLoading
-                        ? "Redirecting to Stripe..."
+                  <button
+                    type="submit"
+                    disabled={checkoutLoading || (activeStep === 2 && !canCheckout)}
+                    className="inline-flex items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {checkoutLoading
+                        ? "Processing order..."
                         : activeStep === steps.length - 1
                         ? "Place order"
                         : "Next"}
-                    </button>
+                  </button>
                   </div>
                 </div>
               </form>

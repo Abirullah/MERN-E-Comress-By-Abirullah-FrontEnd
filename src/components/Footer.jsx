@@ -4,6 +4,7 @@ import {
   Package,
   ArrowUpRight,
   Mail,
+  Sparkles,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -49,16 +50,16 @@ const footerGroups = [
 function FooterColumn({ title, links }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-950">
+      <h3 className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#d4a544]">
         {title}
       </h3>
 
-      <ul className="mt-5 space-y-3 text-sm text-slate-500">
+      <ul className="mt-5 space-y-3 text-sm text-[#6b6666]">
         {links.map((link) => (
           <li key={link.label}>
             <Link
               to={link.to}
-              className="transition hover:text-slate-950"
+              className="transition hover:text-[#d4a544]"
             >
               {link.label}
             </Link>
@@ -71,20 +72,25 @@ function FooterColumn({ title, links }) {
 
 function Footer() {
   return (
-    <footer className="border-t border-slate-200 bg-[#f7f5ef] text-slate-600">
+    <footer className="border-t border-[#1e1e1e] bg-[#0a0a0a]">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-[1.15fr_1.85fr]">
+          {/* Brand Section */}
           <div className="space-y-6">
             <div>
-              <p className="text-3xl font-black tracking-[0.28em] text-slate-950">
-                LUXE
-              </p>
-              <p className="mt-4 max-w-md text-sm leading-6 text-slate-500">
+              <div className="flex items-center gap-2">
+                <p className="text-3xl font-black tracking-[0.28em] text-[#ddd4be]">
+                  LUXE
+                </p>
+                <Sparkles size={20} className="text-[#d4a544]" />
+              </div>
+              <p className="mt-4 max-w-md text-sm leading-6 text-[#6b6666]">
                 Premium sneakers and everyday footwear designed for clean
                 silhouettes, comfort, and a sharper finish.
               </p>
             </div>
 
+            {/* Social/Quick Links */}
             <div className="flex items-center gap-3">
               {[
                 { icon: Globe, label: "Website", href: "/" },
@@ -96,19 +102,21 @@ function Footer() {
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-slate-400 hover:text-slate-950"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[#1e1e1e] bg-[#0e0e0e] text-[#5a5a5a] transition-all duration-300 hover:border-[#d4a544]/50 hover:text-[#d4a544] hover:-translate-y-0.5"
                 >
                   <Icon size={16} />
                 </a>
               ))}
             </div>
 
-            <div className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500 shadow-sm">
-              <Mail size={16} className="shrink-0 text-slate-400" />
+            {/* Email */}
+            <div className="inline-flex items-center gap-3 rounded-xl border border-[#1e1e1e] bg-[#0e0e0e] px-4 py-3 text-sm text-[#6b6666] shadow-sm transition-all duration-300 hover:border-[#d4a544]/30">
+              <Mail size={16} className="shrink-0 text-[#d4a544]" />
               <span>hello@luxe.com</span>
             </div>
           </div>
 
+          {/* Footer Links */}
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-4">
             {footerGroups.map((group) => (
               <FooterColumn
@@ -120,14 +128,15 @@ function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-4 border-t border-slate-200 pt-6 text-sm text-slate-400 md:flex-row md:items-center md:justify-between">
-          <p>© 2026 LUXE. All rights reserved.</p>
+        {/* Bottom Bar */}
+        <div className="mt-12 flex flex-col gap-4 border-t border-[#1e1e1e] pt-6 text-sm text-[#5a5a5a] md:flex-row md:items-center md:justify-between">
+          <p className="text-[11px]">© 2026 LUXE. All rights reserved.</p>
 
           <div className="flex flex-wrap items-center gap-2">
             {["Visa", "Mastercard", "PayPal", "Apple Pay"].map((method) => (
               <span
                 key={method}
-                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500"
+                className="rounded-lg border border-[#1e1e1e] bg-[#0e0e0e] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#5a5a5a] hover:border-[#d4a544]/30 hover:text-[#d4a544] transition-all duration-300"
               >
                 {method}
               </span>

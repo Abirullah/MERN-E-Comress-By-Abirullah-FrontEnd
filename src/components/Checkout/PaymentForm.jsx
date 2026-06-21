@@ -1,50 +1,54 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
+const BANK_DETAILS = [
+  { label: "Bank", value: "Mastercredit" },
+  { label: "Account holder", value: "Mastercredit Commerce" },
+  { label: "Account number", value: "123456789" },
+  { label: "Routing number", value: "987654321" },
+];
 
 const paymentOptions = [
-  { id: "creditCard", title: "Card", subtitle: "Pay with credit card" },
-  { id: "bankTransfer", title: "Bank account", subtitle: "Transfer funds directly" },
+  {
+    id: "bankTransfer",
+    title: "Bank transfer",
+    subtitle: "Send payment directly to our account and upload the screenshot",
+  },
+  {
+    id: "cod",
+    title: "Cash on delivery",
+    subtitle: "Pay the courier when the order arrives",
+  },
 ];
 
 export default function PaymentForm({ initialValues = {} }) {
   const [paymentType, setPaymentType] = useState(
-    initialValues.paymentType || "creditCard"
+    initialValues.paymentType || "bankTransfer"
   );
-  const [cardNumber, setCardNumber] = useState(initialValues.cardNumber || "");
-  const [cvv, setCvv] = useState(initialValues.cvv || "");
-  const [expirationDate, setExpirationDate] = useState(
-    initialValues.expirationDate || ""
+  const [paymentSlipName, setPaymentSlipName] = useState(
+    initialValues.paymentSlipName || ""
   );
 
-  const handleCardNumberChange = (event) => {
-    const value = event.target.value.replace(/\D/g, "");
-    const formattedValue = value.replace(/(\d{4})(?=\d)/g, "$1 ");
-    if (value.length <= 16) {
-      setCardNumber(formattedValue);
+  const paymentInstructions = useMemo(() => {
+    if (paymentType === "cod") {
+      return "Your order will be marked as cash on delivery and the delivery team will collect payment when the package arrives.";
     }
-  };
 
-  const handleCvvChange = (event) => {
-    const value = event.target.value.replace(/\D/g, "");
-    if (value.length <= 3) {
-      setCvv(value);
-    }
-  };
+    return "Transfer the amount to the bank account below, then upload a clear screenshot of the payment slip so the team can verify it.";
+  }, [paymentType]);
 
-  const handleExpirationDateChange = (event) => {
-    const value = event.target.value.replace(/\D/g, "");
-    const formattedValue = value.replace(/(\d{2})(?=\d{2})/, "$1/");
-    if (value.length <= 4) {
-      setExpirationDate(formattedValue);
-    }
+  const handleSlipChange = (event) => {
+    const file = event.target.files?.[0] || null;
+    setPaymentSlipName(file ? file.name : "");
   };
 
   return (
     <div className="space-y-6">
       <input type="hidden" name="paymentType" value={paymentType} />
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2">
         {paymentOptions.map((option) => {
           const active = paymentType === option.id;
+
           return (
             <button
               key={option.id}
@@ -57,126 +61,79 @@ export default function PaymentForm({ initialValues = {} }) {
               }`}
             >
               <p className="text-sm font-semibold text-slate-900">{option.title}</p>
-              <p className="mt-2 text-sm text-slate-500">{option.subtitle}</p>
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                {option.subtitle}
+              </p>
             </button>
           );
         })}
       </div>
 
-      {paymentType === "creditCard" ? (
-        <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-slate-900">Credit card</p>
-              <p className="text-sm text-slate-500">Secure payment details</p>
-            </div>
-            <div className="rounded-3xl bg-white px-3 py-2 text-sm text-slate-700 shadow-sm">
-              Card
-            </div>
-          </div>
+      <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6 shadow-sm">
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-500">
+          Payment instructions
+        </p>
+        <p className="mt-3 text-sm leading-6 text-slate-600">
+          {paymentInstructions}
+        </p>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="card-number" className="text-sm font-semibold text-slate-800">
-                Card number
-              </label>
-              <input
-                id="card-number"
-                name="card-number"
-                type="text"
-                autoComplete="cc-number"
-                placeholder="0000 0000 0000 0000"
-                className="field-input"
-                value={cardNumber}
-                onChange={handleCardNumberChange}
-                required
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="cvv" className="text-sm font-semibold text-slate-800">
-                CVV
-              </label>
-              <input
-                id="cvv"
-                name="cvv"
-                type="text"
-                autoComplete="cc-csc"
-                placeholder="123"
-                className="field-input"
-                value={cvv}
-                onChange={handleCvvChange}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="card-name" className="text-sm font-semibold text-slate-800">
-                Name
-              </label>
-              <input
-                id="card-name"
-                name="card-name"
-                type="text"
-                autoComplete="cc-name"
-                placeholder="John Smith"
-                defaultValue={initialValues.cardName || ""}
-                className="field-input"
-                required
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="card-expiration" className="text-sm font-semibold text-slate-800">
-                Expiration date
-              </label>
-              <input
-                id="card-expiration"
-                name="card-expiration"
-                type="text"
-                autoComplete="cc-exp"
-                placeholder="MM/YY"
-                className="field-input"
-                value={expirationDate}
-                onChange={handleExpirationDateChange}
-                required
-              />
-            </div>
-          </div>
-
-          <label className="mt-6 inline-flex items-center gap-3 text-sm text-slate-700">
-            <input
-              type="checkbox"
-              name="remember-card"
-              defaultChecked={initialValues.rememberCard ?? false}
-              className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
-            />
-            Remember credit card details for next time
-          </label>
-        </div>
-      ) : (
-        <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6 shadow-sm">
-          <div className="rounded-3xl bg-white p-4 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Bank transfer</p>
-            <p className="mt-1 text-sm text-slate-500">Your order will be processed once we receive the funds.</p>
-          </div>
-
+        {paymentType === "bankTransfer" ? (
           <div className="mt-6 space-y-4">
-            <div className="flex items-center justify-between rounded-3xl border border-slate-200 bg-white p-4">
-              <span className="text-sm text-slate-500">Bank:</span>
-              <span className="font-medium text-slate-900">Mastercredit</span>
+            <div className="rounded-3xl border border-slate-200 bg-white p-4">
+              <p className="text-sm font-semibold text-slate-900">Bank details</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {BANK_DETAILS.map((detail) => (
+                  <div
+                    key={detail.label}
+                    className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                  >
+                    <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                      {detail.label}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-slate-900">
+                      {detail.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="flex items-center justify-between rounded-3xl border border-slate-200 bg-white p-4">
-              <span className="text-sm text-slate-500">Account number:</span>
-              <span className="font-medium text-slate-900">123456789</span>
-            </div>
-            <div className="flex items-center justify-between rounded-3xl border border-slate-200 bg-white p-4">
-              <span className="text-sm text-slate-500">Routing number:</span>
-              <span className="font-medium text-slate-900">987654321</span>
+
+            <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-4">
+              <label
+                htmlFor="payment-slip"
+                className="block text-sm font-semibold text-slate-800"
+              >
+                Upload payment screenshot
+              </label>
+              <p className="mt-1 text-sm text-slate-500">
+                Upload an image of the transfer receipt. Clear screenshots help us verify the payment faster.
+              </p>
+              <input
+                id="payment-slip"
+                type="file"
+                name="payment-slip"
+                accept="image/*"
+                onChange={handleSlipChange}
+                required
+                className="mt-4 w-full rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-4 py-3 text-sm text-[#0f172a] outline-none transition-colors file:mr-4 file:border-0 file:bg-[#f8fafc] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#0f172a] file:cursor-pointer"
+              />
+              {paymentSlipName ? (
+                <p className="mt-3 text-xs font-medium uppercase tracking-[0.18em] text-emerald-700">
+                  Uploaded: {paymentSlipName}
+                </p>
+              ) : null}
             </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-4">
+            <p className="text-sm font-semibold text-slate-900">Cash on delivery</p>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Keep your phone reachable. The courier will collect payment at delivery.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Eye, ShoppingCart, X, Heart, Trash2 } from "lucide-react";
+import { Eye, ShoppingCart, X, Heart, Trash2, Package } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -61,8 +61,8 @@ function Toast({ message, visible }) {
     <div
       className={`
         fixed bottom-6 right-6 z-50
-        bg-black text-white text-xs tracking-wider
-        px-4 py-3 rounded-xl shadow-2xl
+        bg-[#d4a544] text-[#080808] text-[11px] font-semibold uppercase tracking-[0.15em]
+        px-5 py-3 rounded-xl shadow-2xl
         transition-all duration-300
         ${
           visible
@@ -91,15 +91,16 @@ function WishlistCard({ item, onRemove, onAddToBag }) {
     <div
       className={`
         group relative w-full
-        hover:shadow-2xl rounded-xl overflow-hidden
-        transition-all duration-500 bg-[#ebeaea]
+        rounded-xl overflow-hidden
+        transition-all duration-500 bg-[#0e0e0e] border border-[#1e1e1e]
+        hover:border-[#d4a544]/30 hover:shadow-2xl hover:shadow-[#d4a544]/5
         ${removing ? "opacity-0 scale-95" : "opacity-100 scale-100"}
       `}
       style={{ height: 500 }}
     >
       {/* IMAGE SECTION */}
       <div
-        className="relative overflow-hidden bg-[#e9eaea]"
+        className="relative overflow-hidden bg-[#1a1a1a]"
         style={{ height: "70%" }}
       >
         <img
@@ -114,8 +115,8 @@ function WishlistCard({ item, onRemove, onAddToBag }) {
 
         {/* Out Of Stock */}
         {!item.inStock && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="bg-white text-black text-xs font-semibold tracking-widest uppercase px-4 py-2 rounded-full">
+          <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+            <span className="bg-[#2e1a1a] text-[#e57373] text-[10px] font-semibold uppercase tracking-[0.2em] px-5 py-2.5 rounded-lg border border-[#4a2d2d]">
               Out Of Stock
             </span>
           </div>
@@ -133,27 +134,28 @@ function WishlistCard({ item, onRemove, onAddToBag }) {
         >
           <button
             className="
-              w-11 h-11 rounded-full bg-white shadow-lg
-              flex items-center justify-center
-              hover:bg-black hover:text-white transition
+              w-11 h-11 rounded-full bg-[#1a1a1a] border border-[#1e1e1e] shadow-lg
+              flex items-center justify-center text-[#ddd4be]
+              hover:bg-[#d4a544] hover:text-[#080808] hover:border-[#d4a544]
+              transition-all duration-300
             "
           >
-            <Eye size={20} />
+            <Eye size={18} />
           </button>
 
           <button
             onClick={() => onAddToBag(item.id)}
             className={`
               w-11 h-11 rounded-full shadow-lg
-              flex items-center justify-center transition
+              flex items-center justify-center transition-all duration-300
               ${
                 item.added
-                  ? "bg-black text-white"
-                  : "bg-white hover:bg-black hover:text-white"
+                  ? "bg-[#d4a544] text-[#080808] border-[#d4a544]"
+                  : "bg-[#1a1a1a] text-[#ddd4be] border border-[#1e1e1e] hover:bg-[#d4a544] hover:text-[#080808] hover:border-[#d4a544]"
               }
             `}
           >
-            <ShoppingCart size={20} />
+            <ShoppingCart size={18} />
           </button>
         </div>
 
@@ -162,23 +164,23 @@ function WishlistCard({ item, onRemove, onAddToBag }) {
           onClick={handleRemove}
           className="
             absolute top-5 left-5
-            w-11 h-11 rounded-full bg-white shadow-lg
-            flex items-center justify-center
+            w-11 h-11 rounded-full bg-[#1a1a1a] border border-[#1e1e1e] shadow-lg
+            flex items-center justify-center text-[#ddd4be]
             opacity-0 -translate-x-10
             group-hover:opacity-100 group-hover:translate-x-0
             transition-all duration-500
-            hover:bg-red-500 hover:text-white
+            hover:bg-[#e57373] hover:text-white hover:border-[#e57373]
           "
         >
-          <X size={20} />
+          <X size={18} />
         </button>
 
         {/* Saved Badge */}
         <div className="absolute bottom-4 left-4">
-          <div className="flex items-center gap-1.5 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 shadow">
-            <Heart size={12} className="fill-red-500 text-red-500" />
+          <div className="flex items-center gap-1.5 bg-[#0e0e0e]/95 backdrop-blur-sm rounded-full px-3 py-1.5 shadow border border-[#1e1e1e]">
+            <Heart size={12} className="fill-[#d4a544] text-[#d4a544]" />
 
-            <span className="text-[10px] font-semibold tracking-widest uppercase text-gray-700">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#ddd4be]">
               Saved
             </span>
           </div>
@@ -190,22 +192,22 @@ function WishlistCard({ item, onRemove, onAddToBag }) {
         className="px-6 py-5 flex flex-col justify-center"
         style={{ height: "30%" }}
       >
-        <p className="text-sm uppercase tracking-[3px] text-gray-500">
+        <p className="text-[10px] uppercase tracking-[0.2em] text-[#5a5a5a]">
           {item.brand}
         </p>
 
-        <h2 className="text-2xl font-bold text-black mt-2">
+        <h2 className="text-2xl font-bold text-[#ddd4be] mt-2 line-clamp-1">
           {item.name}
         </h2>
 
         <div className="flex items-center justify-between mt-3">
-          <p className="text-xl font-semibold text-black">
+          <p className="text-xl font-semibold text-[#ddd4be]">
             {item.price}
           </p>
 
           <span
-            className={`text-sm font-medium ${
-              item.inStock ? "text-green-600" : "text-red-400"
+            className={`text-[11px] font-semibold uppercase tracking-[0.12em] ${
+              item.inStock ? "text-[#8fbc8f]" : "text-[#e57373]"
             }`}
           >
             {item.inStock ? "In Stock" : "Out Of Stock"}
@@ -343,29 +345,34 @@ export default function WishlistPage() {
     wishlistitems.length === 0
   ) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-2xl font-bold">
-        Loading...
+      <div className="flex min-h-screen items-center justify-center bg-[#080808]">
+        <div className="text-center">
+          <div className="relative">
+            <div className="h-16 w-16 animate-spin rounded-full border-4 border-[#1e1e1e] border-t-[#d4a544] mx-auto" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Heart size={20} className="text-[#d4a544]" />
+            </div>
+          </div>
+          <p className="mt-4 text-[11px] text-[#6b6666] uppercase tracking-[0.18em]">
+            Loading your wishlist...
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div
-      className="min-h-screen bg-[#f2f1f0] px-6 py-10"
-      style={{ fontFamily: "system-ui, sans-serif" }}
-    >
-      <div className="max-w-7xl mx-auto mt-10 pt-5">
+    <div className="min-h-screen bg-[#080808]">
+      <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         {/* HEADER */}
-        <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
+        <div className="flex items-end justify-between mb-8 flex-wrap gap-4 mt-10 pt-5">
           <div>
-            <p className="text-xs uppercase tracking-[4px] text-gray-400 mb-2">
-              Your collection
-            </p>
+           
 
-            <h1 className="text-5xl font-bold text-black leading-none">
+            <h1 className="text-5xl font-bold text-[#ddd4be] leading-none sm:text-6xl">
               Wishlist
 
-              <span className="ml-3 text-2xl font-normal text-gray-400">
+              <span className="ml-3 text-2xl font-normal text-[#333]">
                 ({visibleItems.length})
               </span>
             </h1>
@@ -375,10 +382,10 @@ export default function WishlistPage() {
             <button
               onClick={handleClearAll}
               className="
-                flex items-center gap-2 text-sm text-gray-400
-                hover:text-red-500 transition-colors duration-200
-                border border-gray-300 hover:border-red-400
-                rounded-full px-4 py-2
+                flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#5a5a5a]
+                hover:text-[#e57373] transition-colors duration-200
+                border border-[#1e1e1e] hover:border-[#4a2d2d]
+                rounded-lg px-5 py-2.5 bg-[#0e0e0e]
               "
             >
               <Trash2 size={14} />
@@ -394,12 +401,12 @@ export default function WishlistPage() {
               key={filter.key}
               onClick={() => setFilter(filter.key)}
               className={`
-                px-5 py-2 rounded-full text-sm font-medium tracking-wide
+                px-5 py-2.5 rounded-lg text-[11px] font-semibold uppercase tracking-[0.15em]
                 border transition-all duration-300
                 ${
                   activeFilter === filter.key
-                    ? "bg-black text-white border-black"
-                    : "bg-white text-gray-600 border-gray-200 hover:border-black hover:text-black"
+                    ? "bg-[#d4a544] text-[#080808] border-[#d4a544]"
+                    : "bg-[#0e0e0e] text-[#6b6666] border-[#1e1e1e] hover:border-[#d4a544]/30 hover:text-[#d4a544]"
                 }
               `}
             >
@@ -411,14 +418,16 @@ export default function WishlistPage() {
         {/* EMPTY */}
         {visibleItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center">
-            <Heart size={48} className="text-gray-200 mb-4" />
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-[#1a1a1a] border border-[#1e1e1e] mb-6">
+              <Heart size={32} className="text-[#d4a544]" />
+            </div>
 
-            <p className="text-2xl font-bold text-gray-300">
+            <p className="text-2xl font-bold text-[#ddd4be]">
               Nothing saved yet
             </p>
 
-            <p className="text-sm text-gray-400 mt-2">
-              Add some shoes to your wishlist to see them here
+            <p className="text-[11px] text-[#6b6666] mt-3 max-w-md">
+              Add some items to your wishlist to see them here
             </p>
           </div>
         ) : (
@@ -436,13 +445,13 @@ export default function WishlistPage() {
             </div>
 
             {/* FOOTER */}
-            <div className="mt-12 flex items-center justify-between flex-wrap gap-4 border-t border-gray-200 pt-8">
+            <div className="mt-12 flex items-center justify-between flex-wrap gap-4 border-t border-[#1e1e1e] pt-8">
               <div>
-                <p className="text-xs uppercase tracking-[3px] text-gray-400 mb-1">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#5a5a5a] mb-1">
                   Total saved value
                 </p>
 
-                <p className="text-3xl font-bold text-black">
+                <p className="text-3xl font-bold text-[#ddd4be]">
                   ${totalPrice.toFixed(2)}
                 </p>
               </div>
@@ -459,15 +468,16 @@ export default function WishlistPage() {
                   notify("All items added to bag");
                 }}
                 className="
-                  bg-black text-white text-sm font-semibold
-                  tracking-widest uppercase
-                  px-8 py-4 rounded-xl
-                  hover:bg-neutral-800 active:scale-95
+                  bg-[#d4a544] text-[#080808] text-[11px] font-bold
+                  uppercase tracking-[0.2em]
+                  px-8 py-4 rounded-lg
+                  hover:bg-[#c19a3e] active:scale-95
                   transition-all duration-200
-                  flex items-center gap-3
+                  flex items-center gap-3 shadow-lg shadow-[#d4a544]/10
+                  hover:shadow-xl hover:shadow-[#d4a544]/20
                 "
               >
-                <ShoppingCart size={18} />
+                <ShoppingCart size={16} />
                 Add all to bag
               </button>
             </div>
@@ -475,8 +485,18 @@ export default function WishlistPage() {
         )}
 
         {error && !wishlistLoading && items.length === 0 && (
-          <div className="mt-8 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-600">
-            {error}
+          <div className="mt-8 rounded-2xl border border-[#4a2d2d] bg-gradient-to-r from-[#2e1a1a] to-[#0e0e0e] px-5 py-4">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#4a2d2d]">
+                <XCircle size={20} className="text-[#e57373]" />
+              </div>
+              <div>
+                <p className="font-semibold text-[#e57373] uppercase tracking-[0.15em] text-[10px]">
+                  Error loading wishlist
+                </p>
+                <p className="mt-1 text-[11px] text-[#8b7070]">{error}</p>
+              </div>
+            </div>
           </div>
         )}
       </div>

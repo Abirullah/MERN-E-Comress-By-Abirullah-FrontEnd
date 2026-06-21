@@ -19,44 +19,43 @@ const brands = [
 
 const BrandStrip = () => {
   return (
-    <div className="w-full bg-gradient-to-b from-white to-gray-100 py-14 overflow-hidden">
+    <div className="w-full bg-gradient-to-b from-[#080808] to-[#0e0e0e] py-14 overflow-hidden border-t border-[#1e1e1e]">
       
       {/* Heading */}
       <div className="text-center mb-12">
         
-        <p className="uppercase tracking-[6px] text-gray-500 text-sm mb-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#5a5a5a] mb-3">
           Trusted Worldwide
         </p>
 
-        <h1 className="text-4xl md:text-5xl font-black text-black">
+        <h1 className="text-4xl md:text-5xl font-black text-[#ddd4be]">
           Famous Brands
         </h1>
 
-        <div className="w-32 h-1 bg-black mx-auto mt-5 rounded-full"></div>
+        <div className="w-32 h-1 bg-[#d4a544] mx-auto mt-5 rounded-full"></div>
       </div>
 
       {/* Logo Slider */}
       <div className="relative w-full overflow-hidden">
         
         {/* Blur Sides */}
-        <div className="absolute left-0 top-0 h-full w-32 bg-gradient-to-r from-white to-transparent z-10"></div>
-        <div className="absolute right-0 top-0 h-full w-32 bg-gradient-to-l from-white to-transparent z-10"></div>
+        <div className="absolute left-0 top-0 h-full w-32 bg-gradient-to-r from-[#080808] to-transparent z-10"></div>
+        <div className="absolute right-0 top-0 h-full w-32 bg-gradient-to-l from-[#080808] to-transparent z-10"></div>
 
         {/* Moving Track */}
         <div className="flex animate-scroll whitespace-nowrap w-max">
           
           {[...brands, ...brands].map((logo, index) => (
-            <NavLink  key={index} to="/shop">
-            <div
-             
-              className="mx-6 md:mx-10 w-[180px] h-[100px] bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all duration-500 flex items-center justify-center group border border-gray-100"
-            >
-              <img
-                src={logo}
-                alt="brand-logo"
-                className="w-[100px] h-[50px] object-contain opacity-60 group-hover:opacity-100 group-hover:scale-110 transition duration-500"
-              />
-            </div>
+            <NavLink key={index} to="/shop">
+              <div
+                className="mx-6 md:mx-10 w-[180px] h-[100px] bg-[#0e0e0e] rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 flex items-center justify-center group border border-[#1e1e1e] hover:border-[#d4a544]/50 hover:-translate-y-1"
+              >
+                <img
+                  src={logo}
+                  alt="brand-logo"
+                  className="w-[100px] h-[50px] object-contain opacity-40 group-hover:opacity-100 group-hover:scale-110 transition duration-500 filter brightness-0 invert"
+                />
+              </div>
             </NavLink>
           ))}
 
