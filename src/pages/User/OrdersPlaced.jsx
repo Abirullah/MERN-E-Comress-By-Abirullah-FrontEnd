@@ -5,24 +5,17 @@ import {
   ChevronRight,
   Clock3,
   CreditCard,
-  MapPin,
   PackageCheck,
   Package,
   ShoppingBag,
   Truck,
   XCircle,
-  Sparkles,
   RefreshCw,
-  TrendingUp,
-  Eye,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-
-import Loader from "../../components/Loader";
 import { Orders } from "../../ReduxSetUp/Feature/Products/ProductSlice";
 
-const FALLBACK_IMAGE = "/Pictures/pexels-ian-panelo-7716266.jpg";
 
 const parseAmount = (value) => {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -63,18 +56,6 @@ const formatCurrency = (amount, currency) => {
     }).format(numericAmount);
   }
 };
-
-const formatTitleCase = (value) =>
-  String(value || "")
-    .trim()
-    .replace(/([a-z])([A-Z])/g, "$1 $2")
-    .replace(/[_-]+/g, " ")
-    .replace(/\s+/g, " ")
-    .split(" ")
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-
 const formatDate = (value) => {
   if (!value) {
     return "Date unavailable";

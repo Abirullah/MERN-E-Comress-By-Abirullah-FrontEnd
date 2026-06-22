@@ -40,6 +40,15 @@ export default function CheckoutSuccess() {
     return () => clearInterval(id);
   }, [sessionId, userInfo, dispatch]);
 
+  useEffect(() => {
+    if (!userInfo) return;
+    const timer = setTimeout(() => {
+      navigate("/ordersplaced", { replace: true });
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [userInfo, navigate]);
+
   const title =
     paymentType === "cod"
       ? "Cash on delivery order confirmed"

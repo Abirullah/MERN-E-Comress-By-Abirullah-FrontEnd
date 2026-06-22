@@ -309,7 +309,8 @@ export default function Checkout() {
       }
 
       if (response?.status === "ok" || response?.success || response) {
-        navigate("/checkout-success", {
+        navigate("/success", {
+          replace: true,
           state: {
             paymentType: currentPaymentType,
             order: response?.order || null,

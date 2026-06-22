@@ -9,6 +9,17 @@ import {
   updateUserProfile,
   logoutUser,
 } from "../../ReduxSetUp/Feature/Auth/AuthSlice";
+import { Orders } from "../../ReduxSetUp/Feature/Products/ProductSlice";
+
+/* ── Theme Helper ── */
+const THEME_KEY = "site-theme";
+
+const getTheme = () => {
+  if (typeof window === "undefined") return "light";
+  const stored = localStorage.getItem(THEME_KEY);
+  if (stored === "dark" || stored === "light") return stored;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+};
 
 /* ── Helpers ── */
 const emptyProfile = {
@@ -56,10 +67,10 @@ const ICONS = {
 };
 
 /* ── Styled Input ── */
-const Field = ({ label, icon, children }) => (
+const Field = ({ label, icon, children, isDark }) => (
   <div className="flex flex-col gap-1.5">
     {label && (
-      <label className="flex items-center gap-1.5 text-[9px] font-semibold tracking-[0.2em] uppercase text-[#5a5a5a]">
+      <label className={`flex items-center gap-1.5 text-[9px] font-semibold tracking-[0.2em] uppercase ${isDark ? 'text-[#5a5a5a]' : 'text-[#999999]'}`}>
         {icon && <span className="text-[#d4a544]"><Icon d={ICONS[icon]} size={11} /></span>}
         {label}
       </label>
@@ -68,18 +79,24 @@ const Field = ({ label, icon, children }) => (
   </div>
 );
 
-const inputCls =
-  "w-full bg-[#0c0c0c] border border-[#242424] rounded-lg px-4 py-2.5 text-[#ddd4be] text-sm outline-none transition-all placeholder:text-[#2e2e2e] focus:border-[#d4a544] focus:bg-[#0f0d08] focus:shadow-[0_0_0_3px_rgba(212,165,68,0.08)]";
+const inputCls = (isDark) =>
+  `w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-all placeholder:text-[#2e2e2e] focus:border-[#d4a544] focus:shadow-[0_0_0_3px_rgba(212,165,68,0.08)] ${
+    isDark 
+      ? 'bg-[#0c0c0c] border border-[#242424] text-[#ddd4be] focus:bg-[#0f0d08]' 
+      : 'bg-[#f5f5f5] border border-[#e0e0e0] text-[#1a1a1a] focus:bg-[#ffffff]'
+  }`;
 
 /* ── Profile View Row ── */
-const InfoRow = ({ icon, label, value }) => (
-  <div className="flex items-start gap-4 py-4 border-b border-[#161616] last:border-0">
-    <div className="w-8 h-8 rounded-lg bg-[rgba(212,165,68,0.08)] border border-[#1e1e1e] flex items-center justify-center text-[#d4a544] flex-shrink-0 mt-0.5">
+const InfoRow = ({ icon, label, value, isDark }) => (
+  <div className={`flex items-start gap-4 py-4 border-b ${isDark ? 'border-[#161616]' : 'border-[#e8e8e8]'} last:border-0`}>
+    <div className={`w-8 h-8 rounded-lg ${isDark ? 'bg-[rgba(212,165,68,0.08)] border-[#1e1e1e]' : 'bg-[rgba(212,165,68,0.05)] border-[#e0e0e0]'} border flex items-center justify-center text-[#d4a544] flex-shrink-0 mt-0.5`}>
       <Icon d={ICONS[icon]} size={14} />
     </div>
     <div className="min-w-0 flex-1">
-      <div className="text-[9px] tracking-[0.2em] uppercase text-[#444] mb-1">{label}</div>
-      <div className="text-sm text-[#c8bea8] font-medium truncate">{value || <span className="text-[#3a3a3a] italic text-xs">Not set</span>}</div>
+      <div className={`text-[9px] tracking-[0.2em] uppercase ${isDark ? 'text-[#444]' : 'text-[#999]'} mb-1`}>{label}</div>
+      <div className={`text-sm font-medium truncate ${isDark ? 'text-[#c8bea8]' : 'text-[#333]'}`}>
+        {value || <span className={`italic text-xs ${isDark ? 'text-[#3a3a3a]' : 'text-[#ccc]'}`}>Not set</span>}
+      </div>
     </div>
   </div>
 );
@@ -91,20 +108,52 @@ const Profile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userInfo, profileLoading, updateLoading, profileError } = useSelector((s) => s.auth);
+  const { orders = [], ordersLoading } = useSelector((s) => s.products);
+  
+  // Theme state
+  const [theme, setTheme] = useState(getTheme);
+  const isDark = theme === "dark";
 
-  const [username, setUsername]         = useState("");
-  const [email, setEmail]               = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [profileFields, setProfileFields] = useState(emptyProfile);
-  const [activeTab, setActiveTab]       = useState("info");   // "info" | "edit" | "password"
-  const [password, setPassword]         = useState("");
+  const [activeTab, setActiveTab] = useState("info");
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPass, setShowPass]         = useState(false);
+  const [showPass, setShowPass] = useState(false);
 
+  const userId = userInfo?._id || userInfo?.id || null;
+
+  // Listen for theme changes
+  useEffect(() => {
+    const handleThemeChange = () => {
+      setTheme(getTheme());
+    };
+
+    window.addEventListener('storage', handleThemeChange);
+    window.addEventListener('themechange', handleThemeChange);
+
+    return () => {
+      window.removeEventListener('storage', handleThemeChange);
+      window.removeEventListener('themechange', handleThemeChange);
+    };
+  }, []);
+
+  // Fetch user profile and orders
   useEffect(() => {
     dispatch(fetchUserProfile());
     return () => dispatch(clearAuthMessages());
   }, [dispatch]);
 
+  // Fetch orders when user is available (same pattern as OrdersPlaced)
+  useEffect(() => {
+    if (!userId) {
+      return;
+    }
+    dispatch(Orders(userId));
+  }, [dispatch, userId]);
+
+  // Update profile fields when userInfo changes
   useEffect(() => {
     if (!userInfo) return;
     setUsername(userInfo.username || "");
@@ -112,9 +161,22 @@ const Profile = () => {
     setProfileFields({ ...emptyProfile, ...(userInfo.Profile || {}) });
   }, [userInfo]);
 
+  // Calculate total orders count
+  const totalOrders = useMemo(() => {
+    if (!orders || !Array.isArray(orders)) return 0;
+    return orders.length;
+  }, [orders]);
+
+  // Calculate total spent from orders
+  const totalSpent = useMemo(() => {
+    if (!orders || !Array.isArray(orders)) return 0;
+    return orders.reduce((sum, order) => {
+      const amount = order?.totalPrice || order?.total || order?.totalAmount || 0;
+      return sum + (typeof amount === 'number' ? amount : 0);
+    }, 0);
+  }, [orders]);
+
   const initials = useMemo(() => getInitials(username || email || "User"), [username, email]);
-  const totalSpent   = userInfo?.totalSpent   ?? 0;
-  const totalOrders  = userInfo?.totalOrders  ?? 0;
   const wishlistCount = userInfo?.wishlistCount ?? 0;
 
   const handleFieldChange = (field, value) =>
@@ -128,7 +190,7 @@ const Profile = () => {
   };
 
   const handlePasswordSubmit = async () => {
-    if (!password.trim())           { toast.error("Enter a new password"); return; }
+    if (!password.trim()) { toast.error("Enter a new password"); return; }
     if (password !== confirmPassword) { toast.error("Passwords do not match"); return; }
     try {
       await dispatch(updateUserProfile({ password })).unwrap();
@@ -158,14 +220,14 @@ const Profile = () => {
 
   if (profileLoading && !userInfo) {
     return (
-      <div className="min-h-screen bg-[#080808] flex items-center justify-center">
+      <div className={`min-h-screen ${isDark ? 'bg-[#080808]' : 'bg-[#f5f5f5]'} flex items-center justify-center`}>
         <Loader />
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen bg-[#080808] overflow-hidden" style={{ fontFamily: "'Tenor Sans', sans-serif" }}>
+    <div className={`relative min-h-screen overflow-hidden ${isDark ? 'bg-[#080808]' : 'bg-[#f5f5f5]'}`} style={{ fontFamily: "'Tenor Sans', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Tenor+Sans&display=swap');
         @keyframes ringPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.25;transform:scale(1.04)}}
@@ -184,10 +246,15 @@ const Profile = () => {
           bottom: `${(i * 7) % 30}%`,
           animationDelay: `${(i * 0.45).toFixed(1)}s`,
           animationDuration: `${5 + (i % 4)}s`,
+          background: isDark ? '#d4a544' : '#d4a544',
         }} />
       ))}
       
-      <div className="absolute inset-0" style={{ background: "linear-gradient(160deg,rgba(8,8,8,0.6) 0%,rgba(8,8,8,0.45) 50%,rgba(8,8,8,0.7) 100%)" }} />
+      <div className="absolute inset-0" style={{ 
+        background: isDark 
+          ? "linear-gradient(160deg,rgba(8,8,8,0.6) 0%,rgba(8,8,8,0.45) 50%,rgba(8,8,8,0.7) 100%)" 
+          : "linear-gradient(160deg,rgba(245,245,245,0.6) 0%,rgba(245,245,245,0.45) 50%,rgba(245,245,245,0.7) 100%)" 
+      }} />
 
       {/* ── Page ── */}
       <div className="relative z-10 max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-12 fade-up mt-7">
@@ -195,7 +262,7 @@ const Profile = () => {
         {/* Page header */}
         <div className="my-8 flex flex-col items-center justify-center gap-2">
           <div className="text-[10px] tracking-[0.3em] uppercase text-[#d4a544] mb-2">Account</div>
-          <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 38, fontWeight: 300, color: "#f0ead8", letterSpacing: "0.05em", lineHeight: 1 }}>
+          <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 38, fontWeight: 300, color: isDark ? "#f0ead8" : "#1a1a1a", letterSpacing: "0.05em", lineHeight: 1 }}>
             My Profile
           </h1>
         </div>
@@ -216,7 +283,7 @@ const Profile = () => {
                     {profileFields.profilePicture ? (
                       <img src={profileFields.profilePicture} alt="avatar" className="w-full h-full rounded-2xl object-cover" />
                     ) : (
-                      <div className="w-full h-full rounded-2xl bg-[#0e0e0e] flex items-center justify-center text-2xl font-bold text-[#d4a544]">
+                      <div className={`w-full h-full rounded-2xl ${isDark ? 'bg-[#0e0e0e]' : 'bg-[#ffffff]'} flex items-center justify-center text-2xl font-bold text-[#d4a544]`}>
                         {initials || "U"}
                       </div>
                     )}
@@ -224,59 +291,62 @@ const Profile = () => {
                 </div>
 
                 <div>
-                  <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 22, fontWeight: 400, color: "#f0ead8", letterSpacing: "0.03em" }}>
+                  <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 22, fontWeight: 400, color: isDark ? "#f0ead8" : "#1a1a1a", letterSpacing: "0.03em" }}>
                     {username || "Your Name"}
                   </div>
-                  <div className="text-[11px] text-[#555] mt-0.5 tracking-wide">{email}</div>
+                  <div className={`text-[11px] mt-0.5 tracking-wide ${isDark ? 'text-[#555]' : 'text-[#999]'}`}>{email}</div>
                 </div>
               </div>
             </div>
 
-            {/* Stats */}
+            {/* Stats - Using real order data */}
             <div className="grid grid-cols-3 gap-2.5">
               {[
                 { value: `$${totalSpent.toLocaleString()}`, label: "Spent" },
-                { value: totalOrders,    label: "Orders" },
-                { value: wishlistCount,  label: "Saved" },
+                { value: ordersLoading ? "..." : totalOrders, label: "Orders" },
+                { value: wishlistCount, label: "Saved" },
               ].map(({ value, label }) => (
-                <div key={label} className="stat-card">
+                <div key={label} className="stat-card" style={{
+                  background: isDark ? '#0e0e0e' : '#ffffff',
+                  borderColor: isDark ? '#1e1e1e' : '#e0e0e0',
+                }}>
                   <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 22, fontWeight: 400, color: "#d4a544", letterSpacing: "0.02em" }}>
                     {value}
                   </div>
-                  <div className="text-[9px] tracking-[0.15em] uppercase text-[#444] mt-1">{label}</div>
+                  <div className={`text-[9px] tracking-[0.15em] uppercase mt-1 ${isDark ? 'text-[#444]' : 'text-[#999]'}`}>{label}</div>
                 </div>
               ))}
             </div>
 
             {/* Nav links */}
             <div className="flex flex-col gap-2">
-              <button onClick={() => navigate("/ordersplaced")} className="flex items-center gap-3 w-full p-3 rounded-lg border border-[#1e1e1e] bg-[#0e0e0e] text-[#6b6666] text-xs cursor-pointer transition-all hover:border-[#d4a544]/50 hover:text-[#d4a544] hover:bg-[#d4a544]/5 text-left">
-                <span className="w-8 h-8 rounded-lg bg-[rgba(212,165,68,0.08)] border border-[#1e1e1e] flex items-center justify-center text-[#d4a544] flex-shrink-0">
+              <button onClick={() => navigate("/ordersplaced")} className={`flex items-center gap-3 w-full p-3 rounded-lg border ${isDark ? 'border-[#1e1e1e] bg-[#0e0e0e] text-[#6b6666] hover:border-[#d4a544]/50 hover:text-[#d4a544] hover:bg-[#d4a544]/5' : 'border-[#e0e0e0] bg-[#ffffff] text-[#999] hover:border-[#d4a544]/50 hover:text-[#d4a544] hover:bg-[#d4a544]/5'} text-xs cursor-pointer transition-all text-left`}>
+                <span className={`w-8 h-8 rounded-lg ${isDark ? 'bg-[rgba(212,165,68,0.08)] border-[#1e1e1e]' : 'bg-[rgba(212,165,68,0.05)] border-[#e0e0e0]'} border flex items-center justify-center text-[#d4a544] flex-shrink-0`}>
                   <Icon d={ICONS.box} size={14} />
                 </span>
                 <span className="flex-1">
-                  <div className="text-xs font-medium text-[#bbb]">My Orders</div>
-                  <div className="text-[10px] text-[#444] mt-0.5">Track & manage</div>
+                  <div className={`text-xs font-medium ${isDark ? 'text-[#bbb]' : 'text-[#555]'}`}>My Orders</div>
+                  <div className={`text-[10px] mt-0.5 ${isDark ? 'text-[#444]' : 'text-[#ccc]'}`}>Track & manage</div>
                 </span>
-                <span className="text-[#333]"><Icon d={ICONS.chevron} size={14} /></span>
+                <span className={`${isDark ? 'text-[#333]' : 'text-[#ddd]'}`}><Icon d={ICONS.chevron} size={14} /></span>
               </button>
               
-              <button onClick={() => navigate("/washinglist")} className="flex items-center gap-3 w-full p-3 rounded-lg border border-[#1e1e1e] bg-[#0e0e0e] text-[#6b6666] text-xs cursor-pointer transition-all hover:border-[#d4a544]/50 hover:text-[#d4a544] hover:bg-[#d4a544]/5 text-left">
-                <span className="w-8 h-8 rounded-lg bg-[rgba(212,165,68,0.08)] border border-[#1e1e1e] flex items-center justify-center text-[#d4a544] flex-shrink-0">
+              <button onClick={() => navigate("/washinglist")} className={`flex items-center gap-3 w-full p-3 rounded-lg border ${isDark ? 'border-[#1e1e1e] bg-[#0e0e0e] text-[#6b6666] hover:border-[#d4a544]/50 hover:text-[#d4a544] hover:bg-[#d4a544]/5' : 'border-[#e0e0e0] bg-[#ffffff] text-[#999] hover:border-[#d4a544]/50 hover:text-[#d4a544] hover:bg-[#d4a544]/5'} text-xs cursor-pointer transition-all text-left`}>
+                <span className={`w-8 h-8 rounded-lg ${isDark ? 'bg-[rgba(212,165,68,0.08)] border-[#1e1e1e]' : 'bg-[rgba(212,165,68,0.05)] border-[#e0e0e0]'} border flex items-center justify-center text-[#d4a544] flex-shrink-0`}>
                   <Icon d={ICONS.heart} size={14} />
                 </span>
                 <span className="flex-1">
-                  <div className="text-xs font-medium text-[#bbb]">Wishlist</div>
-                  <div className="text-[10px] text-[#444] mt-0.5">Saved items</div>
+                  <div className={`text-xs font-medium ${isDark ? 'text-[#bbb]' : 'text-[#555]'}`}>Wishlist</div>
+                  <div className={`text-[10px] mt-0.5 ${isDark ? 'text-[#444]' : 'text-[#ccc]'}`}>Saved items</div>
                 </span>
-                <span className="text-[#333]"><Icon d={ICONS.chevron} size={14} /></span>
+                <span className={`${isDark ? 'text-[#333]' : 'text-[#ddd]'}`}><Icon d={ICONS.chevron} size={14} /></span>
               </button>
             </div>
 
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className="flex items-center justify-center gap-2 w-full py-3 rounded-lg text-[#e57373] text-[11px] tracking-[0.15em] uppercase border border-[#4a2d2d] bg-[rgba(220,80,80,0.04)] cursor-pointer transition-all hover:border-[#e57373]/50 hover:bg-[rgba(220,80,80,0.08)]"
+              className={`flex items-center justify-center gap-2 w-full py-3 rounded-lg text-[#e57373] text-[11px] tracking-[0.15em] uppercase border ${isDark ? 'border-[#4a2d2d] bg-[rgba(220,80,80,0.04)] hover:border-[#e57373]/50 hover:bg-[rgba(220,80,80,0.08)]' : 'border-[#e0b0b0] bg-[rgba(220,80,80,0.02)] hover:border-[#e57373]/50 hover:bg-[rgba(220,80,80,0.05)]'} cursor-pointer transition-all`}
             >
               <Icon d={ICONS.logout} size={14} />
               Sign out
@@ -284,11 +354,17 @@ const Profile = () => {
           </aside>
 
           {/* ══ RIGHT PANEL ══ */}
-          <div style={{ background: "rgba(12,12,12,0.85)", border: "1px solid #1e1e1e", borderRadius: 16, backdropFilter: "blur(8px)", overflow: "hidden" }}>
+          <div style={{ 
+            background: isDark ? "rgba(12,12,12,0.85)" : "rgba(255,255,255,0.85)", 
+            border: isDark ? "1px solid #1e1e1e" : "1px solid #e0e0e0", 
+            borderRadius: 16, 
+            backdropFilter: "blur(8px)", 
+            overflow: "hidden" 
+          }}>
             <div className="p-6">
               {/* Error banner */}
               {profileError && (
-                <div className="flex items-center gap-3 bg-[rgba(220,80,80,0.06)] border border-[#3a1515] rounded-lg px-4 py-3 text-[#e57373] text-xs mb-5">
+                <div className={`flex items-center gap-3 rounded-lg px-4 py-3 text-[#e57373] text-xs mb-5 ${isDark ? 'bg-[rgba(220,80,80,0.06)] border-[#3a1515]' : 'bg-[rgba(220,80,80,0.03)] border-[#e0b0b0]'} border`}>
                   <Icon d={ICONS.x} size={14} />
                   {profileError}
                 </div>
@@ -299,20 +375,20 @@ const Profile = () => {
                 <div className="fade-up">
                   <div className="flex items-center justify-between mb-5">
                     <div>
-                      <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 300, color: "#e8e0cc" }}>
+                      <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 300, color: isDark ? "#e8e0cc" : "#1a1a1a" }}>
                         Account details
                       </div>
-                      <div className="text-[10px] text-[#444] mt-1">Your personal information</div>
+                      <div className={`text-[10px] mt-1 ${isDark ? 'text-[#444]' : 'text-[#ccc]'}`}>Your personal information</div>
                     </div>
                   </div>
 
                   <div style={{ overflow: "hidden" }}>
-                    <InfoRow icon="user"  label="Username" value={username} />
-                    <InfoRow icon="mail"  label="Email address" value={email} />
-                    <InfoRow icon="phone" label="Phone number" value={profileFields.phoneNumber} />
-                    <InfoRow icon="map"   label="Address" value={profileFields.address} />
-                    <InfoRow icon="user"  label="First name" value={profileFields.firstName} />
-                    <InfoRow icon="user"  label="Last name" value={profileFields.lastName} />
+                    <InfoRow icon="user" label="Username" value={username} isDark={isDark} />
+                    <InfoRow icon="mail" label="Email address" value={email} isDark={isDark} />
+                    <InfoRow icon="phone" label="Phone number" value={profileFields.phoneNumber} isDark={isDark} />
+                    <InfoRow icon="map" label="Address" value={profileFields.address} isDark={isDark} />
+                    <InfoRow icon="user" label="First name" value={profileFields.firstName} isDark={isDark} />
+                    <InfoRow icon="user" label="Last name" value={profileFields.lastName} isDark={isDark} />
                   </div>
 
                   {/* Quick action */}
@@ -320,7 +396,7 @@ const Profile = () => {
                     <button onClick={() => setActiveTab("edit")} className="w-full p-3 bg-[#d4a544] border-none rounded-lg text-[#080808] text-[10px] tracking-[0.22em] uppercase font-bold cursor-pointer transition-all hover:opacity-90 hover:-translate-y-0.5">
                       Update details
                     </button>
-                    <button onClick={() => setActiveTab("password")} className="w-full p-3 bg-transparent border border-[#1e1e1e] rounded-lg text-[#6b6666] text-[10px] tracking-[0.15em] uppercase cursor-pointer transition-all hover:border-[#d4a544]/50 hover:text-[#d4a544] flex items-center justify-center gap-2">
+                    <button onClick={() => setActiveTab("password")} className={`w-full p-3 rounded-lg text-[10px] tracking-[0.15em] uppercase cursor-pointer transition-all flex items-center justify-center gap-2 ${isDark ? 'bg-transparent border-[#1e1e1e] text-[#6b6666] hover:border-[#d4a544]/50 hover:text-[#d4a544]' : 'bg-transparent border-[#e0e0e0] text-[#999] hover:border-[#d4a544]/50 hover:text-[#d4a544]'} border`}>
                       <Icon d={ICONS.lock} size={12} />
                       Change password
                     </button>
@@ -332,10 +408,10 @@ const Profile = () => {
               {activeTab === "edit" && (
                 <form onSubmit={submitHandler} className="fade-up">
                   <div className="mb-6">
-                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 300, color: "#e8e0cc" }}>
+                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 300, color: isDark ? "#e8e0cc" : "#1a1a1a" }}>
                       Edit profile
                     </div>
-                    <div className="text-[10px] text-[#444] mt-1">Changes are saved immediately</div>
+                    <div className={`text-[10px] mt-1 ${isDark ? 'text-[#444]' : 'text-[#ccc]'}`}>Changes are saved immediately</div>
                   </div>
 
                   {/* Account section */}
@@ -346,11 +422,11 @@ const Profile = () => {
                       <div className="h-px flex-1 bg-[#d4a544] opacity-20" />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <Field label="Username" icon="user">
-                        <input type="text" className={inputCls} value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
+                      <Field label="Username" icon="user" isDark={isDark}>
+                        <input type="text" className={inputCls(isDark)} value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
                       </Field>
-                      <Field label="Email" icon="mail">
-                        <input type="email" className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+                      <Field label="Email" icon="mail" isDark={isDark}>
+                        <input type="email" className={inputCls(isDark)} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
                       </Field>
                     </div>
                   </div>
@@ -364,15 +440,15 @@ const Profile = () => {
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {[
-                        { key: "firstName",     label: "First name",      icon: "user"  },
-                        { key: "lastName",      label: "Last name",       icon: "user"  },
-                        { key: "phoneNumber",   label: "Phone number",    icon: "phone" },
-                        { key: "address",       label: "Address",         icon: "map"   },
+                        { key: "firstName", label: "First name", icon: "user" },
+                        { key: "lastName", label: "Last name", icon: "user" },
+                        { key: "phoneNumber", label: "Phone number", icon: "phone" },
+                        { key: "address", label: "Address", icon: "map" },
                       ].map(({ key, label, icon }) => (
-                        <Field key={key} label={label} icon={icon}>
+                        <Field key={key} label={label} icon={icon} isDark={isDark}>
                           <input
                             type="text"
-                            className={inputCls}
+                            className={inputCls(isDark)}
                             value={profileFields[key]}
                             onChange={(e) => handleFieldChange(key, e.target.value)}
                             placeholder={label}
@@ -392,7 +468,7 @@ const Profile = () => {
                     <div className="flex items-center gap-4">
                       <div
                         className="w-16 h-16 rounded-full flex-shrink-0 flex items-center justify-center text-lg font-bold text-[#d4a544]"
-                        style={{ border: "2px solid #242424", background: "#0e0e0e" }}
+                        style={{ border: isDark ? "2px solid #242424" : "2px solid #e0e0e0", background: isDark ? "#0e0e0e" : "#ffffff" }}
                       >
                         {profileFields.profilePicture
                           ? <img src={profileFields.profilePicture} alt="preview" className="w-full h-full rounded-full object-cover" />
@@ -400,9 +476,9 @@ const Profile = () => {
                         }
                       </div>
                       <label className="cursor-pointer flex-1">
-                        <div className="border border-dashed border-[#2a2a2a] rounded-lg px-4 py-3 text-center hover:border-[#d4a544] transition-colors">
-                          <div className="text-[#555] text-xs">Click to upload photo</div>
-                          <div className="text-[#333] text-[10px] mt-0.5">JPG, PNG up to 5MB</div>
+                        <div className={`border border-dashed rounded-lg px-4 py-3 text-center hover:border-[#d4a544] transition-colors ${isDark ? 'border-[#2a2a2a]' : 'border-[#e0e0e0]'}`}>
+                          <div className={`text-xs ${isDark ? 'text-[#555]' : 'text-[#999]'}`}>Click to upload photo</div>
+                          <div className={`text-[10px] mt-0.5 ${isDark ? 'text-[#333]' : 'text-[#ddd]'}`}>JPG, PNG up to 5MB</div>
                         </div>
                         <input type="file" accept="image/*" className="hidden" onChange={(e) => handlePhotoChange(e.target.files?.[0])} />
                       </label>
@@ -414,7 +490,7 @@ const Profile = () => {
                     <button type="submit" disabled={updateLoading} className="w-full p-3 bg-[#d4a544] border-none rounded-lg text-[#080808] text-[10px] tracking-[0.22em] uppercase font-bold cursor-pointer transition-all hover:opacity-90 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" style={{ flex: 2 }}>
                       {updateLoading ? "Saving…" : "Save changes"}
                     </button>
-                    <button type="button" onClick={() => setActiveTab("info")} className="p-3 bg-transparent border border-[#1e1e1e] rounded-lg text-[#6b6666] text-[10px] tracking-[0.15em] uppercase cursor-pointer transition-all hover:border-[#d4a544]/50 hover:text-[#d4a544]" style={{ flex: 1 }}>
+                    <button type="button" onClick={() => setActiveTab("info")} className={`p-3 rounded-lg text-[10px] tracking-[0.15em] uppercase cursor-pointer transition-all hover:border-[#d4a544]/50 hover:text-[#d4a544] ${isDark ? 'bg-transparent border-[#1e1e1e] text-[#6b6666]' : 'bg-transparent border-[#e0e0e0] text-[#999]'} border`} style={{ flex: 1 }}>
                       Cancel
                     </button>
                   </div>
@@ -425,18 +501,18 @@ const Profile = () => {
               {activeTab === "password" && (
                 <div className="fade-up max-w-md">
                   <div className="mb-6">
-                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 300, color: "#e8e0cc" }}>
+                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 300, color: isDark ? "#e8e0cc" : "#1a1a1a" }}>
                       Update password
                     </div>
-                    <div className="text-[10px] text-[#444] mt-1">Choose a strong, unique password</div>
+                    <div className={`text-[10px] mt-1 ${isDark ? 'text-[#444]' : 'text-[#ccc]'}`}>Choose a strong, unique password</div>
                   </div>
 
                   <div className="flex flex-col gap-4">
-                    <Field label="New password" icon="lock">
+                    <Field label="New password" icon="lock" isDark={isDark}>
                       <div className="relative">
                         <input
                           type={showPass ? "text" : "password"}
-                          className={inputCls + " pr-10"}
+                          className={inputCls(isDark) + " pr-10"}
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="New password"
@@ -444,17 +520,17 @@ const Profile = () => {
                         <button
                           type="button"
                           onClick={() => setShowPass((p) => !p)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#444] hover:text-[#888] transition-colors"
+                          className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-[#444] hover:text-[#888]' : 'text-[#ccc] hover:text-[#999]'}`}
                         >
                           <Icon d={ICONS.eye} size={14} />
                         </button>
                       </div>
                     </Field>
 
-                    <Field label="Confirm password" icon="lock">
+                    <Field label="Confirm password" icon="lock" isDark={isDark}>
                       <input
                         type={showPass ? "text" : "password"}
-                        className={inputCls}
+                        className={inputCls(isDark)}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Confirm password"
@@ -464,11 +540,11 @@ const Profile = () => {
                     {/* Strength hint */}
                     {password && (
                       <div className="flex gap-1.5">
-                        {[1,2,3,4].map((n) => (
+                        {[1, 2, 3, 4].map((n) => (
                           <div
                             key={n}
                             className="h-1 flex-1 rounded-full transition-all"
-                            style={{ background: password.length >= n * 3 ? "#d4a544" : "#1e1e1e" }}
+                            style={{ background: password.length >= n * 3 ? "#d4a544" : isDark ? "#1e1e1e" : "#e0e0e0" }}
                           />
                         ))}
                       </div>
@@ -478,7 +554,7 @@ const Profile = () => {
                       <button onClick={handlePasswordSubmit} disabled={updateLoading} className="w-full p-3 bg-[#d4a544] border-none rounded-lg text-[#080808] text-[10px] tracking-[0.22em] uppercase font-bold cursor-pointer transition-all hover:opacity-90 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" style={{ flex: 2 }}>
                         {updateLoading ? "Saving…" : "Update password"}
                       </button>
-                      <button onClick={() => setActiveTab("info")} className="p-3 bg-transparent border border-[#1e1e1e] rounded-lg text-[#6b6666] text-[10px] tracking-[0.15em] uppercase cursor-pointer transition-all hover:border-[#d4a544]/50 hover:text-[#d4a544]" style={{ flex: 1 }}>
+                      <button onClick={() => setActiveTab("info")} className={`p-3 rounded-lg text-[10px] tracking-[0.15em] uppercase cursor-pointer transition-all hover:border-[#d4a544]/50 hover:text-[#d4a544] ${isDark ? 'bg-transparent border-[#1e1e1e] text-[#6b6666]' : 'bg-transparent border-[#e0e0e0] text-[#999]'} border`} style={{ flex: 1 }}>
                         Cancel
                       </button>
                     </div>

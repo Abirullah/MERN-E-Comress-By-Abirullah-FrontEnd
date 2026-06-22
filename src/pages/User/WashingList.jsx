@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Eye, ShoppingCart, X, Heart, Trash2, Package } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -76,7 +77,7 @@ function Toast({ message, visible }) {
   );
 }
 
-function WishlistCard({ item, onRemove, onAddToBag }) {
+function WishlistCard({ item, onRemove, onAddToBag, onView, onCheckout }) {
   const [removing, setRemoving] = useState(false);
 
   const handleRemove = () => {
@@ -133,6 +134,8 @@ function WishlistCard({ item, onRemove, onAddToBag }) {
           "
         >
           <button
+            type="button"
+            onClick={() => onView(item.id)}
             className="
               w-11 h-11 rounded-full bg-[#1a1a1a] border border-[#1e1e1e] shadow-lg
               flex items-center justify-center text-[#ddd4be]
@@ -144,16 +147,15 @@ function WishlistCard({ item, onRemove, onAddToBag }) {
           </button>
 
           <button
-            onClick={() => onAddToBag(item.id)}
-            className={`
-              w-11 h-11 rounded-full shadow-lg
-              flex items-center justify-center transition-all duration-300
-              ${
+            type="button"
+            onClick={() => onCheckout(item)}
+            className={
+              `w-11 h-11 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${
                 item.added
                   ? "bg-[#d4a544] text-[#080808] border-[#d4a544]"
                   : "bg-[#1a1a1a] text-[#ddd4be] border border-[#1e1e1e] hover:bg-[#d4a544] hover:text-[#080808] hover:border-[#d4a544]"
-              }
-            `}
+              }`
+            }
           >
             <ShoppingCart size={18} />
           </button>
@@ -220,6 +222,7 @@ function WishlistCard({ item, onRemove, onAddToBag }) {
 
 export default function WishlistPage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { userInfo } = useSelector((state) => state.auth);
   const {
     wishlistitems,
@@ -285,6 +288,23 @@ export default function WishlistPage() {
     }
   };
 
+  const handleViewDetails = (id) => {
+    const product = items.find((item) => item.id === id);
+    navigate(`/products/${id}`, {
+      state: { product },
+    });
+  };
+
+  const handleCheckoutItem = (item) => {
+    navigate(`/checkout/${item.id}`, {
+      state: {
+        product: item,
+        selectedVariant: item.variants?.[0] || null,
+        quantity: 1,
+      },
+    });
+  };
+
   const handleAddToBag = (id) => {
     setItems((prev) =>
       prev.map((item) => {
@@ -302,6 +322,31 @@ export default function WishlistPage() {
         return updatedItem;
       })
     );
+  };
+
+  const handlePurchaseAll = () => {
+    if (!visibleItems.length) {
+      notify("No items to purchase");
+      return;
+    }
+
+    const firstItem = visibleItems[0];
+    setItems((prev) =>
+      prev.map((item) => ({
+        ...item,
+        added: true,
+      }))
+    );
+
+    notify("Preparing all items for checkout");
+    navigate(`/checkout/${firstItem.id}`, {
+      state: {
+        checkoutItems: visibleItems,
+        product: firstItem,
+        selectedVariant: firstItem.variants?.[0] || null,
+        quantity: 1,
+      },
+    });
   };
 
   const handleClearAll = async () => {
@@ -440,6 +485,8 @@ export default function WishlistPage() {
                   item={item}
                   onRemove={handleRemove}
                   onAddToBag={handleAddToBag}
+                  onView={handleViewDetails}
+                  onCheckout={handleCheckoutItem}
                 />
               ))}
             </div>
@@ -457,16 +504,7 @@ export default function WishlistPage() {
               </div>
 
               <button
-                onClick={() => {
-                  setItems((prev) =>
-                    prev.map((item) => ({
-                      ...item,
-                      added: true,
-                    }))
-                  );
-
-                  notify("All items added to bag");
-                }}
+                onClick={handlePurchaseAll}
                 className="
                   bg-[#d4a544] text-[#080808] text-[11px] font-bold
                   uppercase tracking-[0.2em]
@@ -477,8 +515,8 @@ export default function WishlistPage() {
                   hover:shadow-xl hover:shadow-[#d4a544]/20
                 "
               >
-                <ShoppingCart size={16} />
-                Add all to bag
+                <Package size={16} />
+                Purchase all
               </button>
             </div>
           </>
