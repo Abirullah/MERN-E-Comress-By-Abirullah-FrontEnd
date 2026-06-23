@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, ShoppingCart, X, Heart, Trash2, Package } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
+import Loader from "../../components/Loader";
 
 import {
   fetchWishlist,
@@ -389,21 +390,7 @@ export default function WishlistPage() {
     items.length === 0 &&
     wishlistitems.length === 0
   ) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#080808]">
-        <div className="text-center">
-          <div className="relative">
-            <div className="h-16 w-16 animate-spin rounded-full border-4 border-[#1e1e1e] border-t-[#d4a544] mx-auto" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Heart size={20} className="text-[#d4a544]" />
-            </div>
-          </div>
-          <p className="mt-4 text-[11px] text-[#6b6666] uppercase tracking-[0.18em]">
-            Loading your wishlist...
-          </p>
-        </div>
-      </div>
-    );
+    return <Loader fullScreen />;
   }
 
   return (

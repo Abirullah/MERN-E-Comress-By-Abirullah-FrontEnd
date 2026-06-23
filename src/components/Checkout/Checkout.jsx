@@ -344,13 +344,7 @@ export default function Checkout() {
   };
 
   if (!product && detailsLoading) {
-    return (
-      <div className="min-h-screen bg-white text-slate-900 mt-20">
-        <div className="mx-auto flex min-h-[70vh] max-w-[1400px] items-center justify-center px-4 py-8 sm:px-6 lg:px-10">
-          <Loader />
-        </div>
-      </div>
-    );
+    return <Loader fullScreen />;
   }
 
   if (detailsError && !product) {

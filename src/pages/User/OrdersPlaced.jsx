@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import Loader from "../../components/Loader";
 import { Orders } from "../../ReduxSetUp/Feature/Products/ProductSlice";
 
 
@@ -490,19 +491,7 @@ export default function OrdersPlaced() {
   };
 
   if (ordersLoading && normalizedOrders.length === 0) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#080808]">
-        <div className="text-center">
-          <div className="relative">
-            <div className="h-16 w-16 animate-spin rounded-full border-4 border-[#1e1e1e] border-t-[#d4a544] mx-auto" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Package size={20} className="text-[#d4a544]" />
-            </div>
-          </div>
-          <p className="mt-4 text-[11px] text-[#6b6666] uppercase tracking-[0.18em]">Loading your orders...</p>
-        </div>
-      </div>
-    );
+    return <Loader fullScreen />;
   }
 
   return (

@@ -143,12 +143,18 @@ export default function Navbar() {
   );
 
   const isLoggedIn = Boolean(userInfo);
+  const unreadNotifications = Number(userInfo?.notifications?.unreadCount || 0);
+  const notificationsTo = isLoggedIn ? "/notifications" : "/login";
   const displayName =
     userInfo?.username ||
     userInfo?.Profile?.firstName ||
     "Guest";
   const displayEmail = userInfo?.email || "Sign in to continue";
   const avatarLabel = displayName.charAt(0).toUpperCase();
+  const currentSearchTerm =
+    location.pathname === "/shop"
+      ? new URLSearchParams(location.search).get("search") || ""
+      : "";
 
   const handleLogout = async () => {
     try {
@@ -178,8 +184,25 @@ export default function Navbar() {
   }, [searchOpen]);
 
   useEffect(() => {
+    if (!searchOpen) {
+      return;
+    }
+
+    setSearchQuery(currentSearchTerm);
+  }, [currentSearchTerm, searchOpen]);
+
+  useEffect(() => {
     setMobileMenuOpen(false);
   }, [location]);
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+
+    const trimmedQuery = searchQuery.trim();
+    navigate(buildSearchLink(trimmedQuery ? { search: trimmedQuery } : {}));
+    setSearchOpen(false);
+    setMobileMenuOpen(false);
+  };
 
   return (
     <div className="z-60">
@@ -216,7 +239,10 @@ export default function Navbar() {
                   transition={{ duration: 0.35 }}
                   className="absolute left-1/2 -translate-x-1/2 w-[90%] md:w-[80%] lg:w-[70%] flex items-center justify-center"
                 >
-                  <div className="w-full flex items-center justify-between px-5 py-2 overflow-hidden">
+                  <form
+                    onSubmit={handleSearchSubmit}
+                    className="w-full flex items-center justify-between px-5 py-2 overflow-hidden"
+                  >
                     
                     <div className="hidden lg:block w-[100px]"></div>
 
@@ -231,18 +257,29 @@ export default function Navbar() {
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search premium shoes..."
-                        className="w-full h-[50px] bg-transparent pl-11 pr-4 text-[#ddd4be] placeholder:text-[#5a5a5a] outline-none border-none focus:outline-none focus:ring-0"
+                        placeholder="Search products..."
+                        aria-label="Search products"
+                        className="w-full h-[50px] bg-transparent pl-11 pr-28 text-[#ddd4be] placeholder:text-[#5a5a5a] outline-none border-none focus:outline-none focus:ring-0"
                       />
                       
                       {searchQuery && (
                         <button
+                          type="button"
                           onClick={() => setSearchQuery("")}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5a5a5a] hover:text-[#d4a544] transition-colors"
+                          className="absolute right-20 top-1/2 -translate-y-1/2 text-[#5a5a5a] hover:text-[#d4a544] transition-colors"
+                          aria-label="Clear search"
                         >
                           <X size={16} />
                         </button>
                       )}
+
+                      <button
+                        type="submit"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-[#1e1e1e] bg-[#0e0e0e] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#ddd4be] transition-all duration-300 hover:border-[#d4a544]/50 hover:text-[#d4a544]"
+                        aria-label="Search products"
+                      >
+                        Search
+                      </button>
                     </div>
 
                     <div className="hidden lg:flex items-center justify-end pr-9 w-[100px]">
@@ -253,7 +290,7 @@ export default function Navbar() {
                         LUXE
                       </NavLink>
                     </div>
-                  </div>
+                  </form>
                 </motion.div>
               ) : (
                 <div className="hidden xl:flex items-center gap-10 ml-8 mr-32">
@@ -328,15 +365,23 @@ export default function Navbar() {
             {!searchOpen && (
               <div className="hidden xl:flex items-center gap-3">
                 {/* NOTIFICATION */}
-                <button className="relative w-11 h-11 rounded-lg border border-[#1e1e1e] text-[#6b6666] bg-[#0e0e0e] flex items-center justify-center hover:border-[#d4a544]/50 hover:text-[#d4a544] transition-all duration-300">
+                <NavLink
+                  to={notificationsTo}
+                  aria-label="Notifications"
+                  className="relative w-11 h-11 rounded-lg border border-[#1e1e1e] text-[#6b6666] bg-[#0e0e0e] flex items-center justify-center hover:border-[#d4a544]/50 hover:text-[#d4a544] transition-all duration-300"
+                >
                   <Bell size={18} />
-                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#d4a544]" />
-                </button>
+                  {unreadNotifications > 0 ? (
+                    <span className="absolute -top-1.5 -right-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-[#d4a544] px-1.5 py-0.5 text-[9px] font-bold text-[#080808]">
+                      {unreadNotifications > 99 ? "99+" : unreadNotifications}
+                    </span>
+                  ) : null}
+                </NavLink>
 
                 {/* WISHLIST */}
                 {isLoggedIn ? (
                   <>
-                    <NavLink to="/washinglist">
+                    <NavLink to="/wishlist">
                       <button className="flex h-11 w-11 items-center justify-center rounded-lg border border-[#1e1e1e] text-[#6b6666] bg-[#0e0e0e] transition-all duration-300 hover:border-[#d4a544]/50 hover:text-[#d4a544]">
                         <Heart size={18} />
                       </button>
@@ -510,7 +555,7 @@ export default function Navbar() {
                 <div className="mt-8 pt-6 border-t border-[#1e1e1e]">
                   <div className="grid grid-cols-2 gap-3 mb-6">
                     <NavLink
-                      to={isLoggedIn ? "/washinglist" : "/login"}
+                      to={isLoggedIn ? "/wishlist" : "/login"}
                       className="flex items-center justify-center gap-2 rounded-xl bg-[#0e0e0e] border border-[#1e1e1e] py-3 text-[#6b6666] transition-all duration-300 hover:border-[#d4a544]/50 hover:text-[#d4a544]"
                     >
                       <Heart size={16} />
@@ -523,10 +568,18 @@ export default function Navbar() {
                       <Package size={16} />
                       Orders
                     </NavLink>
-                    <button className="flex items-center justify-center gap-2 py-3 rounded-xl bg-[#0e0e0e] border border-[#1e1e1e] text-[#6b6666] hover:border-[#d4a544]/50 hover:text-[#d4a544] transition-all duration-300">
+                    <NavLink
+                      to={notificationsTo}
+                      className="flex items-center justify-center gap-2 py-3 rounded-xl bg-[#0e0e0e] border border-[#1e1e1e] text-[#6b6666] hover:border-[#d4a544]/50 hover:text-[#d4a544] transition-all duration-300"
+                    >
                       <Bell size={16} />
                       Notifications
-                    </button>
+                      {unreadNotifications > 0 ? (
+                        <span className="ml-1 inline-flex min-w-5 items-center justify-center rounded-full bg-[#d4a544] px-1.5 py-0.5 text-[9px] font-bold text-[#080808]">
+                          {unreadNotifications > 99 ? "99+" : unreadNotifications}
+                        </span>
+                      ) : null}
+                    </NavLink>
                     <NavLink
                       to={isLoggedIn ? "/profile" : "/register"}
                       className="flex items-center justify-center gap-2 rounded-xl bg-[#0e0e0e] border border-[#1e1e1e] py-3 text-[#6b6666] transition-all duration-300 hover:border-[#d4a544]/50 hover:text-[#d4a544]"

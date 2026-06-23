@@ -18,6 +18,5 @@ The frontend runs on `http://localhost:5173`.
 
 ## API Connection
 
-- If the backend is running separately on another URL, create `frontend/.env`
-- Add `VITE_API_URL=http://localhost:5000`
-- If `VITE_API_URL` is empty, Vite uses the local `/api` proxy
+- In local development, the frontend uses the Vite `/api` proxy
+- For production builds, set `VITE_API_URL=https://mern-e-comress-by-abirullah-backend.vercel.app/api`

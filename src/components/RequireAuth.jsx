@@ -7,11 +7,7 @@ const RequireAuth = () => {
   const { userInfo, sessionChecked } = useSelector((state) => state.auth);
 
   if (userInfo && !sessionChecked) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader />
-      </div>
-    );
+    return <Loader fullScreen />;
   }
 
   if (!userInfo) {

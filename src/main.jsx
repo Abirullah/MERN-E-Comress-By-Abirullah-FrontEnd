@@ -24,6 +24,19 @@ import CheckoutPage from "./pages/Checkout.jsx";
 import CheckoutSuccess from "./pages/CheckoutSuccess.jsx";
 import CheckoutCancel from "./pages/CheckoutCancel.jsx";
 import RequireAuth from "./components/RequireAuth.jsx";
+import {
+  AboutPage,
+  AccessibilityPage,
+  CareersPage,
+  ContactPage,
+  CookiesPage,
+  FaqPage,
+  PrivacyPage,
+  ReturnsPage,
+  ShippingPage,
+  TermsPage,
+} from "./pages/SitePages.jsx";
+import NotificationsPage from "./pages/User/Notifications.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -35,6 +48,16 @@ const router = createBrowserRouter(
       <Route path="otp" element={<Otp />} />
       <Route path="success" element={<CheckoutSuccess />} />
       <Route path="cancel" element={<CheckoutCancel />} />
+      <Route path="about" element={<AboutPage />} />
+      <Route path="contact" element={<ContactPage />} />
+      <Route path="shipping" element={<ShippingPage />} />
+      <Route path="returns" element={<ReturnsPage />} />
+      <Route path="privacy-policy" element={<PrivacyPage />} />
+      <Route path="terms" element={<TermsPage />} />
+      <Route path="accessibility" element={<AccessibilityPage />} />
+      <Route path="cookies" element={<CookiesPage />} />
+      <Route path="faq" element={<FaqPage />} />
+      <Route path="careers" element={<CareersPage />} />
 
       
       <Route path="shop" element={<Shop />} />
@@ -49,12 +72,14 @@ const router = createBrowserRouter(
           path="washinglist"
           element={<WishlistPage />}
         />
+        <Route path="wishlist" element={<WishlistPage />} />
         
         <Route path="profile" element={<Profile />} />
         <Route
           path="ordersplaced"
           element={<OrdersPlaced />}
         />
+        <Route path="notifications" element={<NotificationsPage />} />
       </Route>
     </Route>
   )

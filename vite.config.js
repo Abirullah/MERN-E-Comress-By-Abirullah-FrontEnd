@@ -6,7 +6,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api/": "http://localhost:5000",
+      "/api": {
+        target: "https://mern-e-comress-by-abirullah-backend.vercel.app",
+        changeOrigin: true,
+        secure: true,
+      },
     },
   },
 });

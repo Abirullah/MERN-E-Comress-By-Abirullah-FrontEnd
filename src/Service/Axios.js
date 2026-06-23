@@ -1,6 +1,9 @@
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const BASE_URL = import.meta.env.DEV
+  ? "/api"
+  : import.meta.env.VITE_API_URL ||
+    "https://mern-e-comress-by-abirullah-backend.vercel.app/api";
 
 const API = axios.create({
   baseURL: BASE_URL,

@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useRef } from "react";
-import { ChevronLeft, ChevronRight, Loader2, Package } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import ProductCard from "../components/ProductCard";
+import Loader from "../components/Loader";
 import {
   clearProductMessages,
   fetchProducts,
 } from "../ReduxSetUp/Feature/Products/ProductSlice";
+import { buildShopLink } from "../utils/shopLinks";
 
 const heroImage = "/Pictures/pexels-ian-panelo-7716266.jpg";
 
@@ -125,21 +127,7 @@ function ProductsSections() {
   );
 
   if (loading && products.length === 0) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center bg-[#080808]">
-        <div className="text-center">
-          <div className="relative">
-            <div className="h-16 w-16 animate-spin rounded-full border-4 border-[#1e1e1e] border-t-[#d4a544] mx-auto" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Package size={20} className="text-[#d4a544]" />
-            </div>
-          </div>
-          <p className="mt-4 text-[11px] text-[#6b6666] uppercase tracking-[0.18em]">
-            Loading products...
-          </p>
-        </div>
-      </div>
-    );
+    return <Loader fullScreen />;
   }
 
   if (error) {
@@ -193,12 +181,12 @@ function ProductsSections() {
             CULTURE
           </h1>
 
-          <NavLink
-            to="/shop"
+          <Link
+            to={buildShopLink({ brand: "nike" })}
             className="mt-10 inline-flex items-center gap-2 rounded-lg bg-[#d4a544] px-8 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#080808] transition-all duration-500 hover:bg-[#c19a3e] hover:-translate-y-0.5 shadow-lg shadow-[#d4a544]/10 hover:shadow-xl hover:shadow-[#d4a544]/20"
           >
             Explore Collection
-          </NavLink>
+          </Link>
         </div>
       </section>
 

@@ -3,19 +3,24 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronDown, ChevronRight, ChevronLeft,
   Loader2, Search, Star, X, SlidersHorizontal,
-  Package,
 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Footer from "../../components/Footer";
+import Loader from "../../components/Loader";
 import {
   clearProductMessages,
   fetchProducts,
 } from "../../ReduxSetUp/Feature/Products/ProductSlice";
+import {
+  formatFilterLabel,
+  normalizeBrandValue,
+} from "../../utils/shopLinks";
 
 /* ── constants ── */
 const FALLBACK_IMAGE = "/Pictures/pexels-ian-panelo-7716266.jpg";
 const DEFAULT_SIZE_OPTIONS = ["XX-Small","X-Small","Small","Medium","Large","X-Large","XX-Large","3X-Large"];
+const DEFAULT_BRAND_OPTIONS = ["Nike", "Adidas", "Puma", "Reebok", "Vans", "New Balance", "Skechers", "Jordan"];
 const DRESS_STYLE_OPTIONS  = ["Casual","Formal","Party","Gym"];
 const PRODUCTS_PER_PAGE    = 9;
 
@@ -66,8 +71,9 @@ function Sec({title,open:initOpen=true,children}){
 
 /* ── Sidebar ── */
 function Sidebar({
-  categoryOptions, shoeSizes,
+  categoryOptions, brandOptions, shoeSizes,
   selectedCategory, setSelectedCategory,
+  selectedBrand, setSelectedBrand,
   selectedSize, setSelectedSize,
   selectedStyle, setSelectedStyle,
   priceMin, priceMax, setPriceMax, maxPrice,
@@ -97,6 +103,28 @@ function Sidebar({
               </button>
             </li>
           ))}
+        </ul>
+      </Sec>
+
+      <Sec title="Brand">
+        <ul className="space-y-0.5">
+          {["all", ...brandOptions].map((brand) => {
+            const brandLabel = brand === "all" ? "All" : formatFilterLabel(brand);
+
+            return (
+              <li key={brand}>
+                <button
+                  type="button"
+                  onClick={() => setSelectedBrand(brand)}
+                  className={`flex w-full items-center justify-between rounded-md px-2 py-2 text-sm transition
+                    ${norm(selectedBrand)===norm(brand)?"font-semibold text-[#d4a544]":"text-[#6b6666] hover:text-[#ddd4be]"}`}
+                >
+                  <span>{brandLabel}</span>
+                  <ChevronRight size={13} className="text-[#5a5a5a]"/>
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </Sec>
 
@@ -219,6 +247,7 @@ export default function ShopPage(){
 
   const search    = searchParams.get("search")   || "";
   const sort      = searchParams.get("sort")     || "popular";
+  const selBrand  = searchParams.get("brand")    || "all";
   const selGender = searchParams.get("gender")   || "all";
   const selCat    = searchParams.get("category") || "all";
   const isSale    = searchParams.get("sale")     === "true";
@@ -238,6 +267,7 @@ export default function ShopPage(){
 
   const setSearch    = useCallback((v) => updateParam("search",   v),              [updateParam]);
   const setSort      = useCallback((v) => updateParam("sort",     v, "popular"),   [updateParam]);
+  const setSelBrand  = useCallback((v) => updateParam("brand",    v, "all"),       [updateParam]);
   const setSelGender = useCallback((v) => updateParam("gender",   v, "all"),       [updateParam]);
   const setSelCat    = useCallback((v) => updateParam("category", v, "all"),       [updateParam]);
   const setIsSale    = useCallback((v) => updateParam("sale",     v ? "true" : ""), [updateParam]);
@@ -256,9 +286,29 @@ export default function ShopPage(){
     setPriceMax(c => c === 0 || c > maxPrice ? maxPrice : c);
   }, [maxPrice]);
 
-  useEffect(() => { setPage(1); }, [search, selCat, selGender, selColor, selSize, selStyle, priceMax, sort, isSale]);
+  useEffect(() => { setPage(1); }, [search, selBrand, selCat, selGender, selColor, selSize, selStyle, priceMax, sort, isSale]);
 
   const catOptions  = useMemo(() => [...new Set(products.map(p => p.category || p.gender).filter(Boolean).map(String))], [products]);
+  const brandOptions = useMemo(() => {
+    const seen = new Map();
+
+    products.forEach((product) => {
+      const brand = String(product?.brand || "").trim();
+      if (!brand) {
+        return;
+      }
+
+      const key = normalizeBrandValue(brand);
+      if (!key || seen.has(key)) {
+        return;
+      }
+
+      seen.set(key, brand);
+    });
+
+    const currentBrands = Array.from(seen.values());
+    return currentBrands.length > 0 ? currentBrands.sort((a, b) => a.localeCompare(b)) : DEFAULT_BRAND_OPTIONS;
+  }, [products]);
   const sizeOptions = useMemo(() => [...new Set(products.flatMap(sizes))], [products]);
 
   const filtered = useMemo(() => {
@@ -266,8 +316,9 @@ export default function ShopPage(){
     let list = [...products];
 
     if (t) list = list.filter(p =>
-      [p.name, p.brand, p.category, p.description, p.gender, ...(p.tags||[])].filter(Boolean).join(" ").toLowerCase().includes(t)
+      [p.name, p.brand, p.category, p.description, p.gender, p.status, ...(p.tags||[])].filter(Boolean).join(" ").toLowerCase().includes(t)
     );
+    if (selBrand !== "all") list = list.filter(p => normalizeBrandValue(p.brand) === normalizeBrandValue(selBrand));
     if (selGender !== "all") list = list.filter(p =>
       norm(p.gender||"") === norm(selGender) || norm(p.category||"") === norm(selGender)
     );
@@ -288,7 +339,7 @@ export default function ShopPage(){
       });
     }
     return list;
-  }, [products, search, selCat, selGender, selColor, selSize, priceMax, sort, isSale]);
+  }, [products, search, selBrand, selCat, selGender, selColor, selSize, priceMax, sort, isSale]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PRODUCTS_PER_PAGE));
   const paged      = filtered.slice((page - 1) * PRODUCTS_PER_PAGE, page * PRODUCTS_PER_PAGE);
@@ -304,42 +355,54 @@ export default function ShopPage(){
     return p;
   };
 
-  const catLabel = selCat === "all"
-    ? selGender === "all"
-      ? isSale ? "Sale Items" : "All Shoes"
-      : isSale ? `${label(selGender)} Sale` : label(selGender)
-    : label(selCat);
+  const activeFilterLabels = [];
+  if (selBrand !== "all") activeFilterLabels.push(formatFilterLabel(selBrand));
+  if (selGender !== "all") activeFilterLabels.push(label(selGender));
+  if (selCat !== "all") activeFilterLabels.push(label(selCat));
+  if (isSale) activeFilterLabels.push("Sale");
+
+  const catLabel = activeFilterLabels.length > 0 ? activeFilterLabels.join(" / ") : "All Shoes";
+
+  const buildShopQuery = (overrides = {}) => {
+    const query = new URLSearchParams();
+    const brand = overrides.brand ?? selBrand;
+    const gender = overrides.gender ?? selGender;
+    const category = overrides.category ?? selCat;
+    const sale = overrides.sale ?? isSale;
+
+    if (sale) query.set("sale", "true");
+    if (brand !== "all") query.set("brand", brand);
+    if (gender !== "all") query.set("gender", gender);
+    if (category !== "all") query.set("category", category);
+
+    return query;
+  };
 
   const breadcrumbItems = [
     { label: "Home", to: "/" },
     { label: "Shop", to: "/shop" },
   ];
+  if (selBrand !== "all") {
+    breadcrumbItems.push({
+      label: formatFilterLabel(selBrand),
+      to: `/shop?${buildShopQuery({ gender: "all", category: "all" }).toString()}`,
+    });
+  }
   if (selGender !== "all") {
-    breadcrumbItems.push({ label: label(selGender), to: `/shop?gender=${encodeURIComponent(selGender)}` });
+    breadcrumbItems.push({
+      label: label(selGender),
+      to: `/shop?${buildShopQuery({ category: "all" }).toString()}`,
+    });
   }
   if (selCat !== "all") {
-    const query = new URLSearchParams();
-    if (selGender !== "all") query.set("gender", selGender);
-    query.set("category", selCat);
-    breadcrumbItems.push({ label: label(selCat), to: `/shop?${query.toString()}` });
+    breadcrumbItems.push({
+      label: label(selCat),
+      to: `/shop?${buildShopQuery().toString()}`,
+    });
   }
 
   if (loading && products.length === 0)
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#080808] pt-28">
-        <div className="text-center">
-          <div className="relative">
-            <div className="h-16 w-16 animate-spin rounded-full border-4 border-[#1e1e1e] border-t-[#d4a544] mx-auto" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Package size={20} className="text-[#d4a544]" />
-            </div>
-          </div>
-          <p className="mt-4 text-[11px] text-[#6b6666] uppercase tracking-[0.18em]">
-            Loading products...
-          </p>
-        </div>
-      </div>
-    );
+    return <Loader fullScreen />;
 
   if (error)
     return (
@@ -389,10 +452,17 @@ export default function ShopPage(){
               <aside className="hidden lg:block shrink-0 w-[300px] self-start sticky top-24">
                 <div className="rounded-2xl border border-[#1e1e1e] bg-[#0e0e0e] p-5">
                   <Sidebar
-                    categoryOptions={catOptions} shoeSizes={sizeOptions}
-                    selectedCategory={selCat}   setSelectedCategory={setSelCat}
-                    selectedSize={selSize}       setSelectedSize={setSelSize}
-                    selectedStyle={selStyle}     setSelectedStyle={setSelStyle}
+                    categoryOptions={catOptions}
+                    brandOptions={brandOptions}
+                    shoeSizes={sizeOptions}
+                    selectedCategory={selCat}
+                    setSelectedCategory={setSelCat}
+                    selectedBrand={selBrand}
+                    setSelectedBrand={setSelBrand}
+                    selectedSize={selSize}
+                    setSelectedSize={setSelSize}
+                    selectedStyle={selStyle}
+                    setSelectedStyle={setSelStyle}
                     priceMin={0} priceMax={priceMax} setPriceMax={setPriceMax} maxPrice={maxPrice}
                     onApply={()=>{}}
                     onClose={()=>setShowSidebar(false)}
@@ -500,11 +570,17 @@ export default function ShopPage(){
               transition={{type:"spring",damping:26,stiffness:200}}
               className="absolute left-0 top-0 h-full w-[85%] max-w-[320px] overflow-y-auto bg-[#0e0e0e] p-5 shadow-xl border-r border-[#1e1e1e]">
               <Sidebar
-                categoryOptions={catOptions} shoeSizes={sizeOptions}
-                selectedCategory={selCat}   setSelectedCategory={setSelCat}
-                selectedColor={selColor}     setSelectedColor={setSelColor}
-                selectedSize={selSize}       setSelectedSize={setSelSize}
-                selectedStyle={selStyle}     setSelectedStyle={setSelStyle}
+                categoryOptions={catOptions}
+                brandOptions={brandOptions}
+                shoeSizes={sizeOptions}
+                selectedCategory={selCat}
+                setSelectedCategory={setSelCat}
+                selectedBrand={selBrand}
+                setSelectedBrand={setSelBrand}
+                selectedSize={selSize}
+                setSelectedSize={setSelSize}
+                selectedStyle={selStyle}
+                setSelectedStyle={setSelStyle}
                 priceMin={0} priceMax={priceMax} setPriceMax={setPriceMax} maxPrice={maxPrice}
                 onApply={()=>setShowSidebar(false)}
                 onClose={()=>setShowSidebar(false)}

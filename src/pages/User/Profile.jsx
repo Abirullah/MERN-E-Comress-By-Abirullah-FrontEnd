@@ -219,11 +219,7 @@ const Profile = () => {
   };
 
   if (profileLoading && !userInfo) {
-    return (
-      <div className={`min-h-screen ${isDark ? 'bg-[#080808]' : 'bg-[#f5f5f5]'} flex items-center justify-center`}>
-        <Loader />
-      </div>
-    );
+    return <Loader fullScreen />;
   }
 
   return (
@@ -331,7 +327,7 @@ const Profile = () => {
                 <span className={`${isDark ? 'text-[#333]' : 'text-[#ddd]'}`}><Icon d={ICONS.chevron} size={14} /></span>
               </button>
               
-              <button onClick={() => navigate("/washinglist")} className={`flex items-center gap-3 w-full p-3 rounded-lg border ${isDark ? 'border-[#1e1e1e] bg-[#0e0e0e] text-[#6b6666] hover:border-[#d4a544]/50 hover:text-[#d4a544] hover:bg-[#d4a544]/5' : 'border-[#e0e0e0] bg-[#ffffff] text-[#999] hover:border-[#d4a544]/50 hover:text-[#d4a544] hover:bg-[#d4a544]/5'} text-xs cursor-pointer transition-all text-left`}>
+              <button onClick={() => navigate("/wishlist")} className={`flex items-center gap-3 w-full p-3 rounded-lg border ${isDark ? 'border-[#1e1e1e] bg-[#0e0e0e] text-[#6b6666] hover:border-[#d4a544]/50 hover:text-[#d4a544] hover:bg-[#d4a544]/5' : 'border-[#e0e0e0] bg-[#ffffff] text-[#999] hover:border-[#d4a544]/50 hover:text-[#d4a544] hover:bg-[#d4a544]/5'} text-xs cursor-pointer transition-all text-left`}>
                 <span className={`w-8 h-8 rounded-lg ${isDark ? 'bg-[rgba(212,165,68,0.08)] border-[#1e1e1e]' : 'bg-[rgba(212,165,68,0.05)] border-[#e0e0e0]'} border flex items-center justify-center text-[#d4a544] flex-shrink-0`}>
                   <Icon d={ICONS.heart} size={14} />
                 </span>

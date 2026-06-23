@@ -11,7 +11,6 @@ import {
   ShieldCheck,
   Star,
   Truck,
-  Package,
 } from "lucide-react";
 import { Link, useLocation, useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,6 +24,7 @@ import {
   toggleProductWishlist,
 } from "../../ReduxSetUp/Feature/Products/ProductSlice";
 import Footer from "../../components/Footer";
+import Loader from "../../components/Loader";
 
 const FALLBACK_IMAGE = "/Pictures/pexels-ian-panelo-7716266.jpg";
 
@@ -549,21 +549,7 @@ function ProductDetailsPage() {
   };
 
   if (detailsLoading && !product) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#080808]">
-        <div className="text-center">
-          <div className="relative">
-            <div className="h-16 w-16 animate-spin rounded-full border-4 border-[#1e1e1e] border-t-[#d4a544] mx-auto" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Package size={20} className="text-[#d4a544]" />
-            </div>
-          </div>
-          <p className="mt-4 text-[11px] text-[#6b6666] uppercase tracking-[0.18em]">
-            Loading product...
-          </p>
-        </div>
-      </div>
-    );
+    return <Loader fullScreen />;
   }
 
   if (detailsError && !product) {

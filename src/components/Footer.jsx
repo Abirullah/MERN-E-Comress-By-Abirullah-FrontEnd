@@ -21,28 +21,28 @@ const footerGroups = [
   {
     title: "Company",
     links: [
-      { label: "About", to: "/" },
-      { label: "Our Story", to: "/" },
-      { label: "Careers", to: "/" },
-      { label: "Contact", to: "/" },
+      { label: "About", to: "/about" },
+      { label: "Our Story", to: "/about" },
+      { label: "Careers", to: "/careers" },
+      { label: "Contact", to: "/contact" },
     ],
   },
   {
     title: "Support",
     links: [
-      { label: "Shipping", to: "/" },
-      { label: "Returns", to: "/" },
-      { label: "FAQs", to: "/" },
-      { label: "Track Order", to: "/" },
+      { label: "Shipping", to: "/shipping" },
+      { label: "Returns", to: "/returns" },
+      { label: "FAQs", to: "/faq" },
+      { label: "Track Order", to: "/ordersplaced" },
     ],
   },
   {
     title: "Legal",
     links: [
-      { label: "Privacy Policy", to: "/" },
-      { label: "Terms", to: "/" },
-      { label: "Accessibility", to: "/" },
-      { label: "Cookies", to: "/" },
+      { label: "Privacy Policy", to: "/privacy-policy" },
+      { label: "Terms", to: "/terms" },
+      { label: "Accessibility", to: "/accessibility" },
+      { label: "Cookies", to: "/cookies" },
     ],
   },
 ];
@@ -92,20 +92,20 @@ function Footer() {
 
             {/* Social/Quick Links */}
             <div className="flex items-center gap-3">
-              {[
-                { icon: Globe, label: "Website", href: "/" },
-                { icon: ShoppingBag, label: "Shop", href: "/shop" },
-                { icon: Package, label: "Packages", href: "/" },
-                { icon: ArrowUpRight, label: "Explore", href: "/shop" },
-              ].map(({ icon: Icon, label, href }) => (
-                <a
+            {[
+                { icon: Globe, label: "Website", to: "/" },
+                { icon: ShoppingBag, label: "Shop", to: "/shop" },
+                { icon: Package, label: "Packages", to: "/ordersplaced" },
+                { icon: ArrowUpRight, label: "Explore", to: "/shop" },
+              ].map(({ icon: Icon, label, to }) => (
+                <Link
                   key={label}
-                  href={href}
+                  to={to}
                   aria-label={label}
                   className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[#1e1e1e] bg-[#0e0e0e] text-[#5a5a5a] transition-all duration-300 hover:border-[#d4a544]/50 hover:text-[#d4a544] hover:-translate-y-0.5"
                 >
                   <Icon size={16} />
-                </a>
+                </Link>
               ))}
             </div>
 
