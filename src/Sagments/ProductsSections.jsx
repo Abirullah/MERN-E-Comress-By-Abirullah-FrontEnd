@@ -131,8 +131,8 @@ function ProductsSections() {
       {/* Best Selling */}
       {renderProductStrip("Best Selling", "Product Collection", bestSelling, bestSellingRef)}
 
-      {/* ── Hero banner ── */}
-      <section className="relative h-[60vh] sm:h-[70vh] md:h-screen overflow-hidden">
+      {/* ── Hero banner — sticky so New Arrivals scrolls over it ── */}
+      <div className="sticky top-0 h-[60vh] sm:h-[70vh] md:h-screen [height:100dvh] overflow-hidden">
         <img
           src={heroImage}
           alt="Sneaker Banner"
@@ -140,13 +140,16 @@ function ProductsSections() {
         />
         <div className="absolute inset-0 bg-black/65 backdrop-blur-[2px]" />
 
-        {/* centered on all screens */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
+        {/* sm: centered | md+: left-aligned */}
+        <div className="absolute inset-0 flex flex-col justify-center
+          items-center text-center px-5
+          md:items-start md:text-left md:px-20 lg:px-28">
+
           <p className="mb-4 sm:mb-6 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#d4a544]">
             Premium Sneakers
           </p>
 
-          <h1 className="text-5xl sm:text-6xl md:text-8xl font-black leading-none text-[#c2c1c1]">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-none text-[#c2c1c1]">
             STREET
             <br />
             CULTURE
@@ -159,10 +162,12 @@ function ProductsSections() {
             Explore Collection
           </Link>
         </div>
-      </section>
+      </div>
 
-      {/* New Arrivals */}
-      {renderProductStrip("New Arrivals", "Latest Drops", newArrivals, newArrivalRef)}
+      {/* New Arrivals — sits above sticky hero, scrolls over it */}
+      <div className="relative z-10 bg-[#080808]">
+        {renderProductStrip("New Arrivals", "Latest Drops", newArrivals, newArrivalRef)}
+      </div>
     </div>
   );
 }
