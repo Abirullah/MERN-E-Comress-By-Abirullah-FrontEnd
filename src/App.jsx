@@ -6,17 +6,13 @@ import "react-toastify/dist/ReactToastify.css";
 
 import Navbar from "./components/NavBar";
 import ThemeToggle from "./components/ThemeToggle";
-
 import { fetchUserProfile } from "./ReduxSetUp/Feature/Auth/AuthSlice";
 
 function App() {
   const dispatch = useDispatch();
-
   const location = useLocation();
 
-  const { userInfo, sessionChecked } = useSelector(
-    (state) => state.auth
-  );
+  const { userInfo, sessionChecked } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (userInfo && !sessionChecked) {
@@ -25,14 +21,10 @@ function App() {
   }, [dispatch, sessionChecked, userInfo]);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
+    if (typeof window === "undefined") return;
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [location.pathname]);
 
-  // Routes where navbar should hide
   const hideNavbarRoutes = [
     "/login",
     "/register",
@@ -45,19 +37,49 @@ function App() {
   const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname);
 
   return (
-    <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-primary)] transition-colors duration-300">
-      <div style={{ position: "fixed", right: "1rem", bottom: "1rem", zIndex: "5000000000000000000" }}>
-        <ThemeToggle />
-      </div>
+    <div
+      className="
+        min-h-screen
+        bg-[var(--bg-page)]
+        text-[var(--text-primary)]
+        transition-colors
+        duration-300
+        w-full
+        overflow-x-hidden
+        md:overflow-x-visible
+      "
+    >
+      {/* Ambient gold glow — top */}
+      <div
+        aria-hidden="true"
+        className="
+          pointer-events-none
+          fixed inset-x-0 top-0
+          h-72
+          z-0
+          bg-[radial-gradient(circle_at_top,_rgba(212,165,68,0.12),_transparent_60%)]
+        "
+      />
 
-      <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(circle_at_top,_rgba(212,165,68,0.18),_transparent_58%)]" />
-
-      {/* Hide Navbar on Auth Pages */}
+      {/* Navbar */}
       {!shouldHideNavbar && <Navbar />}
 
-      <main className="w-full">
+      {/* Page content */}
+      <main className="relative z-10 w-full">
         <Outlet />
       </main>
+
+      {/* Theme toggle — mobile-safe bottom-right, clears iOS home indicator */}
+      <div
+        className="
+          fixed
+          right-4
+          bottom-[calc(1rem+env(safe-area-inset-bottom))]
+          z-[2147483647]
+        "
+      >
+        <ThemeToggle />
+      </div>
 
       <ToastContainer
         position="top-right"

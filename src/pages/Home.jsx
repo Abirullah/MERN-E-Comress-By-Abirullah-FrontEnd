@@ -49,7 +49,7 @@ const Home = () => {
       {sections.map((section, index) => (
         <section
           key={section.id}
-          className={`sticky top-0 h-screen overflow-hidden ${section.bg}`}
+          className={`sticky top-0 h-screen overflow-hidden ${section.bg} `}
           style={{
             zIndex: index + 1,
           }}
