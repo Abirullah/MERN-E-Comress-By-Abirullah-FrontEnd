@@ -18,7 +18,7 @@ const baseButtonClass =
 
 const SkateShoeHome = () => {
   return (
-    <div className="relative mt-5 flex h-screen w-full justify-center overflow-hidden bg-[#1a1a1a] p-10">
+    <div className="relative mt-5 flex h-screen w-full justify-center overflow-hidden bg-[#1a1a1a] py-10">
       <img
         className="h-full w-full object-cover"
         src={NikeShoe}
@@ -49,7 +49,7 @@ const SkateShoeHome = () => {
 
 const FootBallShoeHome = () => {
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-[#1a1a1a] p-10">
+    <div className="relative h-screen w-full overflow-hidden bg-[#1a1a1a] py-10">
       <img
         className="h-full w-full object-cover"
         src={FootBallShoe}
@@ -89,7 +89,7 @@ const FootBallShoeHome = () => {
 
 const NeonSneakerHero = () => {
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-[#070b14] p-10">
+    <div className="relative h-screen w-full overflow-hidden bg-[#070b14] py-10">
       <img
         className="h-full w-full object-cover"
         src={NeonShoe}
@@ -142,7 +142,7 @@ const NeonSneakerHero = () => {
 
 const AirJordenHome = () => {
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-[#1a1a1a] p-10">
+    <div className="relative h-screen w-full overflow-hidden bg-[#1a1a1a] py-10">
       <img
         className="h-full w-full object-cover"
         src={AirJorden}
@@ -181,7 +181,7 @@ const AirJordenHome = () => {
 
 const FormalShoeHome = () => {
   return (
-    <div className="relative flex h-screen w-full flex-col overflow-hidden bg-[#1a1a1a] p-10">
+    <div className="relative flex h-screen w-full flex-col overflow-hidden bg-[#1a1a1a] py-10">
       <img
         className="h-full w-full object-cover"
         src={FormalShoe}
